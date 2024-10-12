@@ -5,6 +5,7 @@ import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import PinInputSheet from "@/components/PinInputSheet";
+import globalStyles from "@/styles/global.styles";
 
 export default function CreatePin() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
@@ -17,7 +18,7 @@ export default function CreatePin() {
 				paddingHorizontal: Colors.spacing * 2,
 			}}
 		>
-			<SafeAreaView style={{ flex: 1 }}>
+			<SafeAreaView style={[{ flex: 1 }, globalStyles.safeAreaViewStyles]}>
 				<TouchableOpacity onPress={() => router.back()}>
 					<Ionicons
 						name="arrow-back-outline"

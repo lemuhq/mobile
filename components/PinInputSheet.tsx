@@ -1,9 +1,10 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import React, { Dispatch, SetStateAction, useContext } from "react";
+import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
 
 import FontIcons from "@expo/vector-icons/Fontisto";
 import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/provider/ThemeProvider";
+import { router } from "expo-router";
 
 interface IProps {
 	header: string;
@@ -29,6 +30,15 @@ export default function PinInputSheet({
 	const handleDeletePress = () => {
 		setPin(pin.slice(0, -1));
 	};
+
+	useEffect(() => {
+		if (pin.length === 6) {
+			//Pop success screen
+
+			//Navigate
+			router.push("/verification");
+		}
+	}, [pin]);
 
 	return (
 		<View style={styles.container}>
