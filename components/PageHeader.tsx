@@ -2,6 +2,7 @@ import { View, Text, StyleSheet } from "react-native";
 import React, { useContext } from "react";
 import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/provider/ThemeProvider";
+import { FONTSIZE } from "@/constants/Theme";
 
 export default function PageHeader({
 	header,
@@ -29,7 +30,7 @@ export default function PageHeader({
 
 const styles = StyleSheet.create({
 	header: {
-		fontSize: 24,
+		fontSize: FONTSIZE.size_24,
 		fontFamily: "PoppinsSemiBold",
 	},
 	subHeader: {

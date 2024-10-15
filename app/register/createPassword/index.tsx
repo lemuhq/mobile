@@ -4,6 +4,8 @@ import {
 	SafeAreaView,
 	TouchableOpacity,
 	StyleSheet,
+	KeyboardAvoidingView,
+	Platform,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
@@ -12,21 +14,36 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { router } from "expo-router";
 import Button from "@/components/Button";
 import PasswordInput from "@/components/inputs/PasswordInput";
+import { StatusBar } from "expo-status-bar";
+import globalStyles from "@/styles/global.styles";
+import { SPACING } from "@/constants/Theme";
 
 export default function CreatePassword() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [password, setPassword] = useState<string>("");
 	const [confirmPassword, setConfirmPassword] = useState<string>("");
 	return (
-		<View
-			style={{
-				flex: 1,
-				backgroundColor: theme.background,
-				paddingHorizontal: Colors.spacing * 2,
-			}}
+		<KeyboardAvoidingView
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			style={{ flex: 1 }}
 		>
-			<SafeAreaView style={{ flex: 1 }}>
-				<View style={[styles.pageContainer, { paddingBottom: 10 }]}>
+			<StatusBar style={isDarkMode ? "light" : "dark"} />
+			<SafeAreaView
+				style={[
+					{
+						flex: 1,
+						backgroundColor: theme.background,
+					},
+					globalStyles.safeAreaViewStyles,
+				]}
+			>
+				<View
+					style={{
+						paddingHorizontal: Colors.spacing * 2,
+						paddingVertical: SPACING.space_10,
+						flex: 1,
+					}}
+				>
 					<TouchableOpacity onPress={() => router.back()}>
 						<Ionicons
 							name="arrow-back-outline"
@@ -34,7 +51,6 @@ export default function CreatePassword() {
 							color={theme.text}
 						/>
 					</TouchableOpacity>
-
 					<Text
 						style={[
 							styles.welcomeH2,
@@ -88,13 +104,12 @@ export default function CreatePassword() {
 					/>
 				</View>
 			</SafeAreaView>
-		</View>
+		</KeyboardAvoidingView>
 	);
 }
 
 const styles = StyleSheet.create({
 	pageContainer: {
-		// paddingHorizontal: 15,
 		paddingTop: 10,
 		flex: 1,
 	},

@@ -1,7 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
-import React, { useContext } from "react";
+import { View, StyleSheet } from "react-native";
+import React from "react";
 import { Colors } from "@/constants/Colors";
-import { ThemeContext } from "@/provider/ThemeProvider";
 
 export default function OnboardingPagination({
 	data,
@@ -10,7 +9,6 @@ export default function OnboardingPagination({
 	data: any[];
 	currentIndex: number;
 }) {
-	const { isDarkMode, theme } = useContext(ThemeContext);
 	return (
 		<View style={styles.container}>
 			{data?.map((_, idx) => (
@@ -19,11 +17,7 @@ export default function OnboardingPagination({
 						styles.line,
 						{
 							backgroundColor:
-								currentIndex >= idx
-									? Colors.orange
-									: isDarkMode
-									? Colors.white
-									: Colors.gray,
+								currentIndex === idx ? Colors.orange : Colors.white,
 						},
 					]}
 					key={idx.toString()}

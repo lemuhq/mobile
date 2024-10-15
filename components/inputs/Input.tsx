@@ -6,9 +6,20 @@ import { Colors } from "@/constants/Colors";
 export default function Input({
 	value,
 	setValue,
+	keyboardType = "default",
+	placeholder,
 }: {
 	value: string;
 	setValue: Dispatch<SetStateAction<string>>;
+	keyboardType?:
+		| "default"
+		| "number-pad"
+		| "decimal-pad"
+		| "numeric"
+		| "email-address"
+		| "phone-pad"
+		| "url";
+	placeholder?: string;
 }) {
 	const [focus, setFocus] = useState(false);
 	return (
@@ -22,10 +33,10 @@ export default function Input({
 			]}
 		>
 			<TextInput
-				placeholder="Enter text"
+				placeholder={placeholder || "Enter text"}
 				style={{ flex: 1 }}
 				value={value}
-				keyboardType="default"
+				keyboardType={keyboardType}
 				onChangeText={setValue}
 				onFocus={() => setFocus(true)}
 				onBlur={() => setFocus(false)}

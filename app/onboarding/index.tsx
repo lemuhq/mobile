@@ -5,6 +5,7 @@ import {
 	SafeAreaView,
 	FlatList,
 	Animated,
+	Image,
 } from "react-native";
 import React, { useContext, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -44,18 +45,38 @@ const Onboarding = () => {
 	return (
 		<View
 			style={{
-				backgroundColor: theme.background,
+				backgroundColor: Colors.orangeTintTwo,
 				flex: 1,
 				justifyContent: "center",
 				alignItems: "center",
+				position: "relative",
 			}}
 		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			<View style={{ flex: 3 }}>
+			<StatusBar style={"dark"} />
+			{/* <Image
+				source={require("../../assets/pattern.png")}
+				style={{
+					position: "absolute",
+					top: 0,
+					left: 0,
+					width: "100%",
+					height: "100%",
+					resizeMode: "cover",
+				}}
+			/> */}
+
+			<View
+				style={{
+					flex: 3,
+					position: "relative",
+					zIndex: 30,
+					backgroundColor: "transparent",
+				}}
+			>
 				<FlatList
 					data={onboardingData}
 					renderItem={({ item, index }) => (
-						<OnboardingItem key={index} item={item} />
+						<OnboardingItem key={index} item={item} index={index} />
 					)}
 					horizontal
 					showsHorizontalScrollIndicator={false}
@@ -75,10 +96,10 @@ const Onboarding = () => {
 			<View
 				style={{
 					flex: 0.5,
-
 					width: "100%",
 					gap: Colors.spacing * 2,
 					paddingHorizontal: Colors.spacing * 2,
+					zIndex: 30,
 				}}
 			>
 				<OnboardingPagination

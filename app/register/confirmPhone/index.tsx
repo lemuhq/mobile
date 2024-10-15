@@ -3,6 +3,8 @@ import {
 	Text,
 	SafeAreaView,
 	StyleSheet,
+	Platform,
+	KeyboardAvoidingView,
 	TouchableOpacity,
 } from "react-native";
 import React, { useContext, useState } from "react";
@@ -12,20 +14,36 @@ import OtpInput from "@/components/inputs/OtpInput";
 import { router } from "expo-router";
 import Button from "@/components/Button";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import globalStyles from "@/styles/global.styles";
+import { StatusBar } from "expo-status-bar";
+import { FONTSIZE, SPACING } from "@/constants/Theme";
 
 export default function ConfirmPhone() {
-	const { isDarkMode, theme } = useContext(ThemeContext);
+	const { theme, isDarkMode } = useContext(ThemeContext);
 	const [otp, setOtp] = useState<string>("");
+
 	return (
-		<View
-			style={{
-				flex: 1,
-				backgroundColor: theme.background,
-				paddingHorizontal: Colors.spacing * 2,
-			}}
+		<KeyboardAvoidingView
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			style={{ flex: 1 }}
 		>
-			<SafeAreaView style={{ flex: 1 }}>
-				<View style={[styles.pageContainer, { paddingBottom: 10 }]}>
+			<StatusBar style={isDarkMode ? "light" : "dark"} />
+			<SafeAreaView
+				style={[
+					{
+						flex: 1,
+						backgroundColor: theme.background,
+					},
+					globalStyles.safeAreaViewStyles,
+				]}
+			>
+				<View
+					style={{
+						paddingHorizontal: Colors.spacing * 2,
+						paddingVertical: SPACING.space_10,
+						flex: 1,
+					}}
+				>
 					<TouchableOpacity onPress={() => router.back()}>
 						<Ionicons
 							name="arrow-back-outline"
@@ -33,7 +51,6 @@ export default function ConfirmPhone() {
 							color={theme.text}
 						/>
 					</TouchableOpacity>
-
 					<Text
 						style={[
 							styles.welcomeH2,
@@ -80,22 +97,21 @@ export default function ConfirmPhone() {
 					</View>
 				</View>
 			</SafeAreaView>
-		</View>
+		</KeyboardAvoidingView>
 	);
 }
 
 const styles = StyleSheet.create({
 	pageContainer: {
-		// paddingHorizontal: 15,
 		paddingTop: 10,
 		flex: 1,
 	},
 	welcomeH2: {
-		fontSize: 28,
+		fontSize: FONTSIZE.size_28,
 		fontFamily: "PoppinsBold",
 	},
 	subText: {
-		fontSize: 11,
+		fontSize: FONTSIZE.size_12,
 		lineHeight: 18,
 		fontFamily: "PoppinsLight",
 	},
