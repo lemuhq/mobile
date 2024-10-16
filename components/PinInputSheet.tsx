@@ -11,6 +11,7 @@ interface IProps {
 	subheader: string;
 	pin: number[];
 	setPin: Dispatch<SetStateAction<number[]>>;
+	pinCount?: number;
 }
 
 export default function PinInputSheet({
@@ -18,11 +19,12 @@ export default function PinInputSheet({
 	subheader,
 	pin,
 	setPin,
+	pinCount = 6,
 }: IProps) {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 
 	const handleNumberPress = (number: number) => {
-		if (pin.length < 6) {
+		if (pin.length < pinCount) {
 			setPin([...pin, number]);
 		}
 	};
@@ -41,7 +43,7 @@ export default function PinInputSheet({
 			</Text>
 
 			<View style={styles.pinContainer}>
-				{Array.from({ length: 6 }, (_, i) => (
+				{Array.from({ length: pinCount }, (_, i) => (
 					<View
 						key={i}
 						style={[

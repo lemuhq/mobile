@@ -6,21 +6,18 @@ import {
 	SafeAreaView,
 	TouchableOpacity,
 } from "react-native";
-import React, { useContext, useState } from "react";
-import { FONTSIZE, SPACING } from "@/constants/Theme";
+import React, { useContext } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { StatusBar } from "expo-status-bar";
 import globalStyles from "@/styles/global.styles";
+import { FONTSIZE, SPACING } from "@/constants/Theme";
 import { router } from "expo-router";
 import Ionicons from "@expo/vector-icons/Ionicons";
-import PageHeader from "@/components/PageHeader";
-import Input from "@/components/inputs/Input";
 import Button from "@/components/Button";
+import PageHeader from "@/components/PageHeader";
 
-export default function NinVerification() {
+export default function FacialRecogntion() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
-	const [ninNumber, setNinNumber] = useState<string>("");
-
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -67,7 +64,7 @@ export default function NinVerification() {
 							}}
 						>
 							<Text style={{ fontFamily: "PoppinsSemiBold" }}>
-								Step 1/
+								Step 2/
 							</Text>
 							3
 						</Text>
@@ -80,21 +77,15 @@ export default function NinVerification() {
 						}}
 					>
 						<PageHeader
-							header="National Identification Number (NIN)"
-							subHeader="To verify your account enter your NIN"
-						/>
-
-						<Input
-							value={ninNumber}
-							setValue={setNinNumber}
-							placeholder="Enter your NIN"
-							keyboardType="number-pad"
+							header="Take a selfie"
+							subHeader="We require this sellfie to verify your identity"
+							variant="center"
 						/>
 					</View>
 					<Button
-						buttonText="Verify NIN"
+						buttonText="Take a selfie"
 						onPress={() => {
-							router.navigate("/verification/facialRecognition");
+							router.navigate("/verification/userInfo");
 						}}
 						isLoading={false}
 						disabled={false}

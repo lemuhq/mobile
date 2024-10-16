@@ -16,11 +16,27 @@ export default function PageHeader({
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	return (
 		<View style={{ gap: Colors.spacing / 4 }}>
-			<Text style={[styles.header, { color: theme.pageTextColor }]}>
+			<Text
+				style={[
+					styles.header,
+					{
+						color: theme.pageTextColor,
+						textAlign: variant === "center" ? "center" : "left",
+					},
+				]}
+			>
 				{header}
 			</Text>
 			{subHeader && (
-				<Text style={[styles.subHeader, { color: theme.text }]}>
+				<Text
+					style={[
+						styles.subHeader,
+						{
+							color: theme.text,
+							textAlign: variant === "center" ? "center" : "left",
+						},
+					]}
+				>
 					{subHeader}
 				</Text>
 			)}
