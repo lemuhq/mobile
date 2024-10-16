@@ -250,7 +250,7 @@ export default function Home() {
 					</View>
 					{/*KYC VIEW*/}
 					<View>
-						<Text>Kyc</Text>
+						<Text>Kyc view </Text>
 					</View>
 				</View>
 			</ScrollView>
