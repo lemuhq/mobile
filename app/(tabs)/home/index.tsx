@@ -5,20 +5,71 @@ import {
 	ScrollView,
 	StyleSheet,
 	Image,
+	Pressable,
 } from "react-native";
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import globalStyles from "@/styles/global.styles";
 import { Colors } from "@/constants/Colors";
-import { BORDERRADIUS, SPACING } from "@/constants/Theme";
+import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import Avatar from "@/components/Avatar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
+import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import Entypo from "@expo/vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
+import Ionicons from "@expo/vector-icons/Ionicons";
 
 export default function Home() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
+	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
+	const widgetsData: { name: string; icon: any }[] = [
+		{
+			name: "Account",
+			icon: () => (
+				<MaterialCommunityIcons
+					name="bank"
+					size={24}
+					color="black"
+					style={{ zIndex: 3 }}
+				/>
+			),
+		},
+		{
+			name: "Send",
+			icon: () => (
+				<FontAwesome5
+					name="telegram-plane"
+					size={24}
+					color="black"
+					style={{ zIndex: 3 }}
+				/>
+			),
+		},
+		{
+			name: "Top-Up",
+			icon: () => (
+				<Entypo
+					name="circle-with-plus"
+					size={24}
+					color="black"
+					style={{ zIndex: 3 }}
+				/>
+			),
+		},
+		{
+			name: "More",
+			icon: () => (
+				<Ionicons
+					name="grid"
+					size={24}
+					color="black"
+					style={{ zIndex: 3 }}
+				/>
+			),
+		},
+	];
 	return (
 		<SafeAreaView
 			style={[
@@ -81,14 +132,87 @@ export default function Home() {
 						</View>
 					</View>
 				</View>
-				<View style={styles.cardContainer}>
+
+				<View style={styles.firstSectionContainer}>
+					{/*Card container*/}
 					<LinearGradient
 						colors={["#3E3E3E", "#1C1C1C"]}
 						style={styles.card}
 					>
 						<View style={styles.cardContentWrapper}>
-							<Text>Card</Text>
+							<View
+								style={{
+									flexDirection: "row",
+									alignItems: "center",
+									justifyContent: "space-between",
+								}}
+							>
+								<Image
+									source={require(`@/assets/lemu-icon.png`)}
+									style={{
+										width: 18,
+										height: 18,
+										resizeMode: "cover",
+									}}
+								/>
+
+								<Text
+									style={{
+										fontSize: FONTSIZE.size_12,
+										color: Colors.white,
+										fontFamily: "PoppinsLight",
+									}}
+								>
+									Show Account Details
+								</Text>
+							</View>
+
+							<View
+								style={{
+									flexDirection: "row",
+									alignItems: "center",
+									justifyContent: "space-between",
+								}}
+							>
+								<View>
+									<Text
+										style={{
+											color: Colors.white,
+											fontSize: FONTSIZE.size_10,
+											fontFamily: "PoppinsRegular",
+										}}
+									>
+										Orange Balance
+									</Text>
+									<Text
+										style={{
+											color: Colors.white,
+											fontSize: FONTSIZE.size_20,
+											fontFamily: "PoppinsSemiBold",
+										}}
+									>
+										<Text>{"\u20A6"}</Text> 3,000
+									</Text>
+								</View>
+
+								<Pressable>
+									{balanceVisible ? (
+										<MaterialCommunityIcons
+											name="eye"
+											size={24}
+											color={Colors.orange}
+										/>
+									) : (
+										<MaterialCommunityIcons
+											name="eye-off"
+											size={24}
+											color={Colors.orange}
+										/>
+									)}
+								</Pressable>
+							</View>
 						</View>
+
 						<View style={styles.cardBackgroundImage}>
 							<Image
 								source={require(`@/assets/card-icons.png`)}
@@ -100,31 +224,35 @@ export default function Home() {
 							/>
 						</View>
 					</LinearGradient>
-					<View>
-						<Text>Buttons</Text>
+					{/*NAVIGATION BUTTONS*/}
+					<View style={styles.widgetsContainer}>
+						{widgetsData.map((item, idx) => (
+							<View key={idx} style={styles.navigationButtons}>
+								<View style={styles.iconWrapper}>
+									{item.icon()}
+									<View
+										style={{
+											width: 15,
+											height: 15,
+											borderRadius: 50,
+											backgroundColor: Colors.orangeTint,
+
+											top: 20,
+											left: 25,
+											position: "absolute",
+											zIndex: 1,
+										}}
+									/>
+								</View>
+								<Text style={styles.widgetLabel}>{item.name}</Text>
+							</View>
+						))}
 					</View>
+					{/*KYC VIEW*/}
 					<View>
 						<Text>Kyc</Text>
 					</View>
 				</View>
-				{/* <View
-					style={{
-						flex: 1,
-						minHeight: 300,
-						backgroundColor: Colors.silver,
-					}}
-				>
-					<Text>Navbar</Text>
-				</View> */}
-				{/* <View
-					style={{
-						flex: 1,
-						minHeight: 300,
-						backgroundColor: Colors.gray,
-					}}
-				>
-					<Text>Navbar</Text>
-				</View> */}
 			</ScrollView>
 		</SafeAreaView>
 	);
@@ -158,9 +286,10 @@ const styles = StyleSheet.create({
 		borderRadius: 200,
 	},
 
-	cardContainer: {
+	firstSectionContainer: {
 		paddingVertical: SPACING.space_30,
 		paddingHorizontal: SPACING.space_20,
+		gap: SPACING.space_30,
 	},
 	card: {
 		height: 180,
@@ -174,12 +303,39 @@ const styles = StyleSheet.create({
 		right: 0,
 		width: 400,
 		height: "100%",
-		opacity: 0.1,
+		opacity: 0.05,
 	},
 	cardContentWrapper: {
 		position: "relative",
-		padding: SPACING.space_10,
+		padding: SPACING.space_20,
 		height: "100%",
 		width: "100%",
+		justifyContent: "space-between",
+	},
+
+	widgetsContainer: {
+		flexDirection: "row",
+		justifyContent: "space-between",
+	},
+
+	navigationButtons: {
+		alignItems: "center",
+		justifyContent: "center",
+		gap: SPACING.space_10 - 5,
+	},
+	iconWrapper: {
+		width: 54,
+		height: 54,
+		borderRadius: 50,
+		position: "relative",
+		backgroundColor: Colors.white,
+		alignItems: "center",
+		justifyContent: "center",
+		zIndex: 2,
+	},
+	widgetLabel: {
+		fontFamily: "PoppinsLight",
+		fontSize: FONTSIZE.size_12,
+		color: Colors.gunMetal,
 	},
 });
