@@ -250,7 +250,7 @@ export default function Home() {
 					</View>
 					{/*KYC VIEW*/}
 					<View>
-						<Text>Kyc view </Text>
+						<Text>Kyc view home screen </Text>
 					</View>
 				</View>
 			</ScrollView>
