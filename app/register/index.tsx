@@ -1,4 +1,11 @@
-import { View, Text, SafeAreaView, StyleSheet, Platform } from "react-native";
+import {
+	View,
+	Text,
+	SafeAreaView,
+	StyleSheet,
+	Platform,
+	KeyboardAvoidingView,
+} from "react-native";
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { StatusBar } from "expo-status-bar";
@@ -7,29 +14,34 @@ import Button from "@/components/Button";
 import { router } from "expo-router";
 import PhoneNumberInput from "@/components/inputs/PhoneNumberInput";
 import globalStyles from "@/styles/global.styles";
+import { SPACING } from "@/constants/Theme";
 
 export default function Register() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [phoneNumber, setPhoneNumber] = useState<string>("");
 
 	return (
-		<View
-			style={{
-				flex: 1,
-				backgroundColor: theme.background,
-				paddingHorizontal: Colors.spacing * 2,
-			}}
+		<KeyboardAvoidingView
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			style={{ flex: 1 }}
 		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<SafeAreaView
 				style={[
 					{
 						flex: 1,
+						backgroundColor: theme.background,
 					},
 					globalStyles.safeAreaViewStyles,
 				]}
 			>
-				<View style={[styles.pageContainer]}>
+				<StatusBar style={isDarkMode ? "light" : "dark"} />
+				<View
+					style={{
+						paddingHorizontal: Colors.spacing * 2,
+						paddingVertical: SPACING.space_10,
+						flex: 1,
+					}}
+				>
 					<Text
 						style={[
 							styles.welcomeH2,
@@ -83,7 +95,7 @@ export default function Register() {
 					/>
 				</View>
 			</SafeAreaView>
-		</View>
+		</KeyboardAvoidingView>
 	);
 }
 

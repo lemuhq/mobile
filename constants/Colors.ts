@@ -6,5 +6,8 @@ export const Colors = {
 	gray: "#292D32",
 	whiteSmoke: "#F5F5F5",
 	lineGray: "#C9CACD",
+	orangeTint: "#F99B6D",
+	orangeTintTwo: "#FFC9AE",
 	spacing: 10,
+	gunMetal: "rgba(52, 57, 62, 1)",
 };

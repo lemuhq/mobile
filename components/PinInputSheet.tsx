@@ -1,9 +1,10 @@
 import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
-import React, { Dispatch, SetStateAction, useContext } from "react";
-
+import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
 import FontIcons from "@expo/vector-icons/Fontisto";
 import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/provider/ThemeProvider";
+import { router } from "expo-router";
+import { FONTSIZE, SPACING } from "@/constants/Theme";
 
 interface IProps {
 	header: string;
@@ -54,7 +55,25 @@ export default function PinInputSheet({
 			</View>
 
 			<View style={styles.keypad}>
-				{[1, 2, 3, 4, 5, 6, 7, 8, 9].map((number) => (
+				{[1, 2, 3].map((number) => (
+					<TouchableOpacity
+						key={number}
+						style={styles.key}
+						onPress={() => handleNumberPress(number)}
+					>
+						<Text style={styles.keyText}>{number}</Text>
+					</TouchableOpacity>
+				))}
+				{[4, 5, 6].map((number) => (
+					<TouchableOpacity
+						key={number}
+						style={styles.key}
+						onPress={() => handleNumberPress(number)}
+					>
+						<Text style={styles.keyText}>{number}</Text>
+					</TouchableOpacity>
+				))}
+				{[7, 8, 9].map((number) => (
 					<TouchableOpacity
 						key={number}
 						style={styles.key}
@@ -92,16 +111,15 @@ const styles = StyleSheet.create({
 		padding: 16,
 	},
 	title: {
-		fontSize: 24,
+		fontSize: FONTSIZE.size_28,
 		fontFamily: "PoppinsBold",
 		textAlign: "center",
 		marginBottom: 8,
 	},
 	subtitle: {
-		fontSize: 11,
-		color: "gray",
+		fontSize: FONTSIZE.size_10 + 1,
 		textAlign: "center",
-		marginBottom: 32,
+		marginBottom: SPACING.space_30,
 		lineHeight: 16.5,
 		fontFamily: "PoppinsLight",
 	},
@@ -132,6 +150,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		flexWrap: "wrap",
 		justifyContent: "center",
+		gap: 10,
 	},
 	key: {
 		width: 80,
