@@ -27,7 +27,7 @@ export default function MoneyInput({
 					left: 10,
 					transform: "translateY(14%)",
 					fontSize: 20,
-					fontWeight: "bold",
+					fontFamily: "PoppinsBold",
 					color: Colors.orange,
 				}}
 			>
@@ -36,6 +36,7 @@ export default function MoneyInput({
 			<TextInput
 				placeholder="Enter text"
 				style={{ flex: 1, paddingLeft: 20 }}
+				placeholderTextColor={Colors.silver}
 				value={value}
 				keyboardType="default"
 				onChangeText={setValue}

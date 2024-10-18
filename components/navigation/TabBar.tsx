@@ -115,19 +115,17 @@ export default TabBar;
 const styles = StyleSheet.create({
 	container: {
 		backgroundColor: Colors.white,
-		height: 100,
+		height: 98,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
 		borderTopWidth: 1,
 		borderTopColor: Colors.silver,
-		paddingBottom: SPACING.space_20,
 		paddingHorizontal: SPACING.space_10 - 5,
 	},
 	scanButton: {
 		width: 58,
 		height: 58,
-		// backgroundColor: Colors.orange,
 		overflow: "hidden",
 		borderRadius: BORDERRADIUS.radius_25 * 2,
 		marginHorizontal: SPACING.space_10,

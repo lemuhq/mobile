@@ -26,6 +26,7 @@ export default function PasswordInput({
 		>
 			<TextInput
 				placeholder="Enter Password"
+				placeholderTextColor={Colors.silver}
 				style={{ flex: 1 }}
 				value={value}
 				keyboardType="default"

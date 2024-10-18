@@ -1,12 +1,4 @@
-import {
-	View,
-	Text,
-	TouchableOpacity,
-	SafeAreaView,
-	FlatList,
-	Animated,
-	Image,
-} from "react-native";
+import { View, FlatList, Animated, Platform } from "react-native";
 import React, { useContext, useRef, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ThemeContext } from "@/provider/ThemeProvider";
@@ -16,6 +8,7 @@ import OnboardingPagination from "@/components/OnboardingPagination";
 import Button from "@/components/Button";
 import { Colors } from "@/constants/Colors";
 import { router } from "expo-router";
+import { SPACING } from "@/constants/Theme";
 
 const Onboarding = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
@@ -53,17 +46,6 @@ const Onboarding = () => {
 			}}
 		>
 			<StatusBar style={"dark"} />
-			{/* <Image
-				source={require("../../assets/pattern.png")}
-				style={{
-					position: "absolute",
-					top: 0,
-					left: 0,
-					width: "100%",
-					height: "100%",
-					resizeMode: "cover",
-				}}
-			/> */}
 
 			<View
 				style={{
@@ -95,11 +77,20 @@ const Onboarding = () => {
 
 			<View
 				style={{
-					flex: 0.5,
+					// flex: 0.5,
 					width: "100%",
 					gap: Colors.spacing * 2,
 					paddingHorizontal: Colors.spacing * 2,
 					zIndex: 30,
+					backgroundColor: "transparent",
+					position: "absolute",
+					bottom: 0,
+					justifyContent: "space-between",
+					alignItems: "center",
+					paddingTop:
+						Platform.OS === "ios" ? SPACING.space_10 : SPACING.space_10,
+					paddingBottom:
+						Platform.OS === "ios" ? SPACING.space_24 : SPACING.space_10,
 				}}
 			>
 				<OnboardingPagination

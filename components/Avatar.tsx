@@ -12,8 +12,8 @@ export default function Avatar({ imageUrl, variant = "md" }: IProps) {
 			style={[
 				styles.avatar,
 				{
-					width: variant === "sm" ? 30 : variant === "md" ? 70 : 93,
-					height: variant === "sm" ? 30 : variant === "md" ? 70 : 93,
+					width: variant === "sm" ? 25 : variant === "md" ? 70 : 93,
+					height: variant === "sm" ? 25 : variant === "md" ? 70 : 93,
 				},
 			]}
 		>

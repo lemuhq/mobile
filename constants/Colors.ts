@@ -11,4 +11,5 @@ export const Colors = {
 	spacing: 10,
 	gunMetal: "rgba(52, 57, 62, 1)",
 	silver: "#C9CACD",
+	blue: "#373DA2",
 };
