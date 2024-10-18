@@ -10,7 +10,7 @@ import globalStyles from "@/styles/global.styles";
 import { Colors } from "@/constants/Colors";
 import { SPACING } from "@/constants/Theme";
 
-export default function TransactionPin() {
+export default function ConfirmTransactionPin() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [pin, setPin] = useState<number[]>([]);
 	const [isSuccess, setIsSuccess] = useState<boolean>(false);
@@ -22,7 +22,7 @@ export default function TransactionPin() {
 			}, 2000);
 
 			setTimeout(() => {
-				router.push("/verification/transactionPin/confirmTransactionPin");
+				router.push("/(tabs)/home");
 			}, 5000);
 		}
 	}, [pin]);
@@ -65,7 +65,7 @@ export default function TransactionPin() {
 							/>
 						</TouchableOpacity>
 						<PinInputSheet
-							header="Set up transaction Pin"
+							header="Confirm transaction Pin"
 							subheader="Create a 4 digit pin for all your transactions"
 							pin={pin}
 							setPin={setPin}

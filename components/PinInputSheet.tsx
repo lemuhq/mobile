@@ -5,6 +5,7 @@ import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { router } from "expo-router";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
+import { StatusBar } from "expo-status-bar";
 
 interface IProps {
 	header: string;
@@ -35,6 +36,7 @@ export default function PinInputSheet({
 
 	return (
 		<View style={styles.container}>
+			<StatusBar style={"light"} />
 			<Text style={[styles.title, { color: theme.pageTextColor }]}>
 				{header}
 			</Text>
@@ -109,11 +111,9 @@ export default function PinInputSheet({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		//  justifyContent: 'center',
-		padding: 16,
 	},
 	title: {
-		fontSize: FONTSIZE.size_28,
+		fontSize: FONTSIZE.size_24,
 		fontFamily: "PoppinsBold",
 		textAlign: "center",
 		marginBottom: 8,
@@ -128,7 +128,7 @@ const styles = StyleSheet.create({
 	pinContainer: {
 		flexDirection: "row",
 		justifyContent: "center",
-		marginTop: 30,
+		// marginTop: 30,s
 		marginBottom: 50,
 	},
 	circle: {
@@ -153,6 +153,8 @@ const styles = StyleSheet.create({
 		flexWrap: "wrap",
 		justifyContent: "center",
 		gap: 10,
+
+		flex: 1,
 	},
 	key: {
 		width: 80,

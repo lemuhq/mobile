@@ -44,7 +44,7 @@ export default function PhoneNumberInput({
 						style={{
 							fontSize: 14,
 							color: Colors.black,
-							fontWeight: "600",
+							fontFamily: "PoppinsSemiBold",
 						}}
 					>
 						+234
@@ -57,6 +57,7 @@ export default function PhoneNumberInput({
 				<View style={{ width: "100%", flex: 1 }}>
 					<TextInput
 						placeholder="Enter Phone Number"
+						placeholderTextColor={Colors.silver}
 						style={inputStyles.phoneInput}
 						value={value}
 						keyboardType="numeric"
