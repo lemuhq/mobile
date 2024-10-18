@@ -1,4 +1,4 @@
-import { View, SafeAreaView, TouchableOpacity } from "react-native";
+import { View, SafeAreaView, TouchableOpacity, Platform } from "react-native";
 import React, { useContext, useState, useEffect } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { Colors } from "@/constants/Colors";
@@ -41,25 +41,33 @@ export default function CreatePin() {
 						{
 							flex: 1,
 							backgroundColor: theme.background,
+							paddingTop:
+								Platform.OS === "android" ? SPACING.space_30 : 0,
+							paddingBottom:
+								Platform.OS === "android" ? SPACING.space_10 : 0,
 						},
-						globalStyles.safeAreaViewStyles,
 					]}
 				>
 					<StatusBar style={isDarkMode ? "light" : "dark"} />
 					<View
 						style={{
-							paddingHorizontal: SPACING.space_20,
-
 							flex: 1,
 						}}
 					>
-						<TouchableOpacity onPress={() => router.back()}>
-							<Ionicons
-								name="arrow-back-outline"
-								size={30}
-								color={theme.text}
-							/>
-						</TouchableOpacity>
+						<View
+							style={{
+								paddingHorizontal: SPACING.space_20,
+								marginBottom: SPACING.space_10,
+							}}
+						>
+							<TouchableOpacity onPress={() => router.back()}>
+								<Ionicons
+									name="arrow-back-outline"
+									size={30}
+									color={theme.text}
+								/>
+							</TouchableOpacity>
+						</View>
 						<PinInputSheet
 							header="Create Login Pin"
 							subheader=" To log into your account securely, you need to create a login pin. Please don’t share this with anyone."

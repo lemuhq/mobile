@@ -4,6 +4,8 @@ import { ThemeProvider } from "@/provider/ThemeProvider";
 import { useFonts } from "expo-font";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
+import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 const RootLayout = () => {
 	const [loaded, error] = useFonts({
@@ -22,7 +24,11 @@ const RootLayout = () => {
 	return (
 		<ThemeProvider>
 			<Provider store={store}>
-				<Slot />
+				<GestureHandlerRootView style={{ flex: 1 }}>
+					<BottomSheetModalProvider>
+						<Slot />
+					</BottomSheetModalProvider>
+				</GestureHandlerRootView>
 			</Provider>
 		</ThemeProvider>
 	);

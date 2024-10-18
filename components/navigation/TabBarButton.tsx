@@ -1,5 +1,5 @@
 import { View, Text, Pressable, StyleSheet } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import { RoutesProps } from "./TabBar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -7,6 +7,7 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Feather from "@expo/vector-icons/Feather";
 import { Colors } from "@/constants/Colors";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
+import { ThemeContext } from "@/provider/ThemeProvider";
 
 interface IProps {
 	isFocused: boolean;
@@ -23,6 +24,7 @@ export default function TabBarButton({
 	onPress,
 }: BarButtonProps) {
 	const customName: string = name?.split("/")[0]!;
+	const { isDarkMode, theme } = useContext(ThemeContext);
 
 	const icons = {
 		home: (props: any) => (
@@ -57,7 +59,7 @@ export default function TabBarButton({
 						<View key={index}>
 							{/*@ts-ignore*/}
 							{icons[icon]({
-								color: isFocused ? Colors.orange : Colors.black,
+								color: isFocused ? Colors.orange : theme.text,
 							})}
 						</View>
 					)
@@ -66,7 +68,7 @@ export default function TabBarButton({
 				style={[
 					styles.buttonLabel,
 					{
-						color: isFocused ? Colors.orange : Colors.black,
+						color: isFocused ? Colors.orange : theme.text,
 						fontFamily: isFocused ? "PoppinsSemiBold" : "PoppinsLight",
 					},
 				]}
