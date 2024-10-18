@@ -54,7 +54,10 @@ export default function TransactionPin() {
 							flex: 1,
 						}}
 					>
-						<TouchableOpacity onPress={() => router.back()}>
+						<TouchableOpacity
+							onPress={() => router.back()}
+							style={{ marginBottom: SPACING.space_20 }}
+						>
 							<Ionicons
 								name="arrow-back-outline"
 								size={30}
@@ -62,8 +65,8 @@ export default function TransactionPin() {
 							/>
 						</TouchableOpacity>
 						<PinInputSheet
-							header="Create Login Pin"
-							subheader=" To log into your account securely, you need to create a login pin. Please don’t share this with anyone."
+							header="Set up transaction Pin"
+							subheader="Create a 4 digit pin for all your transactions"
 							pin={pin}
 							setPin={setPin}
 							pinCount={4}

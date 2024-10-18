@@ -4,6 +4,7 @@ import { RoutesProps } from "./TabBar";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import Feather from "@expo/vector-icons/Feather";
 import { Colors } from "@/constants/Colors";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 
@@ -44,7 +45,7 @@ export default function TabBarButton({
 			/>
 		),
 		profile: (props: any) => (
-			<FontAwesome5 name="user" size={24} color={props.color} {...props} />
+			<Feather name="user" size={24} color={props.color} {...props} />
 		),
 	};
 
@@ -53,7 +54,7 @@ export default function TabBarButton({
 			{Object.keys(icons).map(
 				(icon, index) =>
 					icon === customName && (
-						<View style={{ marginLeft: 10 }} key={index}>
+						<View key={index}>
 							{/*@ts-ignore*/}
 							{icons[icon]({
 								color: isFocused ? Colors.orange : Colors.black,
@@ -80,14 +81,14 @@ const styles = StyleSheet.create({
 	buttonContainer: {
 		justifyContent: "center",
 		alignItems: "center",
+		height: "100%",
 		flex: 1,
 	},
 
 	buttonLabel: {
-		fontSize: FONTSIZE.size_14,
+		fontSize: FONTSIZE.size_10,
 		textAlign: "center",
-		marginLeft: 10,
-		marginTop: SPACING.space_10 - 5,
+
 		textTransform: "capitalize",
 	},
 });

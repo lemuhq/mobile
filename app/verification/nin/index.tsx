@@ -24,7 +24,8 @@ export default function NinVerification() {
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			style={{ flex: 1 }}
+			keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+			style={{ flex: 1, backgroundColor: theme.background }}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<SafeAreaView
@@ -38,8 +39,7 @@ export default function NinVerification() {
 			>
 				<View
 					style={{
-						paddingBottom: SPACING.space_10,
-						paddingTop: SPACING.space_36,
+						paddingTop: SPACING.space_10,
 						paddingHorizontal: SPACING.space_20,
 						flex: 1,
 					}}

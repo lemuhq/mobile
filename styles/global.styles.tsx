@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { SPACING } from "@/constants/Theme";
 import { Platform, StyleSheet } from "react-native";
 
 const globalStyles = StyleSheet.create({
@@ -13,11 +14,14 @@ const globalStyles = StyleSheet.create({
 		borderBottomWidth: 0,
 		borderRadius: 11,
 		color: Colors.orange,
+		flex: 1,
+
+		height: 55,
 	},
 
 	safeAreaViewStyles: {
-		paddingTop: Platform.OS === "android" ? 50 : 0,
-		paddingBottom: Platform.OS === "android" ? 30 : 0,
+		paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
+		paddingBottom: Platform.OS === "android" ? SPACING.space_30 : 0,
 	},
 });
 

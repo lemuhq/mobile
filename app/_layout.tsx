@@ -2,6 +2,8 @@ import React from "react";
 import { Slot } from "expo-router";
 import { ThemeProvider } from "@/provider/ThemeProvider";
 import { useFonts } from "expo-font";
+import { Provider } from "react-redux";
+import { store } from "@/redux/store";
 
 const RootLayout = () => {
 	const [loaded, error] = useFonts({
@@ -19,7 +21,9 @@ const RootLayout = () => {
 
 	return (
 		<ThemeProvider>
-			<Slot />
+			<Provider store={store}>
+				<Slot />
+			</Provider>
 		</ThemeProvider>
 	);
 };

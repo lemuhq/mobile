@@ -109,8 +109,6 @@ export default function PinInputSheet({
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		//  justifyContent: 'center',
-		padding: 16,
 	},
 	title: {
 		fontSize: FONTSIZE.size_28,
@@ -128,7 +126,7 @@ const styles = StyleSheet.create({
 	pinContainer: {
 		flexDirection: "row",
 		justifyContent: "center",
-		marginTop: 30,
+		// marginTop: 30,s
 		marginBottom: 50,
 	},
 	circle: {
@@ -153,6 +151,8 @@ const styles = StyleSheet.create({
 		flexWrap: "wrap",
 		justifyContent: "center",
 		gap: 10,
+
+		flex: 1,
 	},
 	key: {
 		width: 80,

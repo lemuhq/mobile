@@ -25,7 +25,8 @@ export default function ConfirmPhone() {
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			style={{ flex: 1 }}
+			keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+			style={{ flex: 1, backgroundColor: theme.background }}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<SafeAreaView
@@ -39,8 +40,8 @@ export default function ConfirmPhone() {
 			>
 				<View
 					style={{
-						paddingHorizontal: Colors.spacing * 2,
-						paddingVertical: SPACING.space_10,
+						paddingHorizontal: SPACING.space_20,
+
 						flex: 1,
 					}}
 				>
@@ -107,7 +108,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	welcomeH2: {
-		fontSize: FONTSIZE.size_28,
+		fontSize: FONTSIZE.size_24,
 		fontFamily: "PoppinsBold",
 	},
 	subText: {

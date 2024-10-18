@@ -6,6 +6,7 @@ import {
 	TouchableOpacity,
 	Image,
 	FlatList,
+	ScrollView,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
@@ -54,8 +55,7 @@ export default function Verification() {
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<View
 				style={{
-					paddingBottom: SPACING.space_10,
-					paddingTop: SPACING.space_36,
+					paddingTop: SPACING.space_10,
 					paddingHorizontal: SPACING.space_20,
 					flex: 1,
 				}}
@@ -64,88 +64,87 @@ export default function Verification() {
 					header="Identy Verfication"
 					subHeader="We need this information to upgrade your account and to legally verify who you are."
 				/>
+				<ScrollView
+					showsHorizontalScrollIndicator={false}
+					contentContainerStyle={{
+						flex: 1,
+						gap: SPACING.space_20,
+						marginTop: SPACING.space_20,
+					}}
+				>
+					{data?.map((item, index) => (
+						<TouchableOpacity
+							key={item.slug}
+							onPress={() => {
+								setSelectedSlug(item.slug);
+								setTimeout(() => {
+									router.push(`/verification/nin`);
+								}, 2000);
+							}}
+						>
+							<View
+								style={[
+									styles.card,
+									{
+										borderColor:
+											selectedSlug === item.slug
+												? Colors.orangeTintTwo
+												: Colors.whiteSmoke,
+									},
+								]}
+							>
+								<View style={styles.logoContainer}>
+									{item.slug === "nin" && (
+										<Image
+											source={require(`@/assets/nin-logo.png`)}
+											style={styles.logo}
+										/>
+									)}
+									{item.slug === "bvn" && (
+										<MaterialCommunityIcons
+											name="bank"
+											size={24}
+											color={
+												isDarkMode ? Colors.orange : Colors.black
+											}
+										/>
+									)}
+									{item.slug === "passport" && (
+										<FontAwesome5
+											name="user"
+											size={24}
+											color={
+												isDarkMode ? Colors.orange : Colors.black
+											}
+										/>
+									)}
+								</View>
+								<Text
+									style={[
+										styles.headerText,
+										{ color: theme.pageTextColor },
+									]}
+								>
+									{item.header}
+								</Text>
+								<Text
+									style={[styles.subHeaderText, { color: theme.text }]}
+								>
+									{item.subHeader}
+								</Text>
+							</View>
+						</TouchableOpacity>
+					))}
+				</ScrollView>
 
-				<View
+				{/* <View
 					style={{
 						flex: 1,
 						marginTop: SPACING.space_20 * 2,
 					}}
 				>
-					<FlatList
-						data={data}
-						renderItem={({ item, index }) => (
-							<TouchableOpacity
-								key={item.slug}
-								onPress={() => {
-									setSelectedSlug(item.slug);
-									setTimeout(() => {
-										router.push(`/verification/nin`);
-									}, 2000);
-								}}
-							>
-								<View
-									style={[
-										styles.card,
-										{
-											borderColor:
-												selectedSlug === item.slug
-													? Colors.orangeTintTwo
-													: Colors.whiteSmoke,
-										},
-									]}
-								>
-									<View style={styles.logoContainer}>
-										{item.slug === "nin" && (
-											<Image
-												source={require(`@/assets/nin-logo.png`)}
-												style={styles.logo}
-											/>
-										)}
-										{item.slug === "bvn" && (
-											<MaterialCommunityIcons
-												name="bank"
-												size={24}
-												color={
-													isDarkMode ? Colors.orange : Colors.black
-												}
-											/>
-										)}
-										{item.slug === "passport" && (
-											<FontAwesome5
-												name="user"
-												size={24}
-												color={
-													isDarkMode ? Colors.orange : Colors.black
-												}
-											/>
-										)}
-									</View>
-									<Text
-										style={[
-											styles.headerText,
-											{ color: theme.pageTextColor },
-										]}
-									>
-										{item.header}
-									</Text>
-									<Text
-										style={[
-											styles.subHeaderText,
-											{ color: theme.text },
-										]}
-									>
-										{item.subHeader}
-									</Text>
-								</View>
-							</TouchableOpacity>
-						)}
-						contentContainerStyle={{
-							flex: 1,
-							gap: SPACING.space_30,
-						}}
-						showsVerticalScrollIndicator={false}
-					/>
-				</View>
+					
+				</View> */}
 			</View>
 		</SafeAreaView>
 	);

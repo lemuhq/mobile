@@ -25,7 +25,8 @@ export default function CreatePassword() {
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			style={{ flex: 1 }}
+			keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+			style={{ flex: 1, backgroundColor: theme.background }}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<SafeAreaView
@@ -39,8 +40,8 @@ export default function CreatePassword() {
 			>
 				<View
 					style={{
-						paddingHorizontal: Colors.spacing * 2,
-						paddingVertical: SPACING.space_10,
+						paddingHorizontal: SPACING.space_20,
+
 						flex: 1,
 					}}
 				>

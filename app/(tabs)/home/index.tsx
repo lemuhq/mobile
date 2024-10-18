@@ -6,6 +6,7 @@ import {
 	StyleSheet,
 	Image,
 	Pressable,
+	Platform,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -20,6 +21,39 @@ import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
 import Entypo from "@expo/vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@expo/vector-icons/Ionicons";
+import TransactionItem from "@/components/TransactionItem";
+
+const transactionData: {
+	status: "success" | "failed" | "pending";
+	amount: string;
+	type: string;
+	date: string;
+}[] = [
+	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
+	{
+		status: "pending",
+		type: "Credit",
+		amount: "1,000",
+		date: "Today 12:30pm",
+	},
+	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
+	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
+	{
+		status: "pending",
+		type: "Credit",
+		amount: "1,000",
+		date: "Today 12:30pm",
+	},
+	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
+	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
+	{
+		status: "pending",
+		type: "Credit",
+		amount: "1,000",
+		date: "Today 12:30pm",
+	},
+	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
+];
 
 export default function Home() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
@@ -70,17 +104,19 @@ export default function Home() {
 			),
 		},
 	];
+
 	return (
 		<SafeAreaView
 			style={[
 				{
 					flex: 1,
 					backgroundColor: isDarkMode ? Colors.gray : Colors.white,
+					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
 				},
-				globalStyles.safeAreaViewStyles,
 			]}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
+
 			<ScrollView
 				style={[
 					styles.scrollViewContainer,
@@ -90,8 +126,8 @@ export default function Home() {
 				]}
 				alwaysBounceVertical={false}
 				showsVerticalScrollIndicator={false}
-				stickyHeaderHiddenOnScroll={false}
 				stickyHeaderIndices={[0]}
+				contentContainerStyle={{ flex: 0 }}
 			>
 				<View
 					style={[
@@ -132,9 +168,7 @@ export default function Home() {
 						</View>
 					</View>
 				</View>
-
 				<View style={styles.firstSectionContainer}>
-					{/*Card container*/}
 					<LinearGradient
 						colors={["#3E3E3E", "#1C1C1C"]}
 						style={styles.card}
@@ -224,7 +258,7 @@ export default function Home() {
 							/>
 						</View>
 					</LinearGradient>
-					{/*NAVIGATION BUTTONS*/}
+
 					<View style={styles.widgetsContainer}>
 						{widgetsData.map((item, idx) => (
 							<View key={idx} style={styles.navigationButtons}>
@@ -248,9 +282,122 @@ export default function Home() {
 							</View>
 						))}
 					</View>
-					{/*KYC VIEW*/}
-					<View>
-						<Text>Kyc view home screen </Text>
+				</View>
+				<View
+					style={{
+						borderTopWidth: 1,
+						borderColor: "#34393E40",
+						paddingVertical: SPACING.space_20,
+						paddingHorizontal: SPACING.space_20,
+						backgroundColor: Colors.whiteSmoke,
+					}}
+				>
+					<View style={styles.kycWrapper}>
+						<Text style={styles.kycText}>
+							Get your flame on with Lemu.
+						</Text>
+						<Text style={styles.kycText}>
+							<Text style={{ color: Colors.orangeTint }}>
+								Update your KYC
+							</Text>
+							information today!.
+						</Text>
+
+						<Image
+							source={require(`@/assets/kyc.png`)}
+							style={{
+								width: 135,
+								height: 135,
+								position: "absolute",
+								bottom: -39,
+								right: 0,
+								resizeMode: "contain",
+							}}
+						/>
+					</View>
+				</View>
+				<View style={{ backgroundColor: Colors.white, flex: 1 }}>
+					<View style={styles.trendContainer}>
+						<Text
+							style={{
+								fontFamily: "PoppinsSemiBold",
+								// fontWeight: "500",
+								fontSize: FONTSIZE.size_14 - 1,
+								color: Colors.black,
+							}}
+						>
+							Trending today
+						</Text>
+						<LinearGradient
+							colors={["#F99B6D", "#FF6113"]}
+							style={styles.trendItem}
+						>
+							<Text style={styles.trendHeader}>Orange sure looks</Text>
+							<Text style={styles.trendHeader}>good on you!</Text>
+							<Text
+								style={{
+									fontFamily: "PoppinsRegular",
+									fontSize: FONTSIZE.size_10 - 2,
+									color: Colors.black,
+									zIndex: 3,
+								}}
+							>
+								Get cashback on every transaction
+							</Text>
+							<Image
+								source={require(`@/assets/trend-person.png`)}
+								style={{
+									width: 220,
+									height: 200,
+									resizeMode: "contain",
+									position: "absolute",
+									top: -40,
+									right: -10,
+									zIndex: 2,
+								}}
+							/>
+
+							<Image
+								source={require(`@/assets/trend-pattern.png`)}
+								style={{
+									width: 230,
+									height: 180,
+									resizeMode: "contain",
+									position: "absolute",
+									top: -38,
+									right: -40,
+								}}
+							/>
+						</LinearGradient>
+					</View>
+
+					<View style={{ backgroundColor: Colors.white, flex: 1 }}>
+						{/*Transaction header*/}
+						<View style={styles.transactionHeader}>
+							<Text>Transaction History</Text>
+
+							<Pressable style={styles.viewButton}>
+								<Text
+									style={{
+										color: Colors.orange,
+										fontFamily: "PoppinsSemiBold",
+										fontSize: FONTSIZE.size_10 + 3,
+									}}
+								>
+									View all
+								</Text>
+								<MaterialIcons
+									name="keyboard-arrow-right"
+									size={20}
+									color={Colors.orange}
+								/>
+							</Pressable>
+						</View>
+						<View style={styles.transactionContainer}>
+							{transactionData.map((transaction, index) => (
+								<TransactionItem key={index} {...transaction} />
+							))}
+						</View>
 					</View>
 				</View>
 			</ScrollView>
@@ -290,6 +437,7 @@ const styles = StyleSheet.create({
 		paddingVertical: SPACING.space_30,
 		paddingHorizontal: SPACING.space_20,
 		gap: SPACING.space_30,
+		backgroundColor: Colors.whiteSmoke,
 	},
 	card: {
 		height: 180,
@@ -337,5 +485,65 @@ const styles = StyleSheet.create({
 		fontFamily: "PoppinsLight",
 		fontSize: FONTSIZE.size_12,
 		color: Colors.gunMetal,
+	},
+	kycWrapper: {
+		backgroundColor: Colors.blue,
+		paddingHorizontal: SPACING.space_20,
+		paddingVertical: SPACING.space_15,
+		position: "relative",
+		overflow: "hidden",
+		width: "100%",
+		borderRadius: BORDERRADIUS.radius_10,
+		flex: 1,
+	},
+	kycText: {
+		textAlign: "left",
+		fontSize: FONTSIZE.size_12,
+		color: Colors.white,
+		lineHeight: 18,
+		fontFamily: "PoppinsSemiBold",
+		// paddingHorizontal: SPACING.space_10,
+	},
+	trendContainer: {
+		// backgroundColor: Colors.white,
+		paddingHorizontal: SPACING.space_20,
+		paddingVertical: SPACING.space_20,
+		gap: SPACING.space_10,
+	},
+	trendItem: {
+		paddingHorizontal: SPACING.space_20,
+		paddingVertical: SPACING.space_20,
+		minHeight: 109,
+		borderRadius: BORDERRADIUS.radius_10,
+		overflow: "hidden",
+		justifyContent: "center",
+		position: "relative",
+	},
+	trendHeader: {
+		fontSize: FONTSIZE.size_20,
+		color: Colors.black,
+		lineHeight: 22,
+		fontFamily: "PoppinsSemiBold",
+		zIndex: 3,
+	},
+	transactionHeader: {
+		paddingVertical: SPACING.space_10,
+		paddingHorizontal: SPACING.space_20,
+		backgroundColor: Colors.whiteSmoke,
+		borderTopRightRadius: BORDERRADIUS.radius_20,
+		borderTopLeftRadius: BORDERRADIUS.radius_20,
+		flexDirection: "row",
+		justifyContent: "space-between",
+		alignItems: "center",
+	},
+	viewButton: {
+		flexDirection: "row",
+		alignItems: "center",
+	},
+	transactionContainer: {
+		paddingBottom: SPACING.space_10,
+		paddingHorizontal: SPACING.space_20,
+		flex: 1,
+		paddingTop: SPACING.space_10 - 5,
 	},
 });

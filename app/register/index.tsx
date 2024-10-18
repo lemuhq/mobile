@@ -23,7 +23,8 @@ export default function Register() {
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			style={{ flex: 1 }}
+			keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
+			style={{ flex: 1, backgroundColor: theme.background }}
 		>
 			<SafeAreaView
 				style={[
@@ -37,8 +38,7 @@ export default function Register() {
 				<StatusBar style={isDarkMode ? "light" : "dark"} />
 				<View
 					style={{
-						paddingHorizontal: Colors.spacing * 2,
-						paddingVertical: SPACING.space_10,
+						paddingHorizontal: SPACING.space_20,
 						flex: 1,
 					}}
 				>
@@ -56,7 +56,7 @@ export default function Register() {
 
 					<View
 						style={{
-							marginTop: 25,
+							marginTop: SPACING.space_30,
 							flex: 1,
 						}}
 					>
@@ -74,11 +74,21 @@ export default function Register() {
 							]}
 						>
 							By clicking "continue", you confirm that you agree to our{" "}
-							<Text style={{ fontWeight: "600", color: Colors.orange }}>
+							<Text
+								style={{
+									fontFamily: "PoppinsSemiBold",
+									color: Colors.orange,
+								}}
+							>
 								Terms and Conditions
 							</Text>{" "}
 							and{" "}
-							<Text style={{ fontWeight: "600", color: Colors.orange }}>
+							<Text
+								style={{
+									fontFamily: "PoppinsSemiBold",
+									color: Colors.orange,
+								}}
+							>
 								Privacy Policy.
 							</Text>
 						</Text>

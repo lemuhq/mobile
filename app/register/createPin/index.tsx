@@ -48,8 +48,8 @@ export default function CreatePin() {
 					<StatusBar style={isDarkMode ? "light" : "dark"} />
 					<View
 						style={{
-							paddingHorizontal: Colors.spacing * 2,
-							paddingVertical: SPACING.space_10,
+							paddingHorizontal: SPACING.space_20,
+
 							flex: 1,
 						}}
 					>

@@ -34,6 +34,7 @@ export default function Input({
 		>
 			<TextInput
 				placeholder={placeholder || "Enter text"}
+				placeholderTextColor={Colors.silver}
 				style={{ flex: 1 }}
 				value={value}
 				keyboardType={keyboardType}
