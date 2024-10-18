@@ -32,8 +32,9 @@ export default function OnboardingItem({
 			style={[
 				{
 					flex: 1,
+					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
+					paddingBottom: Platform.OS === "android" ? SPACING.space_10 : 0,
 				},
-				globalStyles.safeAreaViewStyles,
 			]}
 		>
 			<View style={{ flex: 1, width: width }}>

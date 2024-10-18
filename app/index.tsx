@@ -13,6 +13,8 @@ const App = () => {
 			await new Promise((resolve) => setTimeout(resolve, 2000));
 			if (!user) {
 				router.navigate("/onboarding");
+			} else {
+				router.navigate("/(tabs)/home");
 			}
 		};
 

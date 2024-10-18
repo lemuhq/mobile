@@ -1,8 +1,9 @@
 import { View, Text, StyleSheet } from "react-native";
-import React from "react";
+import React, { useContext } from "react";
 import { Colors } from "@/constants/Colors";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 import TransactionStatus from "./TransactionStatus";
+import { ThemeContext } from "@/provider/ThemeProvider";
 
 export default function TransactionItem({
 	amount,
@@ -15,6 +16,7 @@ export default function TransactionItem({
 	type: string;
 	date: string;
 }) {
+	const { isDarkMode, theme } = useContext(ThemeContext);
 	return (
 		<View style={styles.container}>
 			<View>
@@ -23,6 +25,7 @@ export default function TransactionItem({
 						style={{
 							fontSize: FONTSIZE.size_14,
 							fontFamily: "PoppinsSemiBold",
+							color: theme.text,
 						}}
 					>
 						{type}
@@ -33,6 +36,7 @@ export default function TransactionItem({
 					style={{
 						fontSize: FONTSIZE.size_10,
 						fontFamily: "PoppinsLight",
+						color: theme.text,
 					}}
 				>
 					{date}
@@ -41,7 +45,7 @@ export default function TransactionItem({
 			<Text
 				style={{
 					fontSize: FONTSIZE.size_16,
-					color: Colors.black,
+					color: theme.text,
 					fontFamily: "PoppinsSemiBold",
 				}}
 			>

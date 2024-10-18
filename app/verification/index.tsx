@@ -7,6 +7,7 @@ import {
 	Image,
 	FlatList,
 	ScrollView,
+	Platform,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
@@ -48,8 +49,9 @@ export default function Verification() {
 				{
 					flex: 1,
 					backgroundColor: theme.background,
+					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
+					paddingBottom: Platform.OS === "android" ? SPACING.space_10 : 0,
 				},
-				globalStyles.safeAreaViewStyles,
 			]}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />

@@ -7,6 +7,7 @@ import {
 	Image,
 	Pressable,
 	Platform,
+	TouchableOpacity,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -22,6 +23,7 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TransactionItem from "@/components/TransactionItem";
+import TransactionModal from "@/components/modals/TransactionModal";
 
 const transactionData: {
 	status: "success" | "failed" | "pending";
@@ -58,6 +60,8 @@ const transactionData: {
 export default function Home() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
+	const [transactionModalVisible, setTransactionModalVisible] =
+		useState<boolean>(false);
 	const widgetsData: { name: string; icon: any }[] = [
 		{
 			name: "Account",
@@ -163,14 +167,27 @@ export default function Home() {
 							<MaterialCommunityIcons
 								name="bell-outline"
 								size={24}
-								color="black"
+								color={isDarkMode ? Colors.orange : Colors.black}
 							/>
 						</View>
 					</View>
 				</View>
-				<View style={styles.firstSectionContainer}>
+				<View
+					style={[
+						styles.firstSectionContainer,
+						{
+							backgroundColor: isDarkMode
+								? Colors.gray
+								: Colors.whiteSmoke,
+						},
+					]}
+				>
 					<LinearGradient
-						colors={["#3E3E3E", "#1C1C1C"]}
+						colors={
+							isDarkMode
+								? [Colors.orangeTint, Colors.orange]
+								: ["#3E3E3E", "#1C1C1C"]
+						}
 						style={styles.card}
 					>
 						<View style={styles.cardContentWrapper}>
@@ -193,7 +210,7 @@ export default function Home() {
 								<Text
 									style={{
 										fontSize: FONTSIZE.size_12,
-										color: Colors.white,
+										color: isDarkMode ? Colors.black : Colors.white,
 										fontFamily: "PoppinsLight",
 									}}
 								>
@@ -211,7 +228,9 @@ export default function Home() {
 								<View>
 									<Text
 										style={{
-											color: Colors.white,
+											color: isDarkMode
+												? Colors.black
+												: Colors.white,
 											fontSize: FONTSIZE.size_10,
 											fontFamily: "PoppinsRegular",
 										}}
@@ -220,7 +239,9 @@ export default function Home() {
 									</Text>
 									<Text
 										style={{
-											color: Colors.white,
+											color: isDarkMode
+												? Colors.black
+												: Colors.white,
 											fontSize: FONTSIZE.size_20,
 											fontFamily: "PoppinsSemiBold",
 										}}
@@ -234,7 +255,9 @@ export default function Home() {
 										<MaterialCommunityIcons
 											name="eye"
 											size={24}
-											color={Colors.orange}
+											color={
+												isDarkMode ? Colors.black : Colors.white
+											}
 										/>
 									) : (
 										<MaterialCommunityIcons
@@ -261,15 +284,34 @@ export default function Home() {
 
 					<View style={styles.widgetsContainer}>
 						{widgetsData.map((item, idx) => (
-							<View key={idx} style={styles.navigationButtons}>
-								<View style={styles.iconWrapper}>
+							<TouchableOpacity
+								key={idx}
+								style={styles.navigationButtons}
+								onPress={() => {
+									if (item.name === "Send") {
+										setTransactionModalVisible(true);
+									}
+								}}
+							>
+								<View
+									style={[
+										styles.iconWrapper,
+										{
+											backgroundColor: isDarkMode
+												? Colors.orangeTint
+												: Colors.white,
+										},
+									]}
+								>
 									{item.icon()}
 									<View
 										style={{
 											width: 15,
 											height: 15,
 											borderRadius: 50,
-											backgroundColor: Colors.orangeTint,
+											backgroundColor: isDarkMode
+												? Colors.orangeTintTwo
+												: Colors.orangeTint,
 
 											top: 20,
 											left: 25,
@@ -278,8 +320,20 @@ export default function Home() {
 										}}
 									/>
 								</View>
-								<Text style={styles.widgetLabel}>{item.name}</Text>
-							</View>
+								<Text
+									style={[
+										styles.widgetLabel,
+										{
+											color: isDarkMode
+												? Colors.orangeTint
+												: Colors.black,
+											fontFamily: "PoppinsRegular",
+										},
+									]}
+								>
+									{item.name}
+								</Text>
+							</TouchableOpacity>
 						))}
 					</View>
 				</View>
@@ -289,7 +343,7 @@ export default function Home() {
 						borderColor: "#34393E40",
 						paddingVertical: SPACING.space_20,
 						paddingHorizontal: SPACING.space_20,
-						backgroundColor: Colors.whiteSmoke,
+						backgroundColor: isDarkMode ? Colors.gray : Colors.whiteSmoke,
 					}}
 				>
 					<View style={styles.kycWrapper}>
@@ -316,14 +370,19 @@ export default function Home() {
 						/>
 					</View>
 				</View>
-				<View style={{ backgroundColor: Colors.white, flex: 1 }}>
+				<View
+					style={{
+						backgroundColor: isDarkMode ? Colors.gray : Colors.white,
+						flex: 1,
+					}}
+				>
 					<View style={styles.trendContainer}>
 						<Text
 							style={{
 								fontFamily: "PoppinsSemiBold",
 								// fontWeight: "500",
 								fontSize: FONTSIZE.size_14 - 1,
-								color: Colors.black,
+								color: isDarkMode ? Colors.orange : Colors.black,
 							}}
 						>
 							Trending today
@@ -371,10 +430,33 @@ export default function Home() {
 						</LinearGradient>
 					</View>
 
-					<View style={{ backgroundColor: Colors.white, flex: 1 }}>
+					<View
+						style={{
+							backgroundColor: isDarkMode ? Colors.gray : Colors.white,
+							flex: 1,
+						}}
+					>
 						{/*Transaction header*/}
-						<View style={styles.transactionHeader}>
-							<Text>Transaction History</Text>
+						<View
+							style={[
+								styles.transactionHeader,
+								{
+									backgroundColor: isDarkMode
+										? Colors.orangeTintTwo
+										: Colors.whiteSmoke,
+								},
+							]}
+						>
+							<Text
+								style={{
+									fontFamily: "PoppinsSemiBold",
+									// fontWeight: "500",
+									fontSize: FONTSIZE.size_14 - 1,
+									color: isDarkMode ? Colors.orange : Colors.black,
+								}}
+							>
+								Transaction History
+							</Text>
 
 							<Pressable style={styles.viewButton}>
 								<Text
@@ -401,6 +483,10 @@ export default function Home() {
 					</View>
 				</View>
 			</ScrollView>
+			<TransactionModal
+				isOpen={transactionModalVisible}
+				setIsOpen={setTransactionModalVisible}
+			/>
 		</SafeAreaView>
 	);
 }

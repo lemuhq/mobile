@@ -22,7 +22,7 @@ export default function PinInputSheet({
 	setPin,
 	pinCount = 6,
 }: IProps) {
-	const { isDarkMode, theme } = useContext(ThemeContext);
+	const { theme } = useContext(ThemeContext);
 
 	const handleNumberPress = (number: number) => {
 		if (pin.length < pinCount) {
@@ -36,26 +36,37 @@ export default function PinInputSheet({
 
 	return (
 		<View style={styles.container}>
-			<StatusBar style={"light"} />
-			<Text style={[styles.title, { color: theme.pageTextColor }]}>
-				{header}
-			</Text>
-			<Text style={[styles.subtitle, { color: theme.text }]}>
-				{subheader}
-			</Text>
+			<View
+				style={{
+					paddingHorizontal: SPACING.space_20,
+				}}
+			>
+				<Text style={[styles.title, { color: theme.pageTextColor }]}>
+					{header}
+				</Text>
+				<Text style={[styles.subtitle, { color: theme.text }]}>
+					{subheader}
+				</Text>
+			</View>
 
 			<View style={styles.pinContainer}>
-				{Array.from({ length: pinCount }, (_, i) => (
-					<View
-						key={i}
-						style={[
-							styles.circle,
-							{ borderColor: pin[i] ? Colors.orange : theme.text },
-						]}
-					>
-						{pin[i] ? <View style={styles.circleText} /> : null}
-					</View>
-				))}
+				{Array.from({ length: pinCount }, (_, i) => {
+					console.log(pin[i]);
+					return (
+						<View
+							key={i}
+							style={[
+								styles.circle,
+								{
+									borderColor:
+										pin[i] >= 0 ? Colors.orange : theme.text,
+								},
+							]}
+						>
+							{pin[i] >= 0 ? <View style={styles.circleText} /> : null}
+						</View>
+					);
+				})}
 			</View>
 
 			<View style={styles.keypad}>

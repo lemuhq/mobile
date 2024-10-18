@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from "react-native";
+import {
+	View,
+	Text,
+	TouchableOpacity,
+	SafeAreaView,
+	Platform,
+} from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { router } from "expo-router";
@@ -42,28 +48,34 @@ export default function ConfirmTransactionPin() {
 						{
 							flex: 1,
 							backgroundColor: theme.background,
+							paddingTop:
+								Platform.OS === "android" ? SPACING.space_30 : 0,
+							paddingBottom:
+								Platform.OS === "android" ? SPACING.space_10 : 0,
 						},
-						globalStyles.safeAreaViewStyles,
 					]}
 				>
 					<StatusBar style={isDarkMode ? "light" : "dark"} />
 					<View
 						style={{
-							paddingHorizontal: SPACING.space_20,
 							paddingVertical: SPACING.space_10,
 							flex: 1,
 						}}
 					>
-						<TouchableOpacity
-							onPress={() => router.back()}
-							style={{ marginBottom: SPACING.space_20 }}
+						<View
+							style={{
+								paddingHorizontal: SPACING.space_20,
+								marginBottom: SPACING.space_10,
+							}}
 						>
-							<Ionicons
-								name="arrow-back-outline"
-								size={30}
-								color={theme.text}
-							/>
-						</TouchableOpacity>
+							<TouchableOpacity onPress={() => router.back()}>
+								<Ionicons
+									name="arrow-back-outline"
+									size={30}
+									color={theme.text}
+								/>
+							</TouchableOpacity>
+						</View>
 						<PinInputSheet
 							header="Confirm transaction Pin"
 							subheader="Create a 4 digit pin for all your transactions"
