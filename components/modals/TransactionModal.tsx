@@ -10,17 +10,18 @@ import {
 
 import React, {
 	Dispatch,
-	ReactNode,
 	SetStateAction,
 	useCallback,
 	useEffect,
 	useRef,
+	useState,
 } from "react";
 import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
 import FontIcons from "@expo/vector-icons/Fontisto";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
+import { StatusBar } from "expo-status-bar";
 
 const { height } = Dimensions.get("screen");
 export default function TransactionModal({
@@ -30,29 +31,58 @@ export default function TransactionModal({
 	isOpen: boolean;
 	setIsOpen: Dispatch<SetStateAction<boolean>>;
 }) {
-	// ref
+	const [amount, onChangeAmount] = useState<string>("");
+	const [isActive, setIsActive] = useState<boolean>(false);
+
 	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-	// variables
-	const snapPoints = ["90%"];
+	const handleClose = useCallback(() => {
+		bottomSheetModalRef?.current?.close();
+		setIsOpen(false);
+	}, []);
+
+	const formatCurrency = (val: string) => {
+		const cleanedValue = val.replace(/[^0-9]/g, "");
+
+		if (/[^0-9]/.test(val.slice(-1))) {
+			return;
+		}
+
+		let numberValue = (parseInt(cleanedValue, 10) / 100).toFixed(2);
+
+		// Format the number to add commas for thousands
+		return new Intl.NumberFormat("en-US", {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+		}).format(parseFloat(numberValue));
+	};
+
+	const handlePress = (digit: string) => {
+		let newValue = amount.replace(".", "").replace(/^0+/, "") + digit;
+
+		onChangeAmount(formatCurrency(newValue)!);
+	};
+
+	const handleDeletePress = () => {
+		let newValue = amount.replace(".", "");
+		newValue = newValue.slice(0, -1);
+		onChangeAmount(formatCurrency(newValue)!);
+	};
 
 	useEffect(() => {
 		if (isOpen) {
 			bottomSheetModalRef.current?.present();
 		}
 	}, [isOpen]);
-	const handleClose = useCallback(() => {
-		bottomSheetModalRef?.current?.close();
-		setIsOpen(false);
-	}, []);
 
-	const handleNumberPress = (number: number) => {
-		console.log(number);
-	};
+	useEffect(() => {
+		if (amount === "" || amount === "0.00") {
+			setIsActive(false);
+		} else {
+			setIsActive(true);
+		}
+	}, [amount]);
 
-	const handleDeletePress = () => {
-		console.log("Delete");
-	};
 	return (
 		<BottomSheetModal
 			ref={bottomSheetModalRef}
@@ -61,14 +91,17 @@ export default function TransactionModal({
 			onDismiss={() => {
 				handleClose();
 			}}
+			handleIndicatorStyle={{ display: "none" }}
+			topInset={-30}
 		>
-			<View style={{ flex: 1, backgroundColor: "red" }}>
+			<View style={{ flex: 1, backgroundColor: "black" }}>
+				<StatusBar style="light" />
 				<BottomSheetView style={styles.contentContainer}>
 					<TouchableOpacity
 						style={{
 							position: "absolute",
 							right: SPACING.space_20,
-							top: SPACING.space_20,
+							top: "6%",
 							zIndex: 3,
 						}}
 						onPress={handleClose}
@@ -127,15 +160,18 @@ export default function TransactionModal({
 									justifyContent: "center",
 								}}
 							>
-								<Text
-									style={{
-										fontSize: 24,
-										fontFamily: "PoppinsSemiBold",
-										color: "#fff",
-									}}
-								>
-									₦0.00
-								</Text>
+								<View style={{ flexDirection: "row" }}>
+									<Text
+										style={{
+											textAlign: "center",
+											color: "white",
+											fontSize: FONTSIZE.size_30 + 3,
+											fontFamily: "PoppinsSemiBold",
+										}}
+									>
+										₦{amount || "0.00"}
+									</Text>
+								</View>
 							</View>
 							<View
 								style={{
@@ -196,7 +232,7 @@ export default function TransactionModal({
 							<TouchableOpacity
 								key={number}
 								style={styles.key}
-								onPress={() => handleNumberPress(number)}
+								onPress={() => handlePress(String(number))}
 							>
 								<Text style={styles.keyText}>{number}</Text>
 							</TouchableOpacity>
@@ -205,7 +241,7 @@ export default function TransactionModal({
 							<TouchableOpacity
 								key={number}
 								style={styles.key}
-								onPress={() => handleNumberPress(number)}
+								onPress={() => handlePress(String(number))}
 							>
 								<Text style={styles.keyText}>{number}</Text>
 							</TouchableOpacity>
@@ -214,17 +250,17 @@ export default function TransactionModal({
 							<TouchableOpacity
 								key={number}
 								style={styles.key}
-								onPress={() => handleNumberPress(number)}
+								onPress={() => handlePress(String(number))}
 							>
 								<Text style={styles.keyText}>{number}</Text>
 							</TouchableOpacity>
 						))}
-						{/* Placeholder for empty space */}
+
 						<View style={styles.emptyKey} />
-						{/* 0 Button */}
+
 						<TouchableOpacity
 							style={styles.key}
-							onPress={() => handleNumberPress(0)}
+							onPress={() => String(0)}
 						>
 							<Text style={styles.keyText}>0</Text>
 						</TouchableOpacity>
@@ -233,8 +269,7 @@ export default function TransactionModal({
 							style={styles.emptyKey}
 							onPress={handleDeletePress}
 						>
-							{/* <Text style={styles.keyText}>⌫</Text> */}
-							<FontIcons name="close" size={18} color={"black"} />
+							<FontIcons name="close" size={20} color={"white"} />
 						</TouchableOpacity>
 					</View>
 					<View
@@ -252,14 +287,20 @@ export default function TransactionModal({
 					>
 						<TouchableOpacity
 							style={{
-								backgroundColor: Colors.gunMetal,
+								backgroundColor: isActive
+									? Colors.orange
+									: Colors.gunMetal,
 								paddingVertical: 15,
 								borderRadius: 10,
 								justifyContent: "center",
 								alignItems: "center",
 								flex: 1,
+								opacity: isActive ? 1 : 0.65,
+								borderWidth: 1,
+								borderColor: isActive ? Colors.orange : Colors.gunMetal,
 							}}
 							onPress={handleClose}
+							disabled={!isActive}
 						>
 							<Text
 								style={{
@@ -274,14 +315,18 @@ export default function TransactionModal({
 						<TouchableOpacity
 							style={{
 								backgroundColor: Colors.gunMetal,
-								// height: 52,
+
 								borderRadius: 10,
 								justifyContent: "center",
 								alignItems: "center",
 								flex: 1,
 								paddingVertical: 15,
+								opacity: isActive ? 1 : 0.65,
+								borderWidth: 1,
+								borderColor: isActive ? Colors.silver : Colors.gunMetal,
 							}}
 							onPress={() => console.log("Transaction Successful")}
+							disabled={!isActive}
 						>
 							<Text
 								style={{
@@ -312,8 +357,9 @@ const styles = StyleSheet.create({
 	},
 	contentContainer: {
 		flex: 1,
-		backgroundColor: "black",
+
 		height: Platform.OS === "ios" ? height : 0,
+		paddingTop: SPACING.space_24,
 	},
 
 	key: {

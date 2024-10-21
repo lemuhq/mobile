@@ -20,6 +20,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
+import { StatusBar } from "expo-status-bar";
 
 const { height } = Dimensions.get("screen");
 export default function ScanModal({
@@ -53,15 +54,14 @@ export default function ScanModal({
 			onDismiss={() => {
 				handleClose();
 			}}
+			handleIndicatorStyle={{ display: "none" }}
+			topInset={-30}
 		>
-			<View style={{ flex: 1, backgroundColor: "red" }}>
+			<View style={{ flex: 1 }}>
+				<StatusBar style="light" />
 				<BottomSheetView style={styles.contentContainer}>
 					<LinearGradient
-						colors={[
-							"rgba(28, 18, 12, .9)",
-							"rgba(28, 18, 12, .9)",
-							"rgba(28, 18, 12, .9)",
-						]}
+						colors={["#1C0A01", "#242424"]}
 						style={{
 							flex: 2,
 							position: "relative",
@@ -73,7 +73,7 @@ export default function ScanModal({
 							style={{
 								position: "absolute",
 								right: SPACING.space_20,
-								top: SPACING.space_20,
+								top: "6%",
 								zIndex: 3,
 							}}
 							onPress={handleClose}
