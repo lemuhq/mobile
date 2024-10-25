@@ -9,9 +9,8 @@ import {
 } from "react-native";
 
 import React, {
-	Dispatch,
-	SetStateAction,
 	useCallback,
+	useContext,
 	useEffect,
 	useRef,
 	useState,
@@ -22,15 +21,11 @@ import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { StatusBar } from "expo-status-bar";
+import { ModalContext } from "@/provider/ModalProvider";
 
 const { height } = Dimensions.get("screen");
-export default function TransactionModal({
-	isOpen,
-	setIsOpen,
-}: {
-	isOpen: boolean;
-	setIsOpen: Dispatch<SetStateAction<boolean>>;
-}) {
+export default function TransactionModal() {
+	const { transactionOpen, handleTransactionOpen } = useContext(ModalContext);
 	const [amount, onChangeAmount] = useState<string>("");
 	const [isActive, setIsActive] = useState<boolean>(false);
 
@@ -38,7 +33,7 @@ export default function TransactionModal({
 
 	const handleClose = useCallback(() => {
 		bottomSheetModalRef?.current?.close();
-		setIsOpen(false);
+		handleTransactionOpen(false);
 	}, []);
 
 	const formatCurrency = (val: string) => {
@@ -70,10 +65,10 @@ export default function TransactionModal({
 	};
 
 	useEffect(() => {
-		if (isOpen) {
+		if (transactionOpen) {
 			bottomSheetModalRef.current?.present();
 		}
-	}, [isOpen]);
+	}, [transactionOpen]);
 
 	useEffect(() => {
 		if (amount === "" || amount === "0.00") {
@@ -359,13 +354,14 @@ const styles = StyleSheet.create({
 		flex: 1,
 
 		height: Platform.OS === "ios" ? height : 0,
-		paddingTop: SPACING.space_24,
+		paddingTop: SPACING.space_20,
+		paddingBottom: 10,
 	},
 
 	key: {
-		width: Platform.OS === "ios" ? 80 : 75,
-		height: Platform.OS === "ios" ? 80 : 75,
-		borderRadius: 40,
+		width: 70,
+		height: 70,
+		borderRadius: 50,
 		backgroundColor: "#f0f0f0",
 		justifyContent: "center",
 		alignItems: "center",
@@ -377,9 +373,9 @@ const styles = StyleSheet.create({
 		fontFamily: "PoppinsRegular",
 	},
 	emptyKey: {
-		width: Platform.OS === "ios" ? 80 : 75,
-		height: Platform.OS === "ios" ? 80 : 75,
-		borderRadius: 40,
+		width: 70,
+		height: 70,
+		borderRadius: 50,
 		backgroundColor: "transparent",
 		justifyContent: "center",
 		alignItems: "center",
@@ -389,7 +385,7 @@ const styles = StyleSheet.create({
 		flexDirection: "row",
 		flexWrap: "wrap",
 		justifyContent: "center",
-		gap: 10,
-		// flex: 1,
+		rowGap: 20,
+		columnGap: 20,
 	},
 });

@@ -9,6 +9,9 @@ import { BORDERRADIUS, SPACING } from "@/constants/Theme";
 import Modal from "../Modal";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import ScanModal from "../modals/ScanModal";
+import ProfileModal from "../modals/ProfileModal";
+import { ModalContext } from "@/provider/ModalProvider";
+import EmailVerificationModal from "../modals/EmailVerificationModal";
 
 interface BottomTabBarProps {
 	state: {
@@ -33,10 +36,15 @@ export interface RoutesProps {
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 	const [openScanner, setOpenScanner] = useState<boolean>(false);
+	const { handleScannerOpen } = useContext(ModalContext);
 	const { isDarkMode, theme } = useContext(ThemeContext);
 
 	return (
-		<>
+		<View
+			style={{
+				position: "relative",
+			}}
+		>
 			<View
 				style={[
 					styles.container,
@@ -77,7 +85,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 					);
 				})}
 
-				<TouchableOpacity onPress={() => setOpenScanner(true)}>
+				<TouchableOpacity onPress={() => handleScannerOpen(true)}>
 					<View style={styles.scanButton}>
 						<Image
 							source={require(`@/assets/scan-icon.png`)}
@@ -122,8 +130,11 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 					);
 				})}
 			</View>
-			<ScanModal setIsOpen={setOpenScanner} isOpen={openScanner} />
-		</>
+			<ScanModal />
+			<ProfileModal />
+			<EmailVerificationModal />
+			{/* <ModalOverlay /> */}
+		</View>
 	);
 };
 

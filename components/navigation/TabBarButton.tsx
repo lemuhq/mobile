@@ -18,7 +18,6 @@ interface IProps {
 type BarButtonProps = RoutesProps & IProps;
 
 export default function TabBarButton({
-	key,
 	name,
 	isFocused,
 	onPress,
