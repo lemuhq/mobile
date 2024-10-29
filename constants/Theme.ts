@@ -19,6 +19,7 @@ export const darkTheme = {
 interface FontSize {
 	size_8: number;
 	size_10: number;
+	size_11: number;
 	size_12: number;
 	size_14: number;
 	size_16: number;
@@ -32,6 +33,7 @@ interface FontSize {
 export const FONTSIZE: FontSize = {
 	size_8: 8,
 	size_10: 10,
+	size_11: 11,
 	size_12: 12,
 	size_14: 14,
 	size_16: 16,

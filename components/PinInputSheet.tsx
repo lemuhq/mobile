@@ -51,7 +51,6 @@ export default function PinInputSheet({
 
 			<View style={styles.pinContainer}>
 				{Array.from({ length: pinCount }, (_, i) => {
-					console.log(pin[i]);
 					return (
 						<View
 							key={i}

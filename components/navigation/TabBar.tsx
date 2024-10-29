@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Route } from "@react-navigation/native";
 import { BottomTabDescriptor } from "@react-navigation/bottom-tabs/lib/typescript/src/types";
 import { Colors } from "@/constants/Colors";
@@ -9,6 +9,10 @@ import { BORDERRADIUS, SPACING } from "@/constants/Theme";
 import Modal from "../Modal";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import ScanModal from "../modals/ScanModal";
+import ProfileModal from "../modals/ProfileModal";
+import { ModalContext } from "@/provider/ModalProvider";
+import EmailVerificationModal from "../modals/EmailVerificationModal";
+import BiometricsModal from "../modals/BiometricsModal";
 
 interface BottomTabBarProps {
 	state: {
@@ -32,11 +36,20 @@ export interface RoutesProps {
 }
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
-	const [openScanner, setOpenScanner] = useState<boolean>(false);
+	const { handleScannerOpen, toggleBiometrics } = useContext(ModalContext);
 	const { isDarkMode, theme } = useContext(ThemeContext);
+
+	const user = null;
+
+	useEffect(() => {
+		if (!user) {
+			toggleBiometrics();
+		}
+	}, [user]);
 
 	return (
 		<>
+			<BiometricsModal />
 			<View
 				style={[
 					styles.container,
@@ -77,7 +90,12 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 					);
 				})}
 
-				<TouchableOpacity onPress={() => setOpenScanner(true)}>
+				<TouchableOpacity
+					onPress={() => {
+						toggleBiometrics();
+						// handleScannerOpen(true)
+					}}
+				>
 					<View style={styles.scanButton}>
 						<Image
 							source={require(`@/assets/scan-icon.png`)}
@@ -122,7 +140,11 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 					);
 				})}
 			</View>
-			<ScanModal setIsOpen={setOpenScanner} isOpen={openScanner} />
+			<ScanModal />
+			<ProfileModal />
+			<EmailVerificationModal />
+
+			{/* <ModalOverlay /> */}
 		</>
 	);
 };

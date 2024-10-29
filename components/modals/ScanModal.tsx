@@ -6,12 +6,14 @@ import {
 	StyleSheet,
 	Dimensions,
 	Platform,
+	Pressable,
 } from "react-native";
 import React, {
 	Dispatch,
 	ReactNode,
 	SetStateAction,
 	useCallback,
+	useContext,
 	useEffect,
 	useRef,
 } from "react";
@@ -20,48 +22,43 @@ import { LinearGradient } from "expo-linear-gradient";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
+import { StatusBar } from "expo-status-bar";
+import { ModalContext } from "@/provider/ModalProvider";
 
 const { height } = Dimensions.get("screen");
-export default function ScanModal({
-	isOpen,
-	setIsOpen,
-}: {
-	isOpen: boolean;
-	setIsOpen: Dispatch<SetStateAction<boolean>>;
-}) {
+export default function ScanModal() {
+	const { scannerOpen, handleScannerOpen, handleTransactionOpen } =
+		useContext(ModalContext);
 	// ref
 	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
 
-	// variables
-	const snapPoints = ["90%"];
-
 	useEffect(() => {
-		if (isOpen) {
+		if (scannerOpen) {
 			bottomSheetModalRef.current?.present();
 		}
-	}, [isOpen]);
+	}, [scannerOpen]);
+
 	const handleClose = useCallback(() => {
 		bottomSheetModalRef?.current?.close();
-		setIsOpen(false);
+		handleScannerOpen(false);
 	}, []);
 
 	return (
 		<BottomSheetModal
 			ref={bottomSheetModalRef}
 			index={1}
-			snapPoints={["100%", "100%"]}
+			snapPoints={["100%"]}
 			onDismiss={() => {
 				handleClose();
 			}}
+			handleIndicatorStyle={{ display: "none" }}
+			topInset={-25}
 		>
-			<View style={{ flex: 1, backgroundColor: "red" }}>
+			<View style={{ flex: 1 }}>
+				<StatusBar style="light" />
 				<BottomSheetView style={styles.contentContainer}>
 					<LinearGradient
-						colors={[
-							"rgba(28, 18, 12, .9)",
-							"rgba(28, 18, 12, .9)",
-							"rgba(28, 18, 12, .9)",
-						]}
+						colors={["#1C0A01", "#242424"]}
 						style={{
 							flex: 2,
 							position: "relative",
@@ -73,7 +70,7 @@ export default function ScanModal({
 							style={{
 								position: "absolute",
 								right: SPACING.space_20,
-								top: SPACING.space_20,
+								top: "6%",
 								zIndex: 3,
 							}}
 							onPress={handleClose}
@@ -101,21 +98,28 @@ export default function ScanModal({
 									marginBottom: SPACING.space_30,
 								}}
 							/>
-							<View
-								style={{
-									width: 231,
-									height: 231,
+							<Pressable
+								onPress={() => {
+									handleClose();
+									handleTransactionOpen(true);
 								}}
 							>
-								<Image
-									source={require(`@/assets/scanner.png`)}
+								<View
 									style={{
-										width: "100%",
-										height: "100%",
-										resizeMode: "cover",
+										width: 231,
+										height: 231,
 									}}
-								/>
-							</View>
+								>
+									<Image
+										source={require(`@/assets/scanner.png`)}
+										style={{
+											width: "100%",
+											height: "100%",
+											resizeMode: "cover",
+										}}
+									/>
+								</View>
+							</Pressable>
 							<View style={{ height: 100 }}></View>
 
 							<Text
@@ -151,7 +155,6 @@ const styles = StyleSheet.create({
 	container: {
 		flex: 1,
 		padding: 24,
-		backgroundColor: "grey",
 	},
 	sheetContainer: {
 		// add horizontal space

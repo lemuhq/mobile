@@ -24,6 +24,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TransactionItem from "@/components/TransactionItem";
 import TransactionModal from "@/components/modals/TransactionModal";
+import { ModalContext } from "@/provider/ModalProvider";
 
 const transactionData: {
 	status: "success" | "failed" | "pending";
@@ -59,9 +60,13 @@ const transactionData: {
 
 export default function Home() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
+	const {
+		toggleProfileVisible,
+		handleTransactionOpen,
+		toggleEmailVerification,
+	} = useContext(ModalContext);
 	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
-	const [transactionModalVisible, setTransactionModalVisible] =
-		useState<boolean>(false);
+
 	const widgetsData: { name: string; icon: any }[] = [
 		{
 			name: "Account",
@@ -140,19 +145,21 @@ export default function Home() {
 					]}
 				>
 					<View style={styles.stickyHeaderBody}>
-						<View style={styles.userInfoContainer}>
-							<Avatar
-								variant="sm"
-								imageUrl={require(`@/assets/default-user.png`)}
-							/>
-							<Text>Hello, Joshua</Text>
-							<MaterialIcons
-								name="keyboard-arrow-down"
-								size={18}
-								color="black"
-								style={{ marginLeft: 5 }}
-							/>
-						</View>
+						<TouchableOpacity onPress={() => toggleProfileVisible(true)}>
+							<View style={styles.userInfoContainer}>
+								<Avatar
+									variant="sm"
+									imageUrl={require(`@/assets/default-user.png`)}
+								/>
+								<Text>Hello, Joshua</Text>
+								<MaterialIcons
+									name="keyboard-arrow-down"
+									size={18}
+									color="black"
+									style={{ marginLeft: 5 }}
+								/>
+							</View>
+						</TouchableOpacity>
 						<View style={{ position: "relative" }}>
 							<View
 								style={{
@@ -289,7 +296,7 @@ export default function Home() {
 								style={styles.navigationButtons}
 								onPress={() => {
 									if (item.name === "Send") {
-										setTransactionModalVisible(true);
+										handleTransactionOpen(true);
 									}
 								}}
 							>
@@ -337,39 +344,43 @@ export default function Home() {
 						))}
 					</View>
 				</View>
-				<View
-					style={{
-						borderTopWidth: 1,
-						borderColor: "#34393E40",
-						paddingVertical: SPACING.space_20,
-						paddingHorizontal: SPACING.space_20,
-						backgroundColor: isDarkMode ? Colors.gray : Colors.whiteSmoke,
-					}}
-				>
-					<View style={styles.kycWrapper}>
-						<Text style={styles.kycText}>
-							Get your flame on with Lemu.
-						</Text>
-						<Text style={styles.kycText}>
-							<Text style={{ color: Colors.orangeTint }}>
-								Update your KYC
+				<Pressable onPress={() => toggleEmailVerification()}>
+					<View
+						style={{
+							borderTopWidth: 1,
+							borderColor: "#34393E40",
+							paddingVertical: SPACING.space_20,
+							paddingHorizontal: SPACING.space_20,
+							backgroundColor: isDarkMode
+								? Colors.gray
+								: Colors.whiteSmoke,
+						}}
+					>
+						<View style={styles.kycWrapper}>
+							<Text style={styles.kycText}>
+								Get your flame on with Lemu.
 							</Text>
-							information today!.
-						</Text>
+							<Text style={styles.kycText}>
+								<Text style={{ color: Colors.orangeTint }}>
+									Update your KYC
+								</Text>
+								information today!.
+							</Text>
 
-						<Image
-							source={require(`@/assets/kyc.png`)}
-							style={{
-								width: 135,
-								height: 135,
-								position: "absolute",
-								bottom: -39,
-								right: 0,
-								resizeMode: "contain",
-							}}
-						/>
+							<Image
+								source={require(`@/assets/kyc.png`)}
+								style={{
+									width: 135,
+									height: 135,
+									position: "absolute",
+									bottom: -39,
+									right: 0,
+									resizeMode: "contain",
+								}}
+							/>
+						</View>
 					</View>
-				</View>
+				</Pressable>
 				<View
 					style={{
 						backgroundColor: isDarkMode ? Colors.gray : Colors.white,
@@ -483,10 +494,7 @@ export default function Home() {
 					</View>
 				</View>
 			</ScrollView>
-			<TransactionModal
-				isOpen={transactionModalVisible}
-				setIsOpen={setTransactionModalVisible}
-			/>
+			<TransactionModal />
 		</SafeAreaView>
 	);
 }
@@ -526,7 +534,8 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.whiteSmoke,
 	},
 	card: {
-		height: 180,
+		minHeight: 150,
+		maxHeight: Platform.OS === "ios" ? 170 : 160,
 		borderRadius: BORDERRADIUS.radius_20,
 		overflow: "hidden",
 		position: "relative",
@@ -541,7 +550,7 @@ const styles = StyleSheet.create({
 	},
 	cardContentWrapper: {
 		position: "relative",
-		padding: SPACING.space_20,
+		padding: SPACING.space_18,
 		height: "100%",
 		width: "100%",
 		justifyContent: "space-between",

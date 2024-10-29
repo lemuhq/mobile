@@ -1,4 +1,5 @@
 import { Colors } from "@/constants/Colors";
+import { SPACING } from "@/constants/Theme";
 import React, { FC, ReactNode } from "react";
 import { StyleSheet, Text, TouchableOpacity } from "react-native";
 
@@ -8,6 +9,7 @@ interface ButtonProps {
 	disabled?: boolean;
 	isLoading?: boolean;
 	variant?: "dark" | "primary" | "outline" | "outline-dark";
+	width?: "full" | "fit";
 }
 
 const Button: FC<ButtonProps> = ({
@@ -16,6 +18,7 @@ const Button: FC<ButtonProps> = ({
 	isLoading,
 	disabled,
 	variant = "primary",
+	width = "full",
 }) => {
 	return (
 		<TouchableOpacity
@@ -24,6 +27,8 @@ const Button: FC<ButtonProps> = ({
 			style={[
 				buttonStyles.button,
 				{
+					width: width === "full" ? "100%" : "auto",
+					paddingHorizontal: width === "full" ? 0 : SPACING.space_30 + 10,
 					backgroundColor:
 						variant === "primary"
 							? Colors.orange
@@ -67,7 +72,7 @@ export default Button;
 const buttonStyles = StyleSheet.create({
 	button: {
 		height: 53,
-		width: "100%",
+		// width: "100%",
 		borderRadius: 15,
 		flexDirection: "row",
 		justifyContent: "center",
