@@ -1,25 +1,35 @@
-import { createContext, ReactNode, useState } from "react";
+import {
+	createContext,
+	Dispatch,
+	ReactNode,
+	SetStateAction,
+	useState,
+} from "react";
 
 interface ModalContextTypes {
 	profileOpen: boolean;
-	handleProfileOpen: (value: boolean) => void;
+	toggleProfileVisible: () => void;
 	handleScannerOpen: (value: boolean) => void;
 	scannerOpen: boolean;
 	transactionOpen: boolean;
 	handleTransactionOpen: (value: boolean) => void;
 	emailVerificationOpen: boolean;
-	handlEmailVerificationOpen: (value: boolean) => void;
+	toggleEmailVerification: () => void;
+	biometricsVisible: boolean;
+	toggleBiometrics: () => void;
 }
 
 export const ModalContext = createContext<ModalContextTypes>({
 	profileOpen: false,
-	handleProfileOpen: (value: boolean) => {},
+	toggleProfileVisible: () => {},
 	scannerOpen: false,
 	handleScannerOpen: () => {},
 	handleTransactionOpen: () => {},
 	transactionOpen: false,
 	emailVerificationOpen: false,
-	handlEmailVerificationOpen: (value: boolean) => {},
+	toggleEmailVerification: () => {},
+	biometricsVisible: false,
+	toggleBiometrics: () => {},
 });
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
@@ -27,9 +37,10 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 	const [scannerOpen, setScannerOpen] = useState(false);
 	const [transactionOpen, setTransactionOpen] = useState(false);
 	const [emailVerificationOpen, setEmailVerificationOpen] = useState(false);
+	const [biometricsVisible, setBiometricsVisible] = useState(false);
 
-	const handleProfileOpen = (value: boolean) => {
-		setProfileOpen(value);
+	const toggleProfileVisible = () => {
+		setProfileOpen(!profileOpen);
 	};
 
 	const handleScannerOpen = (value: boolean) => {
@@ -40,21 +51,27 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 		setTransactionOpen(value);
 	};
 
-	const handlEmailVerificationOpen = (value: boolean) => {
-		setEmailVerificationOpen(value);
+	const toggleEmailVerification = () => {
+		setEmailVerificationOpen(!emailVerificationOpen);
+	};
+
+	const toggleBiometrics = () => {
+		setBiometricsVisible(!biometricsVisible);
 	};
 
 	return (
 		<ModalContext.Provider
 			value={{
 				profileOpen,
-				handleProfileOpen,
+				toggleProfileVisible,
 				scannerOpen,
 				handleScannerOpen,
 				transactionOpen,
 				handleTransactionOpen,
 				emailVerificationOpen,
-				handlEmailVerificationOpen,
+				toggleEmailVerification,
+				biometricsVisible,
+				toggleBiometrics,
 			}}
 		>
 			{children}

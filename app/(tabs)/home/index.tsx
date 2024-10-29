@@ -61,9 +61,9 @@ const transactionData: {
 export default function Home() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const {
-		handleProfileOpen,
+		toggleProfileVisible,
 		handleTransactionOpen,
-		handlEmailVerificationOpen,
+		toggleEmailVerification,
 	} = useContext(ModalContext);
 	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
 
@@ -145,7 +145,7 @@ export default function Home() {
 					]}
 				>
 					<View style={styles.stickyHeaderBody}>
-						<TouchableOpacity onPress={() => handleProfileOpen(true)}>
+						<TouchableOpacity onPress={() => toggleProfileVisible(true)}>
 							<View style={styles.userInfoContainer}>
 								<Avatar
 									variant="sm"
@@ -344,7 +344,7 @@ export default function Home() {
 						))}
 					</View>
 				</View>
-				<Pressable onPress={() => handlEmailVerificationOpen(true)}>
+				<Pressable onPress={() => toggleEmailVerification()}>
 					<View
 						style={{
 							borderTopWidth: 1,

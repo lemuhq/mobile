@@ -1,12 +1,11 @@
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { ModalContext } from "@/provider/ModalProvider";
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
-import React, { useCallback, useContext, useEffect, useRef } from "react";
+import React, { useContext, useEffect, useRef } from "react";
 import {
 	Dimensions,
 	Image,
+	Modal,
 	Platform,
-	SafeAreaView,
 	StyleSheet,
 	Text,
 	TouchableOpacity,
@@ -15,52 +14,87 @@ import {
 import Button from "../Button";
 import { Colors } from "@/constants/Colors";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
+import Animated, {
+	runOnJS,
+	useAnimatedStyle,
+	useSharedValue,
+	withSpring,
+} from "react-native-reanimated";
 
-const { height } = Dimensions.get("screen");
+const { height: SCREEN_HEIGHT } = Dimensions.get("screen");
 
 const EmailVerificationModal = () => {
-	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
-	const { emailVerificationOpen, handlEmailVerificationOpen } =
+	const { emailVerificationOpen, toggleEmailVerification } =
 		useContext(ModalContext);
 
-	const handleClose = useCallback(() => {
-		bottomSheetModalRef?.current?.close();
-		handlEmailVerificationOpen(false);
-	}, []);
+	const translateY = useSharedValue(SCREEN_HEIGHT);
+
+	const closeModal = () => {
+		translateY.value = withSpring(SCREEN_HEIGHT, { damping: 20 }, () => {
+			runOnJS(toggleEmailVerification)();
+		});
+	};
+
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			transform: [{ translateY: translateY.value }],
+		};
+	});
 
 	useEffect(() => {
 		if (emailVerificationOpen) {
-			bottomSheetModalRef.current?.present();
+			translateY.value = withSpring(0, { damping: 20 });
 		}
 	}, [emailVerificationOpen]);
 
 	return (
-		<BottomSheetModal
-			ref={bottomSheetModalRef}
-			index={0}
-			snapPoints={["100%"]}
-			handleIndicatorStyle={{ display: "none" }}
-			topInset={-30}
-			onDismiss={() => {
-				handleClose();
-			}}
+		<Modal
+			transparent
+			visible={emailVerificationOpen}
+			animationType="none"
+			onRequestClose={closeModal}
 		>
-			<BottomSheetView style={styles.contentContainer}>
-				<SafeAreaView
-					style={{
-						flex: 1,
-						paddingTop: Platform.OS === "android" ? SPACING.space_36 : 0,
-						paddingBottom:
-							Platform.OS === "android" ? SPACING.space_10 : 0,
-						justifyContent: "center",
-					}}
+			<>
+				<View
+					style={[
+						{
+							position: "absolute",
+							top: 0,
+							left: 0,
+							right: 0,
+							bottom: 0,
+							flex: 1,
+							zIndex: 1,
+							backgroundColor: "rgba(0,0,0,.8)",
+							height: "100%",
+						},
+						,
+					]}
 				>
-					<View
-						style={{
-							height: height - 100,
-							paddingHorizontal: SPACING.space_20,
-							position: "relative",
-						}}
+					<Animated.View
+						style={[
+							animatedStyle,
+							{
+								backgroundColor: "#fff",
+								position: "absolute",
+								bottom: 0,
+								height:
+									Platform.OS === "ios"
+										? SCREEN_HEIGHT - 70
+										: SCREEN_HEIGHT - 100,
+								width: "100%",
+								borderTopRightRadius: BORDERRADIUS.radius_25,
+								borderTopLeftRadius: BORDERRADIUS.radius_25,
+								padding: SPACING.space_20,
+								overflow: "hidden",
+								zIndex: 2,
+								paddingBottom:
+									Platform.OS === "ios"
+										? SPACING.space_30
+										: SPACING.space_10,
+								flex: 1,
+							},
+						]}
 					>
 						<TouchableOpacity
 							style={{
@@ -69,7 +103,7 @@ const EmailVerificationModal = () => {
 								top: "3%",
 								zIndex: 3,
 							}}
-							onPress={handleClose}
+							onPress={closeModal}
 						>
 							<MaterialCommunityIcons
 								name="close"
@@ -94,7 +128,6 @@ const EmailVerificationModal = () => {
 									marginBottom: SPACING.space_20,
 								}}
 							/>
-
 							<View>
 								<Text style={styles.infoHeader}>
 									Verify your email address
@@ -113,27 +146,14 @@ const EmailVerificationModal = () => {
 							</View>
 						</View>
 						<Button variant="primary" buttonText="Verify email address" />
-					</View>
-				</SafeAreaView>
-			</BottomSheetView>
-		</BottomSheetModal>
+					</Animated.View>
+				</View>
+			</>
+		</Modal>
 	);
 };
 
 const styles = StyleSheet.create({
-	container: {
-		flex: 1,
-		padding: 24,
-	},
-	sheetContainer: {
-		marginHorizontal: 24,
-	},
-	contentContainer: {
-		flex: 1,
-		height: Platform.OS === "ios" ? height : 0,
-		zIndex: 10,
-		backgroundColor: "white",
-	},
 	infoHeader: {
 		fontFamily: "PoppinsSemiBold",
 		fontSize: FONTSIZE.size_24,
