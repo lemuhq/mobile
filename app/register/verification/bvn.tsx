@@ -7,20 +7,18 @@ import {
 	TouchableOpacity,
 } from "react-native";
 import React, { useContext, useState } from "react";
-import { FONTSIZE, SPACING } from "@/constants/Theme";
-import { ThemeContext } from "@/provider/ThemeProvider";
 import { StatusBar } from "expo-status-bar";
-import globalStyles from "@/styles/global.styles";
-import { router } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import PageHeader from "@/components/PageHeader";
-import Input from "@/components/inputs/Input";
+import { FONTSIZE, SPACING } from "@/constants/Theme";
+import { Ionicons } from "@expo/vector-icons";
 import Button from "@/components/Button";
+import { router } from "expo-router";
+import Input from "@/components/inputs/Input";
+import { ThemeContext } from "@/provider/ThemeProvider";
+import PageHeader from "@/components/PageHeader";
 
-export default function NinVerification() {
+const BvnVerification = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [ninNumber, setNinNumber] = useState<string>("");
-
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -71,7 +69,7 @@ export default function NinVerification() {
 							<Text style={{ fontFamily: "PoppinsSemiBold" }}>
 								Step 1/
 							</Text>
-							3
+							4
 						</Text>
 					</View>
 					<View
@@ -82,21 +80,21 @@ export default function NinVerification() {
 						}}
 					>
 						<PageHeader
-							header="National Identification Number (NIN)"
-							subHeader="To verify your account enter your NIN"
+							header="Bank Verification Number (BVN)"
+							subHeader="To verify your account enter your BVN"
 						/>
 
 						<Input
 							value={ninNumber}
 							setValue={setNinNumber}
-							placeholder="Enter your NIN"
+							placeholder="Enter your BVN"
 							keyboardType="number-pad"
 						/>
 					</View>
 					<Button
-						buttonText="Verify NIN"
+						buttonText="Verify BVN"
 						onPress={() => {
-							router.navigate("/verification/facialRecognition");
+							router.navigate("/register/verification/createUser");
 						}}
 						isLoading={false}
 						disabled={false}
@@ -106,4 +104,6 @@ export default function NinVerification() {
 			</SafeAreaView>
 		</KeyboardAvoidingView>
 	);
-}
+};
+
+export default BvnVerification;

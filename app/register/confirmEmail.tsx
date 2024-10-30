@@ -1,27 +1,25 @@
 import {
 	View,
 	Text,
+	KeyboardAvoidingView,
+	Platform,
 	SafeAreaView,
 	TouchableOpacity,
 	StyleSheet,
-	KeyboardAvoidingView,
-	Platform,
 } from "react-native";
 import React, { useContext, useState } from "react";
+import { StatusBar } from "expo-status-bar";
+import { FONTSIZE, SPACING } from "@/constants/Theme";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import OtpInput from "@/components/inputs/OtpInput";
+import Button from "@/components/Button";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { Colors } from "@/constants/Colors";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import { router } from "expo-router";
-import Button from "@/components/Button";
-import PasswordInput from "@/components/inputs/PasswordInput";
-import { StatusBar } from "expo-status-bar";
-import globalStyles from "@/styles/global.styles";
-import { SPACING } from "@/constants/Theme";
 
-export default function CreatePassword() {
-	const { isDarkMode, theme } = useContext(ThemeContext);
-	const [password, setPassword] = useState<string>("");
-	const [confirmPassword, setConfirmPassword] = useState<string>("");
+const ConfrimEmail = () => {
+	const { theme, isDarkMode } = useContext(ThemeContext);
+	const [otp, setOtp] = useState<string>("");
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -43,7 +41,6 @@ export default function CreatePassword() {
 				<View
 					style={{
 						paddingHorizontal: SPACING.space_20,
-
 						flex: 1,
 					}}
 				>
@@ -64,7 +61,7 @@ export default function CreatePassword() {
 							},
 						]}
 					>
-						Create new password
+						Confirm Email Address
 					</Text>
 					<Text
 						style={[
@@ -75,41 +72,36 @@ export default function CreatePassword() {
 							},
 						]}
 					>
-						Enter new password
+						Enter OTP code sent to this email: lemu@gmail.com
 					</Text>
 
 					<View style={{ marginTop: 20, flex: 1 }}>
-						<View>
-							<Text style={[styles.inputLabel, { color: theme.text }]}>
-								Enter new password
-							</Text>
-							<PasswordInput value={password} setValue={setPassword} />
-						</View>
-						<View style={{ marginTop: 20 }}>
-							<Text style={[styles.inputLabel, { color: theme.text }]}>
-								Confirm new password
-							</Text>
-							<PasswordInput
-								value={confirmPassword}
-								setValue={setConfirmPassword}
-							/>
-						</View>
+						<OtpInput otpVal={otp} setOtpVal={setOtp} />
 					</View>
-
 					<Button
 						buttonText="Continue"
 						onPress={() => {
-							router.push("/register/createPin");
+							router.navigate("/register/verification");
 						}}
 						isLoading={false}
 						disabled={false}
 						variant="primary"
 					/>
+					<View style={{ marginTop: 10 }}>
+						<Text
+							style={{ color: theme.text, fontFamily: "PoppinsRegular" }}
+						>
+							Request new OTP in? (
+							<Text style={{ color: Colors.orange }}>00:40</Text>)
+						</Text>
+					</View>
 				</View>
 			</SafeAreaView>
 		</KeyboardAvoidingView>
 	);
-}
+};
+
+export default ConfrimEmail;
 
 const styles = StyleSheet.create({
 	pageContainer: {
@@ -117,11 +109,11 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	welcomeH2: {
-		fontSize: 28,
+		fontSize: FONTSIZE.size_24,
 		fontFamily: "PoppinsBold",
 	},
 	subText: {
-		fontSize: 11,
+		fontSize: FONTSIZE.size_12,
 		lineHeight: 18,
 		fontFamily: "PoppinsLight",
 	},

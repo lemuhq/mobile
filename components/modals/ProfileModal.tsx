@@ -6,7 +6,6 @@ import {
 	TouchableOpacity,
 	Image,
 	Modal,
-	ScrollView,
 	Platform,
 } from "react-native";
 import React, { useContext, useEffect } from "react";
@@ -21,6 +20,10 @@ import Animated, {
 	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
+import {
+	widthPercentageToDP as wp,
+	heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("screen");
 
@@ -77,10 +80,7 @@ const ProfileModal = () => {
 							backgroundColor: "#fff",
 							position: "absolute",
 							bottom: 0,
-							height:
-								Platform.OS === "ios"
-									? SCREEN_HEIGHT - 70
-									: SCREEN_HEIGHT - 100,
+							height: hp("90%"),
 							width: "100%",
 							borderTopRightRadius: BORDERRADIUS.radius_25,
 							borderTopLeftRadius: BORDERRADIUS.radius_25,
@@ -112,16 +112,28 @@ const ProfileModal = () => {
 					</TouchableOpacity>
 
 					<View style={styles.imageWrapper}>
-						<Image
-							source={require("@/assets/default-user.png")}
+						<View
 							style={{
-								width: 93,
-								height: 93,
-								backgroundColor: Colors.whiteSmoke,
-								borderRadius: BORDERRADIUS.radius_25 * 2,
+								height: Platform.OS === "ios" ? hp("10%") : hp("11%"),
+								width: wp("23%"),
+								borderRadius: wp("100%"),
+
 								marginBottom: SPACING.space_10,
+								overflow: "hidden",
 							}}
-						/>
+						>
+							<Image
+								source={require("@/assets/default-user.png")}
+								style={{
+									width: "100%",
+									height: "100%",
+									backgroundColor: Colors.whiteSmoke,
+									borderRadius: wp("100%"),
+									objectFit: "cover",
+								}}
+							/>
+						</View>
+
 						<View>
 							<Text style={styles.fullName}>Joshua Magani</Text>
 							<Text style={styles.accountType}>
@@ -138,8 +150,8 @@ const ProfileModal = () => {
 								borderColor: Colors.whiteSmoke,
 								alignItems: "center",
 								justifyContent: "center",
-								width: 200,
-								height: 200,
+								width: wp("50%"),
+								height: hp("25%"),
 								borderTopLeftRadius: 50,
 								borderBottomRightRadius: 50,
 								paddingTop: SPACING.space_10,
@@ -149,8 +161,8 @@ const ProfileModal = () => {
 							<Image
 								source={require("@/assets/profile-scanner.png")}
 								style={{
-									width: 150,
-									height: 150,
+									width: "90%",
+									height: "90%",
 
 									marginBottom: SPACING.space_8,
 									objectFit: "contain",

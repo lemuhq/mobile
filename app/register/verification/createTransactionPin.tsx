@@ -1,37 +1,42 @@
-import { View, SafeAreaView, TouchableOpacity, Platform } from "react-native";
-import React, { useContext, useState, useEffect } from "react";
-import { ThemeContext } from "@/provider/ThemeProvider";
-import { Colors } from "@/constants/Colors";
-import { router } from "expo-router";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import PinInputSheet from "@/components/PinInputSheet";
-import globalStyles from "@/styles/global.styles";
+import {
+	View,
+	Text,
+	SafeAreaView,
+	Platform,
+	TouchableOpacity,
+} from "react-native";
+import React, { useContext, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
-import { SPACING } from "@/constants/Theme";
+import { ThemeContext } from "@/provider/ThemeProvider";
+import { router } from "expo-router";
 import SuccessScreenItem from "@/components/SuccessScreenItem";
+import { FONTSIZE, SPACING } from "@/constants/Theme";
+import { Ionicons } from "@expo/vector-icons";
+import PinInputSheet from "@/components/PinInputSheet";
 
-export default function CreatePin() {
+export default function CreateTransactionPin() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [pin, setPin] = useState<number[]>([]);
 	const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
 	useEffect(() => {
-		if (pin.length === 6) {
+		if (pin.length === 4) {
 			setTimeout(() => {
 				setIsSuccess(true);
 			}, 2000);
 
 			setTimeout(() => {
-				router.push("/verification");
+				router.push("/register/verification/createLoginPin");
 			}, 5000);
 		}
 	}, [pin]);
+
 	return (
 		<>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			{isSuccess && (
 				<SuccessScreenItem
-					header="Passcode set"
+					header="Transaction Pin Set"
 					subHeader="Congratulations. You can now sign into your account with your passcode."
 				/>
 			)}
@@ -51,13 +56,17 @@ export default function CreatePin() {
 					<StatusBar style={isDarkMode ? "light" : "dark"} />
 					<View
 						style={{
+							// paddingVertical: SPACING.space_10,
 							flex: 1,
 						}}
 					>
 						<View
 							style={{
+								flexDirection: "row",
+								justifyContent: "space-between",
+								alignItems: "center",
 								paddingHorizontal: SPACING.space_20,
-								marginBottom: SPACING.space_10,
+								marginBottom: SPACING.space_20,
 							}}
 						>
 							<TouchableOpacity onPress={() => router.back()}>
@@ -67,12 +76,26 @@ export default function CreatePin() {
 									color={theme.text}
 								/>
 							</TouchableOpacity>
+
+							<Text
+								style={{
+									color: theme.text,
+									fontFamily: "PoppinsLight",
+									fontSize: FONTSIZE.size_20,
+								}}
+							>
+								<Text style={{ fontFamily: "PoppinsSemiBold" }}>
+									Step 3/
+								</Text>
+								4
+							</Text>
 						</View>
 						<PinInputSheet
-							header="Create Login Pin"
-							subheader=" To log into your account securely, you need to create a login pin. Please don’t share this with anyone."
+							header="Create Transaction Pin"
+							subheader="Create a 4 digit pin for all your transactions"
 							pin={pin}
 							setPin={setPin}
+							pinCount={4}
 						/>
 					</View>
 				</SafeAreaView>

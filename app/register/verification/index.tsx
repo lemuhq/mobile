@@ -1,47 +1,44 @@
-import {
-	View,
-	Text,
-	StyleSheet,
-	SafeAreaView,
-	TouchableOpacity,
-	Image,
-	FlatList,
-	ScrollView,
-	Platform,
-} from "react-native";
-import React, { useContext, useState } from "react";
-import { ThemeContext } from "@/provider/ThemeProvider";
-import { Colors } from "@/constants/Colors";
-import globalStyles from "@/styles/global.styles";
-import { router } from "expo-router";
 import PageHeader from "@/components/PageHeader";
-import { StatusBar } from "expo-status-bar";
+import { Colors } from "@/constants/Colors";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
-import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
-import FontAwesome5 from "@expo/vector-icons/FontAwesome5";
+import { ThemeContext } from "@/provider/ThemeProvider";
+import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useContext, useState } from "react";
+import {
+	Image,
+	Platform,
+	SafeAreaView,
+	ScrollView,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+	View,
+} from "react-native";
 
 export default function Verification() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [selectedSlug, setSelectedSlug] = useState<string>("");
 	const data = [
-		{
-			header: "NIN (National Identification Number)",
-			subHeader:
-				"Verify your account with your National Identification Number to get started.",
-			slug: "nin",
-		},
+		// {
+		// 	header: "NIN (National Identification Number)",
+		// 	subHeader:
+		// 		"Verify your account with your National Identification Number to get started.",
+		// 	slug: "nin",
+		// },
 		{
 			header: "BVN (Bank Verification Number)",
 			subHeader:
 				"Verify your account with your National Identification Number to get started.",
 			slug: "bvn",
 		},
-		{
-			header: "International Passport",
-			subHeader:
-				"Verify your account with your National Identification Number to get started.",
-			slug: "passport",
-		},
+		// {
+		// 	header: "International Passport",
+		// 	subHeader:
+		// 		"Verify your account with your National Identification Number to get started.",
+		// 	slug: "passport",
+		// },
 	];
 	return (
 		<SafeAreaView
@@ -80,7 +77,7 @@ export default function Verification() {
 							onPress={() => {
 								setSelectedSlug(item.slug);
 								setTimeout(() => {
-									router.push(`/verification/nin`);
+									router.push(`/register/verification/bvn`);
 								}, 2000);
 							}}
 						>

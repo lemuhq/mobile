@@ -8,6 +8,7 @@ export default function Input({
 	setValue,
 	keyboardType = "default",
 	placeholder,
+	editable = true,
 }: {
 	value: string;
 	setValue: Dispatch<SetStateAction<string>>;
@@ -20,6 +21,7 @@ export default function Input({
 		| "phone-pad"
 		| "url";
 	placeholder?: string;
+	editable?: boolean;
 }) {
 	const [focus, setFocus] = useState(false);
 	return (
@@ -35,12 +37,13 @@ export default function Input({
 			<TextInput
 				placeholder={placeholder || "Enter text"}
 				placeholderTextColor={Colors.silver}
-				style={{ flex: 1 }}
+				style={[{ flex: 1, opacity: editable ? 1 : 0.3 }]}
 				value={value}
 				keyboardType={keyboardType}
 				onChangeText={setValue}
 				onFocus={() => setFocus(true)}
 				onBlur={() => setFocus(false)}
+				editable={editable}
 			/>
 		</View>
 	);

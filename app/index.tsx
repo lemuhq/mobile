@@ -7,7 +7,7 @@ import { StatusBar } from "expo-status-bar";
 
 const App = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
-	const user = { name: "John Doe" };
+	const user = { name: "Joshua" };
 	useEffect(() => {
 		const prepare = async () => {
 			await new Promise((resolve) => setTimeout(resolve, 2000));

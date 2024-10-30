@@ -62,7 +62,7 @@ export default function Home() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const {
 		toggleProfileVisible,
-		handleTransactionOpen,
+		toggleTransactionModal,
 		toggleEmailVerification,
 	} = useContext(ModalContext);
 	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
@@ -145,7 +145,7 @@ export default function Home() {
 					]}
 				>
 					<View style={styles.stickyHeaderBody}>
-						<TouchableOpacity onPress={() => toggleProfileVisible(true)}>
+						<TouchableOpacity onPress={() => toggleProfileVisible()}>
 							<View style={styles.userInfoContainer}>
 								<Avatar
 									variant="sm"
@@ -296,7 +296,7 @@ export default function Home() {
 								style={styles.navigationButtons}
 								onPress={() => {
 									if (item.name === "Send") {
-										handleTransactionOpen(true);
+										toggleTransactionModal();
 									}
 								}}
 							>

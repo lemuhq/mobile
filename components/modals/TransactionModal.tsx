@@ -6,35 +6,54 @@ import {
 	Platform,
 	TouchableOpacity,
 	Image,
+	Modal,
 } from "react-native";
-
-import React, {
-	useCallback,
-	useContext,
-	useEffect,
-	useRef,
-	useState,
-} from "react";
-import { BottomSheetModal, BottomSheetView } from "@gorhom/bottom-sheet";
+import {
+	widthPercentageToDP as wp,
+	heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+import React, { useContext, useEffect, useState } from "react";
 import FontIcons from "@expo/vector-icons/Fontisto";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { StatusBar } from "expo-status-bar";
 import { ModalContext } from "@/provider/ModalProvider";
+import Animated, {
+	runOnJS,
+	useAnimatedStyle,
+	useSharedValue,
+	withSpring,
+} from "react-native-reanimated";
+import Constants from "expo-constants";
 
-const { height } = Dimensions.get("screen");
+const { height: SCREEN_HEIGHT } = Dimensions.get("screen");
 export default function TransactionModal() {
-	const { transactionOpen, handleTransactionOpen } = useContext(ModalContext);
+	const { transactionOpen, toggleTransactionModal } = useContext(ModalContext);
 	const [amount, onChangeAmount] = useState<string>("");
 	const [isActive, setIsActive] = useState<boolean>(false);
+	const statusHeight =
+		Platform.OS === "android" ? Constants.statusBarHeight : 50;
 
-	const bottomSheetModalRef = useRef<BottomSheetModal>(null);
+	const translateY = useSharedValue(SCREEN_HEIGHT);
 
-	const handleClose = useCallback(() => {
-		bottomSheetModalRef?.current?.close();
-		handleTransactionOpen(false);
-	}, []);
+	const closeModal = () => {
+		translateY.value = withSpring(SCREEN_HEIGHT, { damping: 20 }, () => {
+			runOnJS(toggleTransactionModal)();
+		});
+	};
+
+	const animatedStyle = useAnimatedStyle(() => {
+		return {
+			transform: [{ translateY: translateY.value }],
+		};
+	});
+
+	useEffect(() => {
+		if (transactionOpen) {
+			translateY.value = withSpring(0, { damping: 20 });
+		}
+	}, [transactionOpen]);
 
 	const formatCurrency = (val: string) => {
 		const cleanedValue = val.replace(/[^0-9]/g, "");
@@ -65,12 +84,6 @@ export default function TransactionModal() {
 	};
 
 	useEffect(() => {
-		if (transactionOpen) {
-			bottomSheetModalRef.current?.present();
-		}
-	}, [transactionOpen]);
-
-	useEffect(() => {
 		if (amount === "" || amount === "0.00") {
 			setIsActive(false);
 		} else {
@@ -79,264 +92,308 @@ export default function TransactionModal() {
 	}, [amount]);
 
 	return (
-		<BottomSheetModal
-			ref={bottomSheetModalRef}
-			index={1}
-			snapPoints={["100%", "100%"]}
-			onDismiss={() => {
-				handleClose();
-			}}
-			handleIndicatorStyle={{ display: "none" }}
-			topInset={-30}
+		<Modal
+			transparent
+			visible={transactionOpen}
+			animationType="none"
+			onRequestClose={closeModal}
 		>
-			<View style={{ flex: 1, backgroundColor: "black" }}>
-				<StatusBar style="light" />
-				<BottomSheetView style={styles.contentContainer}>
-					<TouchableOpacity
-						style={{
-							position: "absolute",
-							right: SPACING.space_20,
-							top: "6%",
-							zIndex: 3,
-						}}
-						onPress={handleClose}
-					>
-						<MaterialCommunityIcons
-							name="close"
-							size={24}
-							color="white"
-						/>
-					</TouchableOpacity>
+			<StatusBar style="light" backgroundColor="black" />
+			<Animated.View
+				style={[
+					animatedStyle,
+					{
+						backgroundColor: "black",
+						position: "absolute",
+						bottom: 0,
+						height: SCREEN_HEIGHT,
+						width: "100%",
+						zIndex: 2,
+						flex: 1,
+					},
+				]}
+			>
+				<View
+					style={[
+						{
+							flex: 1,
+							position: "relative",
+							paddingTop:
+								Platform.OS === "ios"
+									? statusHeight
+									: statusHeight + 52,
+							paddingHorizontal: SPACING.space_20,
+						},
+					]}
+				>
 					<View
 						style={{
-							paddingHorizontal: SPACING.space_20,
-							paddingTop: SPACING.space_30,
-							marginBottom: SPACING.space_10,
+							flexDirection: "row",
+							justifyContent: "flex-end",
 						}}
 					>
-						<Text
-							style={{
-								color: "white",
-								fontFamily: "PoppinsRegular",
-								fontSize: FONTSIZE.size_10,
-							}}
-						>
-							Current Balance
-						</Text>
-						<Text
-							style={{
-								color: "white",
-								fontFamily: "PoppinsSemiBold",
-								fontSize: FONTSIZE.size_20,
-							}}
-						>
-							₦5000.00
-						</Text>
+						<TouchableOpacity onPress={closeModal}>
+							<MaterialCommunityIcons
+								name="close"
+								size={24}
+								color="white"
+							/>
+						</TouchableOpacity>
 					</View>
-
 					<View
 						style={{
-							paddingHorizontal: SPACING.space_20,
-							marginBottom: SPACING.space_20,
+							flex: 1,
+							paddingVertical: SPACING.space_20,
+							paddingTop: SPACING.space_10,
 						}}
 					>
 						<View
 							style={{
-								backgroundColor: Colors.gunMetal,
-								minHeight: 164 - 20,
-								borderRadius: BORDERRADIUS.radius_15,
-								paddingHorizontal: SPACING.space_20,
+								marginBottom: SPACING.space_10,
+							}}
+						>
+							<Text
+								style={{
+									color: "white",
+									fontFamily: "PoppinsRegular",
+									fontSize: FONTSIZE.size_10,
+								}}
+							>
+								Current Balance
+							</Text>
+
+							<Text
+								style={{
+									color: "white",
+									fontFamily: "PoppinsSemiBold",
+									fontSize: FONTSIZE.size_20,
+								}}
+							>
+								₦5000.00
+							</Text>
+						</View>
+
+						<View
+							style={{
+								flex: 1,
 							}}
 						>
 							<View
 								style={{
-									flex: 1.9,
-									alignItems: "center",
-									justifyContent: "center",
-								}}
-							>
-								<View style={{ flexDirection: "row" }}>
-									<Text
-										style={{
-											textAlign: "center",
-											color: "white",
-											fontSize: FONTSIZE.size_30 + 3,
-											fontFamily: "PoppinsSemiBold",
-										}}
-									>
-										₦{amount || "0.00"}
-									</Text>
-								</View>
-							</View>
-							<View
-								style={{
-									flex: 1.6,
-									borderTopWidth: 1,
-									borderColor: Colors.black,
-									alignItems: "center",
-									justifyContent: "center",
+									backgroundColor: Colors.gunMetal,
+									minHeight: 164 - 20,
+									borderRadius: BORDERRADIUS.radius_15,
+									paddingHorizontal: SPACING.space_20,
 								}}
 							>
 								<View
 									style={{
-										width: "90%",
-										marginHorizontal: "auto",
-										height: 50,
-										borderRadius: 50,
-										flexDirection: "row",
-										backgroundColor: "#1A1A1A",
+										flex: 1.9,
 										alignItems: "center",
-										paddingHorizontal: 10,
-										gap: SPACING.space_10,
+										justifyContent: "center",
 									}}
 								>
-									<Image
-										source={require(`@/assets/user-transaction.png`)}
-										style={{
-											width: 36,
-											height: 36,
-											resizeMode: "cover",
-										}}
-									/>
-									<View>
+									<View style={{ flexDirection: "row" }}>
 										<Text
 											style={{
-												fontSize: 12,
+												textAlign: "center",
+												color: "white",
+												fontSize: FONTSIZE.size_30 + 3,
 												fontFamily: "PoppinsSemiBold",
-												color: "#fff",
 											}}
 										>
-											Thami Frama
-										</Text>
-										<Text
-											style={{
-												fontSize: 12,
-												fontFamily: "PoppinsRegular",
-												color: "#fff",
-											}}
-										>
-											1234567891
+											₦{amount || "0.00"}
 										</Text>
 									</View>
 								</View>
+								<View
+									style={{
+										flex: 1.6,
+										borderTopWidth: 1,
+										borderColor: Colors.black,
+										alignItems: "center",
+										justifyContent: "center",
+									}}
+								>
+									<View
+										style={{
+											width: "100%",
+											marginHorizontal: "auto",
+											height: 50,
+											borderRadius: 50,
+											flexDirection: "row",
+											backgroundColor: "#1A1A1A",
+											alignItems: "center",
+											paddingHorizontal: 10,
+											gap: SPACING.space_10,
+										}}
+									>
+										<Image
+											source={require(`@/assets/user-transaction.png`)}
+											style={{
+												width: 36,
+												height: 36,
+												resizeMode: "cover",
+											}}
+										/>
+										<View>
+											<Text
+												style={{
+													fontSize: 12,
+													fontFamily: "PoppinsSemiBold",
+													color: "#fff",
+												}}
+											>
+												Thami Frama
+											</Text>
+											<Text
+												style={{
+													fontSize: 12,
+													fontFamily: "PoppinsRegular",
+													color: "#fff",
+												}}
+											>
+												1234567891
+											</Text>
+										</View>
+									</View>
+								</View>
+							</View>
+
+							<View style={styles.keypad}>
+								<View style={styles.keyPadGroup}>
+									{[1, 2, 3].map((number) => (
+										<TouchableOpacity
+											key={number}
+											style={styles.key}
+											onPress={() => handlePress(String(number))}
+										>
+											<Text style={styles.keyText}>{number}</Text>
+										</TouchableOpacity>
+									))}
+								</View>
+
+								<View style={styles.keyPadGroup}>
+									{[4, 5, 6].map((number) => (
+										<TouchableOpacity
+											key={number}
+											style={styles.key}
+											onPress={() => handlePress(String(number))}
+										>
+											<Text style={styles.keyText}>{number}</Text>
+										</TouchableOpacity>
+									))}
+								</View>
+
+								<View style={styles.keyPadGroup}>
+									{[7, 8, 9].map((number) => (
+										<TouchableOpacity
+											key={number}
+											style={styles.key}
+											onPress={() => handlePress(String(number))}
+										>
+											<Text style={styles.keyText}>{number}</Text>
+										</TouchableOpacity>
+									))}
+								</View>
+
+								<View
+									style={{
+										flexDirection: "row",
+										alignItems: "flex-end",
+									}}
+								>
+									<TouchableOpacity
+										style={styles.key}
+										onPress={() => handlePress(String(0))}
+									>
+										<Text style={styles.keyText}>0</Text>
+									</TouchableOpacity>
+
+									<TouchableOpacity
+										style={styles.deletKey}
+										onPress={handleDeletePress}
+									>
+										<FontIcons
+											name="close"
+											size={18}
+											color={"#fff"}
+										/>
+									</TouchableOpacity>
+								</View>
+							</View>
+
+							<View
+								style={{
+									flexDirection: "row",
+									width: "100%",
+									gap: SPACING.space_10,
+									alignItems: "center",
+									paddingBottom: Platform.OS === "ios" ? 10 : 0,
+								}}
+							>
+								<TouchableOpacity
+									style={{
+										backgroundColor: Colors.gunMetal,
+
+										borderRadius: 10,
+										justifyContent: "center",
+										alignItems: "center",
+
+										flex: 1,
+										height: 52,
+
+										borderWidth: 1,
+										borderColor: Colors.silver,
+									}}
+									onPress={() => closeModal()}
+								>
+									<Text
+										style={{
+											color: "white",
+											fontFamily: "PoppinsSemiBold",
+											fontSize: 18,
+										}}
+									>
+										Cancel
+									</Text>
+								</TouchableOpacity>
+								<TouchableOpacity
+									style={{
+										backgroundColor: isActive
+											? Colors.orange
+											: Colors.gunMetal,
+										// paddingVertical: 15,
+										borderRadius: 10,
+										justifyContent: "center",
+										alignItems: "center",
+										flex: 1,
+										height: 52,
+										opacity: isActive ? 1 : 0.65,
+										borderWidth: 1,
+										borderColor: isActive
+											? Colors.orange
+											: Colors.gunMetal,
+									}}
+									onPress={closeModal}
+									disabled={!isActive}
+								>
+									<Text
+										style={{
+											color: "white",
+											fontFamily: "PoppinsSemiBold",
+											fontSize: 18,
+										}}
+									>
+										Send
+									</Text>
+								</TouchableOpacity>
 							</View>
 						</View>
 					</View>
-					<View style={styles.keypad}>
-						{[1, 2, 3].map((number) => (
-							<TouchableOpacity
-								key={number}
-								style={styles.key}
-								onPress={() => handlePress(String(number))}
-							>
-								<Text style={styles.keyText}>{number}</Text>
-							</TouchableOpacity>
-						))}
-						{[4, 5, 6].map((number) => (
-							<TouchableOpacity
-								key={number}
-								style={styles.key}
-								onPress={() => handlePress(String(number))}
-							>
-								<Text style={styles.keyText}>{number}</Text>
-							</TouchableOpacity>
-						))}
-						{[7, 8, 9].map((number) => (
-							<TouchableOpacity
-								key={number}
-								style={styles.key}
-								onPress={() => handlePress(String(number))}
-							>
-								<Text style={styles.keyText}>{number}</Text>
-							</TouchableOpacity>
-						))}
-
-						<View style={styles.emptyKey} />
-
-						<TouchableOpacity
-							style={styles.key}
-							onPress={() => String(0)}
-						>
-							<Text style={styles.keyText}>0</Text>
-						</TouchableOpacity>
-						{/* Delete Button */}
-						<TouchableOpacity
-							style={styles.emptyKey}
-							onPress={handleDeletePress}
-						>
-							<FontIcons name="close" size={20} color={"white"} />
-						</TouchableOpacity>
-					</View>
-					<View
-						style={{
-							flexDirection: "row",
-							width: "100%",
-							paddingHorizontal: SPACING.space_20,
-							gap: SPACING.space_20,
-							flex: 1,
-
-							alignItems: "flex-end",
-							paddingBottom:
-								Platform.OS === "ios" ? SPACING.space_30 : 5,
-						}}
-					>
-						<TouchableOpacity
-							style={{
-								backgroundColor: isActive
-									? Colors.orange
-									: Colors.gunMetal,
-								paddingVertical: 15,
-								borderRadius: 10,
-								justifyContent: "center",
-								alignItems: "center",
-								flex: 1,
-								opacity: isActive ? 1 : 0.65,
-								borderWidth: 1,
-								borderColor: isActive ? Colors.orange : Colors.gunMetal,
-							}}
-							onPress={handleClose}
-							disabled={!isActive}
-						>
-							<Text
-								style={{
-									color: "white",
-									fontFamily: "PoppinsSemiBold",
-									fontSize: 18,
-								}}
-							>
-								Send
-							</Text>
-						</TouchableOpacity>
-						<TouchableOpacity
-							style={{
-								backgroundColor: Colors.gunMetal,
-
-								borderRadius: 10,
-								justifyContent: "center",
-								alignItems: "center",
-								flex: 1,
-								paddingVertical: 15,
-								opacity: isActive ? 1 : 0.65,
-								borderWidth: 1,
-								borderColor: isActive ? Colors.silver : Colors.gunMetal,
-							}}
-							onPress={() => console.log("Transaction Successful")}
-							disabled={!isActive}
-						>
-							<Text
-								style={{
-									color: "white",
-									fontFamily: "PoppinsSemiBold",
-									fontSize: 18,
-								}}
-							>
-								Recieve
-							</Text>
-						</TouchableOpacity>
-					</View>
-				</BottomSheetView>
-			</View>
-		</BottomSheetModal>
+				</View>
+			</Animated.View>
+		</Modal>
 	);
 }
 
@@ -353,24 +410,39 @@ const styles = StyleSheet.create({
 	contentContainer: {
 		flex: 1,
 
-		height: Platform.OS === "ios" ? height : 0,
+		// height: Platform.OS === "ios" ? height : 0,
 		paddingTop: SPACING.space_20,
 		paddingBottom: 10,
 	},
 
+	keypad: {
+		alignItems: "center",
+		justifyContent: "center",
+		flex: 1,
+		position: "relative",
+		gap: 10,
+		marginTop: 10,
+	},
+	keyPadGroup: {
+		flexDirection: "row",
+		gap: Platform.OS === "android" ? 5 : 10,
+		marginVertical: Platform.OS === "android" ? 0 : 15,
+	},
 	key: {
-		width: 70,
-		height: 70,
-		borderRadius: 50,
-		backgroundColor: "#f0f0f0",
+		width: wp("20%"),
+		height: Platform.OS === "ios" ? hp("9%") : hp("10%"),
+
+		borderRadius: wp("100%"),
+		backgroundColor: Colors.gunMetal,
 		justifyContent: "center",
 		alignItems: "center",
-		margin: 10,
+		marginHorizontal: 10,
 	},
+
 	keyText: {
 		fontSize: 24,
-		color: "#000",
-		fontFamily: "PoppinsRegular",
+		color: "#FFF",
+		fontFamily: "PoppinsMedium",
 	},
 	emptyKey: {
 		width: 70,
@@ -381,11 +453,16 @@ const styles = StyleSheet.create({
 		alignItems: "center",
 		margin: 10,
 	},
-	keypad: {
-		flexDirection: "row",
-		flexWrap: "wrap",
+	deletKey: {
+		width: 75,
+		height: 75,
+		borderRadius: 40,
+		backgroundColor: "transparent",
 		justifyContent: "center",
-		rowGap: 20,
-		columnGap: 20,
+		alignItems: "center",
+		position: "absolute",
+		bottom: 10,
+		right: -100,
+		zIndex: 10,
 	},
 });

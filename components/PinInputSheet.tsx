@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import {
+	View,
+	Text,
+	TouchableOpacity,
+	StyleSheet,
+	Platform,
+} from "react-native";
 import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
 import FontIcons from "@expo/vector-icons/Fontisto";
 import { Colors } from "@/constants/Colors";
@@ -39,6 +45,7 @@ export default function PinInputSheet({
 			<View
 				style={{
 					paddingHorizontal: SPACING.space_20,
+					paddingBottom: SPACING.space_30,
 				}}
 			>
 				<Text style={[styles.title, { color: theme.pageTextColor }]}>
@@ -69,50 +76,68 @@ export default function PinInputSheet({
 			</View>
 
 			<View style={styles.keypad}>
-				{[1, 2, 3].map((number) => (
-					<TouchableOpacity
-						key={number}
-						style={styles.key}
-						onPress={() => handleNumberPress(number)}
-					>
-						<Text style={styles.keyText}>{number}</Text>
-					</TouchableOpacity>
-				))}
-				{[4, 5, 6].map((number) => (
-					<TouchableOpacity
-						key={number}
-						style={styles.key}
-						onPress={() => handleNumberPress(number)}
-					>
-						<Text style={styles.keyText}>{number}</Text>
-					</TouchableOpacity>
-				))}
-				{[7, 8, 9].map((number) => (
-					<TouchableOpacity
-						key={number}
-						style={styles.key}
-						onPress={() => handleNumberPress(number)}
-					>
-						<Text style={styles.keyText}>{number}</Text>
-					</TouchableOpacity>
-				))}
-				{/* Placeholder for empty space */}
-				<View style={styles.emptyKey} />
-				{/* 0 Button */}
-				<TouchableOpacity
-					style={styles.key}
-					onPress={() => handleNumberPress(0)}
+				<View style={styles.keyPadGroup}>
+					{[1, 2, 3].map((number) => (
+						<TouchableOpacity
+							key={number}
+							style={styles.key}
+							onPress={() => handleNumberPress(number)}
+						>
+							<Text style={styles.keyText}>{number}</Text>
+						</TouchableOpacity>
+					))}
+				</View>
+
+				<View style={styles.keyPadGroup}>
+					{[4, 5, 6].map((number) => (
+						<TouchableOpacity
+							key={number}
+							style={styles.key}
+							onPress={() => handleNumberPress(number)}
+						>
+							<Text style={styles.keyText}>{number}</Text>
+						</TouchableOpacity>
+					))}
+				</View>
+
+				<View style={styles.keyPadGroup}>
+					{[7, 8, 9].map((number) => (
+						<TouchableOpacity
+							key={number}
+							style={styles.key}
+							onPress={() => handleNumberPress(number)}
+						>
+							<Text style={styles.keyText}>{number}</Text>
+						</TouchableOpacity>
+					))}
+				</View>
+
+				{/* <View style={styles.emptyKey} /> */}
+				<View
+					style={{
+						flexDirection: "row",
+						// justifyContent: "center",
+						alignItems: "flex-end",
+					}}
 				>
-					<Text style={styles.keyText}>0</Text>
-				</TouchableOpacity>
-				{/* Delete Button */}
-				<TouchableOpacity
-					style={styles.emptyKey}
-					onPress={handleDeletePress}
-				>
-					{/* <Text style={styles.keyText}>⌫</Text> */}
-					<FontIcons name="close" size={18} color={theme.pageTextColor} />
-				</TouchableOpacity>
+					<TouchableOpacity
+						style={styles.key}
+						onPress={() => handleNumberPress(0)}
+					>
+						<Text style={styles.keyText}>0</Text>
+					</TouchableOpacity>
+					{/* Delete Button */}
+					<TouchableOpacity
+						style={styles.deletKey}
+						onPress={handleDeletePress}
+					>
+						<FontIcons
+							name="close"
+							size={18}
+							color={theme.pageTextColor}
+						/>
+					</TouchableOpacity>
+				</View>
 			</View>
 		</View>
 	);
@@ -138,8 +163,7 @@ const styles = StyleSheet.create({
 	pinContainer: {
 		flexDirection: "row",
 		justifyContent: "center",
-		// marginTop: 30,s
-		marginBottom: 50,
+		marginBottom: SPACING.space_30,
 	},
 	circle: {
 		width: 15,
@@ -159,17 +183,20 @@ const styles = StyleSheet.create({
 		borderRadius: 10,
 	},
 	keypad: {
-		flexDirection: "row",
-		flexWrap: "wrap",
+		alignItems: "center",
 		justifyContent: "center",
-		gap: 10,
 
-		flex: 1,
+		position: "relative",
+	},
+	keyPadGroup: {
+		flexDirection: "row",
+		gap: Platform.OS === "android" ? 5 : 10,
+		marginVertical: Platform.OS === "android" ? 0 : 15,
 	},
 	key: {
-		width: 80,
-		height: 80,
-		borderRadius: 40,
+		width: Platform.OS === "android" ? 70 : 75,
+		height: Platform.OS === "android" ? 70 : 75,
+		borderRadius: 50,
 		backgroundColor: "#f0f0f0",
 		justifyContent: "center",
 		alignItems: "center",
@@ -181,12 +208,24 @@ const styles = StyleSheet.create({
 		fontFamily: "PoppinsRegular",
 	},
 	emptyKey: {
-		width: 80,
-		height: 80,
+		width: 75,
+		height: 75,
 		borderRadius: 40,
 		backgroundColor: "transparent",
 		justifyContent: "center",
 		alignItems: "center",
-		margin: 10,
+		// margin: 10,
+	},
+	deletKey: {
+		width: 75,
+		height: 75,
+		borderRadius: 40,
+		backgroundColor: "transparent",
+		justifyContent: "center",
+		alignItems: "center",
+		position: "absolute",
+		bottom: 10,
+		right: -100,
+		zIndex: 10,
 	},
 });

@@ -41,6 +41,7 @@ export default function Register() {
 				<View
 					style={{
 						paddingHorizontal: SPACING.space_20,
+						paddingTop: SPACING.space_10,
 						flex: 1,
 					}}
 				>
@@ -58,7 +59,7 @@ export default function Register() {
 
 					<View
 						style={{
-							marginTop: SPACING.space_30,
+							marginTop: SPACING.space_10,
 							flex: 1,
 						}}
 					>

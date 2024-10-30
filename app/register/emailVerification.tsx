@@ -1,26 +1,24 @@
 import {
 	View,
 	Text,
-	SafeAreaView,
-	StyleSheet,
-	Platform,
 	KeyboardAvoidingView,
+	Platform,
+	SafeAreaView,
 	TouchableOpacity,
+	StyleSheet,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
-import { Colors } from "@/constants/Colors";
-import OtpInput from "@/components/inputs/OtpInput";
-import { router } from "expo-router";
-import Button from "@/components/Button";
-import Ionicons from "@expo/vector-icons/Ionicons";
-import globalStyles from "@/styles/global.styles";
-import { StatusBar } from "expo-status-bar";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
+import { StatusBar } from "expo-status-bar";
+import { router } from "expo-router";
+import { Ionicons } from "@expo/vector-icons";
+import Input from "@/components/inputs/Input";
+import Button from "@/components/Button";
 
-export default function ConfirmPhone() {
-	const { theme, isDarkMode } = useContext(ThemeContext);
-	const [otp, setOtp] = useState<string>("");
+export default function EmailVerification() {
+	const { isDarkMode, theme } = useContext(ThemeContext);
+	const [email, onChangeEmail] = useState<string>("");
 
 	return (
 		<KeyboardAvoidingView
@@ -28,7 +26,6 @@ export default function ConfirmPhone() {
 			keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
 			style={{ flex: 1, backgroundColor: theme.background }}
 		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<SafeAreaView
 				style={[
 					{
@@ -40,6 +37,7 @@ export default function ConfirmPhone() {
 					},
 				]}
 			>
+				<StatusBar style={isDarkMode ? "light" : "dark"} />
 				<View
 					style={{
 						paddingHorizontal: SPACING.space_20,
@@ -63,7 +61,7 @@ export default function ConfirmPhone() {
 							},
 						]}
 					>
-						Confirm Phone Number
+						Email Verification
 					</Text>
 					<Text
 						style={[
@@ -74,29 +72,30 @@ export default function ConfirmPhone() {
 							},
 						]}
 					>
-						Enter OTP code sent to the number ending with 9474
+						Enter a valid email address
 					</Text>
-
-					<View style={{ marginTop: 20, flex: 1 }}>
-						<OtpInput otpVal={otp} setOtpVal={setOtp} />
+					<View
+						style={{
+							marginTop: SPACING.space_20,
+							flex: 1,
+						}}
+					>
+						<Input
+							value={email}
+							setValue={onChangeEmail}
+							placeholder="Email address"
+							keyboardType="email-address"
+						/>
 					</View>
 					<Button
 						buttonText="Continue"
 						onPress={() => {
-							router.navigate("/register/emailVerification");
+							router.navigate("/register/confirmEmail");
 						}}
 						isLoading={false}
 						disabled={false}
 						variant="primary"
 					/>
-					<View style={{ marginTop: 10 }}>
-						<Text
-							style={{ color: theme.text, fontFamily: "PoppinsRegular" }}
-						>
-							Request new OTP in? (
-							<Text style={{ color: Colors.orange }}>00:40</Text>)
-						</Text>
-					</View>
 				</View>
 			</SafeAreaView>
 		</KeyboardAvoidingView>
