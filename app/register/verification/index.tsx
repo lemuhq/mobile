@@ -3,7 +3,7 @@ import { Colors } from "@/constants/Colors";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { FontAwesome5, MaterialCommunityIcons } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { useContext, useState } from "react";
 import {
@@ -18,27 +18,16 @@ import {
 } from "react-native";
 
 export default function Verification() {
+	const { phoneNumber }: { phoneNumber: string } = useLocalSearchParams();
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [selectedSlug, setSelectedSlug] = useState<string>("");
 	const data = [
-		// {
-		// 	header: "NIN (National Identification Number)",
-		// 	subHeader:
-		// 		"Verify your account with your National Identification Number to get started.",
-		// 	slug: "nin",
-		// },
 		{
 			header: "BVN (Bank Verification Number)",
 			subHeader:
 				"Verify your account with your National Identification Number to get started.",
 			slug: "bvn",
 		},
-		// {
-		// 	header: "International Passport",
-		// 	subHeader:
-		// 		"Verify your account with your National Identification Number to get started.",
-		// 	slug: "passport",
-		// },
 	];
 	return (
 		<SafeAreaView
@@ -77,7 +66,9 @@ export default function Verification() {
 							onPress={() => {
 								setSelectedSlug(item.slug);
 								setTimeout(() => {
-									router.push(`/register/verification/bvn`);
+									router.push(
+										`/register/verification/bvn?phoneNumber=${phoneNumber}`
+									);
 								}, 2000);
 							}}
 						>

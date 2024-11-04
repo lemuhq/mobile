@@ -11,14 +11,45 @@ import { StatusBar } from "expo-status-bar";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 import { Ionicons } from "@expo/vector-icons";
 import Button from "@/components/Button";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import Input from "@/components/inputs/Input";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import PageHeader from "@/components/PageHeader";
+import { useInitiateBvnVerficationMutation } from "@/redux/services/auth";
 
 const BvnVerification = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
-	const [ninNumber, setNinNumber] = useState<string>("");
+	const [bvnNumber, setBvnNumber] = useState<string>("");
+	const { phoneNumber }: { phoneNumber: string } = useLocalSearchParams();
+
+	const [initiateBvnVerfication, { isLoading }] =
+		useInitiateBvnVerficationMutation();
+
+	const handleBvnSubmit = async () => {
+		if (bvnNumber.length < 11) {
+			console.log("Inavlid bvn");
+			return;
+		}
+
+		try {
+			const { data, error } = await initiateBvnVerfication({
+				bvnNumber,
+				phoneNumber,
+			});
+
+			if (error) {
+				console.log("��� ~ handleBvnSubmit ~ error:", error);
+				return;
+			}
+
+			console.log("🚀 ~ handleBvnSubmit ~ data:", data);
+			router.push(
+				`/register/verification/validateBvn?identityId=${data?.identityId}&phoneNumber=${phoneNumber}`
+			);
+		} catch (error) {
+			console.log("🚀 ~ handleBvnSubmit ~ error:", error);
+		}
+	};
 	return (
 		<KeyboardAvoidingView
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -69,7 +100,7 @@ const BvnVerification = () => {
 							<Text style={{ fontFamily: "PoppinsSemiBold" }}>
 								Step 1/
 							</Text>
-							4
+							6
 						</Text>
 					</View>
 					<View
@@ -85,8 +116,8 @@ const BvnVerification = () => {
 						/>
 
 						<Input
-							value={ninNumber}
-							setValue={setNinNumber}
+							value={bvnNumber}
+							setValue={setBvnNumber}
 							placeholder="Enter your BVN"
 							keyboardType="number-pad"
 						/>
@@ -94,10 +125,10 @@ const BvnVerification = () => {
 					<Button
 						buttonText="Verify BVN"
 						onPress={() => {
-							router.navigate("/register/verification/createUser");
+							handleBvnSubmit();
 						}}
-						isLoading={false}
-						disabled={false}
+						isLoading={isLoading}
+						disabled={isLoading}
 						variant="primary"
 					/>
 				</View>

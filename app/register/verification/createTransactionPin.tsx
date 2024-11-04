@@ -8,25 +8,44 @@ import {
 import React, { useContext, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ThemeContext } from "@/provider/ThemeProvider";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 import SuccessScreenItem from "@/components/SuccessScreenItem";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 import { Ionicons } from "@expo/vector-icons";
 import PinInputSheet from "@/components/PinInputSheet";
 
 export default function CreateTransactionPin() {
+	const paramsData: {
+		firstName: string;
+		lastName: string;
+		email: string;
+		phoneNumber: string;
+		bvn: string;
+		identityType: string;
+		identityNumber: string;
+		identityId: string;
+		otp: string;
+		password: string;
+		// referalCode: string;
+	} = useLocalSearchParams();
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [pin, setPin] = useState<number[]>([]);
 	const [isSuccess, setIsSuccess] = useState<boolean>(false);
 
 	useEffect(() => {
-		if (pin.length === 4) {
+		if (pin.length === 6) {
 			setTimeout(() => {
 				setIsSuccess(true);
 			}, 2000);
 
 			setTimeout(() => {
-				router.push("/register/verification/createLoginPin");
+				router.push({
+					pathname: "/register/verification/createLoginPin",
+					params: {
+						...paramsData,
+						transactionPin: pin.join(""),
+					},
+				});
 			}, 5000);
 		}
 	}, [pin]);
@@ -85,17 +104,17 @@ export default function CreateTransactionPin() {
 								}}
 							>
 								<Text style={{ fontFamily: "PoppinsSemiBold" }}>
-									Step 3/
+									Step 4/
 								</Text>
-								4
+								5
 							</Text>
 						</View>
 						<PinInputSheet
 							header="Create Transaction Pin"
-							subheader="Create a 4 digit pin for all your transactions"
+							subheader="Create a 6 digit pin for all your transactions"
 							pin={pin}
 							setPin={setPin}
-							pinCount={4}
+							pinCount={6}
 						/>
 					</View>
 				</SafeAreaView>

@@ -41,11 +41,11 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
 	const user = null;
 
-	// useEffect(() => {
-	// 	if (!user) {
-	// 		toggleBiometrics();
-	// 	}
-	// }, [user]);
+	useEffect(() => {
+		if (!user) {
+			toggleBiometrics();
+		}
+	}, [user]);
 
 	return (
 		<>

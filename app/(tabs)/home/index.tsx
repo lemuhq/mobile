@@ -25,6 +25,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import TransactionItem from "@/components/TransactionItem";
 import TransactionModal from "@/components/modals/TransactionModal";
 import { ModalContext } from "@/provider/ModalProvider";
+import { router } from "expo-router";
 
 const transactionData: {
 	status: "success" | "failed" | "pending";
@@ -296,7 +297,8 @@ export default function Home() {
 								style={styles.navigationButtons}
 								onPress={() => {
 									if (item.name === "Send") {
-										toggleTransactionModal();
+										// toggleTransactionModal();
+										router.push("/transfer");
 									}
 								}}
 							>

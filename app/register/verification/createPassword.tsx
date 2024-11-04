@@ -8,19 +8,18 @@ import {
 	ScrollView,
 	StyleSheet,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 import { StatusBar } from "expo-status-bar";
-import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { router, useLocalSearchParams } from "expo-router";
 import PageHeader from "@/components/PageHeader";
+import PasswordInput from "@/components/inputs/PasswordInput";
 import Button from "@/components/Button";
-import { Colors } from "@/constants/Colors";
-import Input from "@/components/inputs/Input";
 
-export default function CreateUser() {
-	const params: {
+export default function CreatePassword() {
+	const paramsData: {
 		firstName: string;
 		lastName: string;
 		email: string;
@@ -30,13 +29,55 @@ export default function CreateUser() {
 		identityNumber: string;
 		identityId: string;
 		otp: string;
+		// referalCode: string;
 	} = useLocalSearchParams();
 	const { isDarkMode, theme } = useContext(ThemeContext);
-	const [email, setEmail] = useState<string>(params.email ?? "");
-	const [firstName, setFirstName] = useState<string>(params.firstName ?? "");
-	const [lastName, setLastName] = useState<string>(params?.lastName ?? "");
-	const [referalCode, setReferalCode] = useState<string>("");
-	console.log("🚀 ~ CreateUser ~ params:", params);
+	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
+	const [confirmError, setConfirmError] = useState("");
+	const [passwordError, setPasswordError] = useState("");
+
+	function passwordValidation() {
+		if (password) {
+			if (password.length < 8) {
+				setPasswordError("Password must be at least 8 characters long");
+			} else if (!/[a-z]/.test(password)) {
+				setPasswordError(
+					"Password must contain at least one lowercase letter"
+				);
+			} else if (!/[A-Z]/.test(password)) {
+				setPasswordError(
+					"Password must contain at least one uppercase letter"
+				);
+			} else if (!/[0-9]/.test(password)) {
+				setPasswordError("Password must contain at least one number");
+			} else if (!/[!@#$%^&.,*()]/.test(password)) {
+				setPasswordError(
+					"Password must contain at least one special character"
+				);
+			} else {
+				setPasswordError("");
+			}
+
+			if (confirmPassword.length !== 0) {
+				if (password !== confirmPassword) {
+					setConfirmError("Passwords do not match");
+				} else {
+					setConfirmError("");
+				}
+			} else {
+				setConfirmError("");
+			}
+		} else {
+			setPasswordError("");
+			setConfirmError("");
+		}
+	}
+
+	useEffect(() => {
+		passwordValidation();
+	}, [password, confirmPassword]);
+
 	return (
 		<SafeAreaView
 			style={[
@@ -49,7 +90,6 @@ export default function CreateUser() {
 			]}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
-
 			<View style={{ flex: 1 }}>
 				<View
 					style={{
@@ -74,7 +114,7 @@ export default function CreateUser() {
 							fontSize: FONTSIZE.size_20,
 						}}
 					>
-						<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 3/</Text>
+						<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 4/</Text>
 						6
 					</Text>
 				</View>
@@ -86,21 +126,24 @@ export default function CreateUser() {
 				>
 					<ScrollView
 						showsVerticalScrollIndicator={false}
-						contentContainerStyle={{ paddingBottom: SPACING.space_20 }}
+						contentContainerStyle={{
+							paddingBottom: SPACING.space_20,
+							flex: 1,
+						}}
 					>
 						<View
 							style={{
 								marginTop: SPACING.space_20,
 								gap: SPACING.space_20,
 								paddingHorizontal: SPACING.space_20,
+								flex: 1,
 							}}
 						>
 							<PageHeader
-								header="Account Setup"
-								subHeader="Confirm or update the following personal information with your legal name, date of birth etc."
+								header="Create new password"
+								// subHeader="Enter new password"
 								variant="left"
 							/>
-
 							<View
 								style={{
 									marginVertical: SPACING.space_20,
@@ -112,68 +155,31 @@ export default function CreateUser() {
 									<Text
 										style={[styles.inputLabel, { color: theme.text }]}
 									>
-										First Name
+										Enter new password
 									</Text>
-									<Input
-										value={firstName}
-										setValue={setFirstName}
-										placeholder="Enter First Name"
-										editable={false}
+									<PasswordInput
+										value={password}
+										setValue={setPassword}
+										errorMessage={passwordError}
 									/>
 								</View>
+
 								<View>
 									<Text
 										style={[styles.inputLabel, { color: theme.text }]}
 									>
-										Last Name
+										Confirm new password
 									</Text>
-									<Input
-										value={lastName}
-										setValue={setLastName}
-										placeholder="Enter Last Name"
-										editable={false}
+									<PasswordInput
+										value={confirmPassword}
+										setValue={setConfirmPassword}
+										errorMessage={confirmError}
 									/>
-								</View>
-								<View>
-									<Text
-										style={[styles.inputLabel, { color: theme.text }]}
-									>
-										Email
-									</Text>
-									<Input
-										value={email}
-										setValue={setEmail}
-										placeholder="Enter Email"
-									/>
-								</View>
-								<View>
-									<Text
-										style={[styles.inputLabel, { color: theme.text }]}
-									>
-										Referral Code (Optional)
-									</Text>
-									<Input
-										value={referalCode}
-										setValue={setReferalCode}
-										placeholder="Enter referral code"
-									/>
-									<Text
-										style={{
-											color: theme.text,
-											marginTop: SPACING.space_10,
-											fontSize: FONTSIZE.size_10 + 1,
-										}}
-									>
-										Whoever referred you to us will earn a cash reward
-										when you complete the sign up process and carry
-										out your first transaction
-									</Text>
 								</View>
 							</View>
 						</View>
 						<View
 							style={{
-								// backgroundColor: Colors.white,
 								paddingHorizontal: SPACING.space_20,
 								flex: 1,
 								justifyContent: "flex-end",
@@ -183,12 +189,17 @@ export default function CreateUser() {
 								buttonText="Continue"
 								onPress={() => {
 									router.push({
-										pathname: "/register/verification/createPassword",
-										params: { ...params },
+										pathname:
+											"/register/verification/createTransactionPin",
+										params: { ...paramsData, password: password },
 									});
 								}}
 								isLoading={false}
-								disabled={false}
+								disabled={
+									(passwordError || confirmError ? true : false) ||
+									!password ||
+									!confirmPassword
+								}
 								variant="primary"
 							/>
 						</View>

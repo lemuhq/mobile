@@ -4,14 +4,17 @@ import {
 	TouchableOpacity,
 	StyleSheet,
 	Platform,
+	Image,
 } from "react-native";
-import React, { Dispatch, SetStateAction, useContext, useEffect } from "react";
+import React, { Dispatch, SetStateAction, useContext } from "react";
 import FontIcons from "@expo/vector-icons/Fontisto";
 import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/provider/ThemeProvider";
-import { router } from "expo-router";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
-import { StatusBar } from "expo-status-bar";
+import {
+	widthPercentageToDP as wp,
+	heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 interface IProps {
 	header: string;
@@ -19,6 +22,7 @@ interface IProps {
 	pin: number[];
 	setPin: Dispatch<SetStateAction<number[]>>;
 	pinCount?: number;
+	hasBiometrics?: boolean;
 }
 
 export default function PinInputSheet({
@@ -27,6 +31,7 @@ export default function PinInputSheet({
 	pin,
 	setPin,
 	pinCount = 6,
+	hasBiometrics = false,
 }: IProps) {
 	const { theme } = useContext(ThemeContext);
 
@@ -121,6 +126,21 @@ export default function PinInputSheet({
 					}}
 				>
 					<TouchableOpacity
+						style={styles.biometricsKey}
+						onPress={handleDeletePress}
+					>
+						<Image
+							source={require("@/assets/face_id.png")}
+							style={{
+								width: 24,
+								height: 24,
+								// borderRadius: 100,
+								resizeMode: "cover",
+							}}
+						/>
+					</TouchableOpacity>
+
+					<TouchableOpacity
 						style={styles.key}
 						onPress={() => handleNumberPress(0)}
 					>
@@ -194,9 +214,9 @@ const styles = StyleSheet.create({
 		marginVertical: Platform.OS === "android" ? 0 : 15,
 	},
 	key: {
-		width: Platform.OS === "android" ? 70 : 75,
-		height: Platform.OS === "android" ? 70 : 75,
-		borderRadius: 50,
+		width: wp("20%"),
+		height: Platform.OS === "ios" ? hp("9%") : hp("10%"),
+		borderRadius: wp("100%"),
 		backgroundColor: "#f0f0f0",
 		justifyContent: "center",
 		alignItems: "center",
@@ -226,6 +246,18 @@ const styles = StyleSheet.create({
 		position: "absolute",
 		bottom: 10,
 		right: -100,
+		zIndex: 10,
+	},
+	biometricsKey: {
+		width: 75,
+		height: 75,
+		borderRadius: 40,
+		backgroundColor: "transparent",
+		justifyContent: "center",
+		alignItems: "center",
+		position: "absolute",
+		bottom: 10,
+		left: -100,
 		zIndex: 10,
 	},
 });

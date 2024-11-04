@@ -12,4 +12,6 @@ export const Colors = {
 	gunMetal: "rgba(52, 57, 62, 1)",
 	silver: "#C9CACD",
 	blue: "#373DA2",
+	success: "#5FD318",
+	pending: "#DC9F44",
 };
