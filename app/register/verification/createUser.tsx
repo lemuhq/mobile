@@ -1,32 +1,42 @@
 import {
 	View,
 	Text,
-	KeyboardAvoidingView,
-	Platform,
 	SafeAreaView,
+	Platform,
 	TouchableOpacity,
-	StyleSheet,
+	KeyboardAvoidingView,
 	ScrollView,
+	StyleSheet,
 } from "react-native";
 import React, { useContext, useState } from "react";
-import { StatusBar } from "expo-status-bar";
 import { ThemeContext } from "@/provider/ThemeProvider";
-import globalStyles from "@/styles/global.styles";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
-import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { router, useLocalSearchParams, usePathname } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
-import Button from "@/components/Button";
 import PageHeader from "@/components/PageHeader";
-import Input from "@/components/inputs/Input";
+import Button from "@/components/Button";
 import { Colors } from "@/constants/Colors";
+import Input from "@/components/inputs/Input";
 
-export default function UserInfo() {
+export default function CreateUser() {
+	const params: {
+		firstName: string;
+		lastName: string;
+		email: string;
+		phoneNumber: string;
+		bvn: string;
+		identityType: string;
+		identityNumber: string;
+		identityId: string;
+		otp: string;
+	} = useLocalSearchParams();
 	const { isDarkMode, theme } = useContext(ThemeContext);
-	const [email, setEmail] = useState<string>("");
-	const [firstName, setFirstName] = useState<string>("");
-	const [lastName, setLastName] = useState<string>("");
+	const [email, setEmail] = useState<string>(params.email ?? "");
+	const [firstName, setFirstName] = useState<string>(params.firstName ?? "");
+	const [lastName, setLastName] = useState<string>(params?.lastName ?? "");
 	const [referalCode, setReferalCode] = useState<string>("");
-
+	console.log("🚀 ~ CreateUser ~ params:", params);
 	return (
 		<SafeAreaView
 			style={[
@@ -65,7 +75,7 @@ export default function UserInfo() {
 						}}
 					>
 						<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 3/</Text>
-						3
+						6
 					</Text>
 				</View>
 
@@ -108,6 +118,7 @@ export default function UserInfo() {
 										value={firstName}
 										setValue={setFirstName}
 										placeholder="Enter First Name"
+										editable={false}
 									/>
 								</View>
 								<View>
@@ -120,6 +131,7 @@ export default function UserInfo() {
 										value={lastName}
 										setValue={setLastName}
 										placeholder="Enter Last Name"
+										editable={false}
 									/>
 								</View>
 								<View>
@@ -129,8 +141,8 @@ export default function UserInfo() {
 										Email
 									</Text>
 									<Input
-										value={lastName}
-										setValue={setLastName}
+										value={email}
+										setValue={setEmail}
 										placeholder="Enter Email"
 									/>
 								</View>
@@ -161,7 +173,7 @@ export default function UserInfo() {
 						</View>
 						<View
 							style={{
-								backgroundColor: Colors.white,
+								// backgroundColor: Colors.white,
 								paddingHorizontal: SPACING.space_20,
 								flex: 1,
 								justifyContent: "flex-end",
@@ -170,7 +182,10 @@ export default function UserInfo() {
 							<Button
 								buttonText="Continue"
 								onPress={() => {
-									router.navigate("/verification/transactionPin");
+									router.push({
+										pathname: "/register/verification/createPassword",
+										params: { ...params },
+									});
 								}}
 								isLoading={false}
 								disabled={false}

@@ -1,10 +1,10 @@
 import { View, Text } from "react-native";
 import React from "react";
 
-export default function BvnVerification() {
+export default function LoginScreen() {
 	return (
 		<View>
-			<Text>BvnVerification</Text>
+			<Text>Login</Text>
 		</View>
 	);
 }

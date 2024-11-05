@@ -20,6 +20,10 @@ import Animated, {
 	useSharedValue,
 	withSpring,
 } from "react-native-reanimated";
+import {
+	widthPercentageToDP as wp,
+	heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("screen");
 
@@ -78,10 +82,7 @@ const EmailVerificationModal = () => {
 								backgroundColor: "#fff",
 								position: "absolute",
 								bottom: 0,
-								height:
-									Platform.OS === "ios"
-										? SCREEN_HEIGHT - 70
-										: SCREEN_HEIGHT - 100,
+								height: hp("90%"),
 								width: "100%",
 								borderTopRightRadius: BORDERRADIUS.radius_25,
 								borderTopLeftRadius: BORDERRADIUS.radius_25,
@@ -118,16 +119,28 @@ const EmailVerificationModal = () => {
 								alignItems: "center",
 							}}
 						>
-							<Image
-								source={require("@/assets/email-verify.png")}
+							<View
 								style={{
-									width: 93,
-									height: 93,
-									backgroundColor: Colors.whiteSmoke,
-									borderRadius: BORDERRADIUS.radius_25 * 2,
+									height:
+										Platform.OS === "ios" ? hp("10%") : hp("11%"),
+									width: wp("23%"),
+									borderRadius: wp("100%"),
+
 									marginBottom: SPACING.space_20,
+									overflow: "hidden",
 								}}
-							/>
+							>
+								<Image
+									source={require("@/assets/email-verify.png")}
+									style={{
+										width: "100%",
+										height: "100%",
+										backgroundColor: Colors.whiteSmoke,
+										// borderRadius: BORDERRADIUS.radius_25 * 2,
+									}}
+								/>
+							</View>
+
 							<View>
 								<Text style={styles.infoHeader}>
 									Verify your email address

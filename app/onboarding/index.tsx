@@ -11,8 +11,6 @@ import { router } from "expo-router";
 import { SPACING } from "@/constants/Theme";
 
 const Onboarding = () => {
-	const { isDarkMode, theme } = useContext(ThemeContext);
-
 	const slidesRef = useRef<any>(null);
 	const scrollX = useRef(new Animated.Value(0)).current;
 	const [currenIndex, setCurrenIndex] = useState(0);

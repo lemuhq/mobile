@@ -8,4 +8,9 @@ async function getCurrentUserToken() {
 	return null;
 }
 
-export { getCurrentUserToken };
+async function saveLockKey(token: string) {
+	const jsonValue = JSON.stringify(token);
+	await AsyncStorage.setItem("lemu-lock", jsonValue);
+}
+
+export { getCurrentUserToken, saveLockKey };

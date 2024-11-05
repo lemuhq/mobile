@@ -36,7 +36,7 @@ export interface RoutesProps {
 }
 
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
-	const { handleScannerOpen, toggleBiometrics } = useContext(ModalContext);
+	const { toggleScannerModal, toggleBiometrics } = useContext(ModalContext);
 	const { isDarkMode, theme } = useContext(ThemeContext);
 
 	const user = null;
@@ -92,8 +92,8 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
 				<TouchableOpacity
 					onPress={() => {
-						toggleBiometrics();
-						// handleScannerOpen(true)
+						// toggleBiometrics();
+						toggleScannerModal();
 					}}
 				>
 					<View style={styles.scanButton}>

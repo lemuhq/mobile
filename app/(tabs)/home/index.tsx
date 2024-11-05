@@ -25,6 +25,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import TransactionItem from "@/components/TransactionItem";
 import TransactionModal from "@/components/modals/TransactionModal";
 import { ModalContext } from "@/provider/ModalProvider";
+import { router } from "expo-router";
 
 const transactionData: {
 	status: "success" | "failed" | "pending";
@@ -62,7 +63,7 @@ export default function Home() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const {
 		toggleProfileVisible,
-		handleTransactionOpen,
+		toggleTransactionModal,
 		toggleEmailVerification,
 	} = useContext(ModalContext);
 	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
@@ -145,7 +146,7 @@ export default function Home() {
 					]}
 				>
 					<View style={styles.stickyHeaderBody}>
-						<TouchableOpacity onPress={() => toggleProfileVisible(true)}>
+						<TouchableOpacity onPress={() => toggleProfileVisible()}>
 							<View style={styles.userInfoContainer}>
 								<Avatar
 									variant="sm"
@@ -296,7 +297,8 @@ export default function Home() {
 								style={styles.navigationButtons}
 								onPress={() => {
 									if (item.name === "Send") {
-										handleTransactionOpen(true);
+										// toggleTransactionModal();
+										router.push("/transfer");
 									}
 								}}
 							>

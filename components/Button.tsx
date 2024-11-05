@@ -1,7 +1,12 @@
 import { Colors } from "@/constants/Colors";
 import { SPACING } from "@/constants/Theme";
 import React, { FC, ReactNode } from "react";
-import { StyleSheet, Text, TouchableOpacity } from "react-native";
+import {
+	ActivityIndicator,
+	StyleSheet,
+	Text,
+	TouchableOpacity,
+} from "react-native";
 
 interface ButtonProps {
 	buttonText: string;
@@ -43,26 +48,32 @@ const Button: FC<ButtonProps> = ({
 							: variant === "outline"
 							? Colors.orange
 							: Colors.gray,
+					gap: 5,
+					opacity: isLoading || disabled ? 0.8 : 1,
 				},
 			]}
 		>
-			<Text
-				style={[
-					buttonStyles.text,
-					{
-						color:
-							variant === "primary"
-								? Colors.white
-								: variant === "dark"
-								? Colors.white
-								: variant === "outline"
-								? Colors.orange
-								: Colors.gray,
-					},
-				]}
-			>
-				{buttonText}
-			</Text>
+			{isLoading ? (
+				<ActivityIndicator size="small" color="#fff" />
+			) : (
+				<Text
+					style={[
+						buttonStyles.text,
+						{
+							color:
+								variant === "primary"
+									? Colors.white
+									: variant === "dark"
+									? Colors.white
+									: variant === "outline"
+									? Colors.orange
+									: Colors.gray,
+						},
+					]}
+				>
+					{buttonText}
+				</Text>
+			)}
 		</TouchableOpacity>
 	);
 };

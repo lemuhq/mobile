@@ -7,14 +7,20 @@ import { StatusBar } from "expo-status-bar";
 
 const App = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
-	const user = { name: "John Doe" };
+	const user = null;
+	const storageUser = { name: "Joshua" };
 	useEffect(() => {
 		const prepare = async () => {
 			await new Promise((resolve) => setTimeout(resolve, 2000));
 			if (!user) {
 				router.navigate("/onboarding");
+				// router.navigate("/register/verification/createLoginPin");
 			} else {
-				router.navigate("/(tabs)/home");
+				if (storageUser) {
+					router.navigate("/login/authUser");
+				} else {
+					router.navigate("/login");
+				}
 			}
 		};
 

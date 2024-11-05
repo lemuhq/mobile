@@ -9,10 +9,10 @@ import {
 interface ModalContextTypes {
 	profileOpen: boolean;
 	toggleProfileVisible: () => void;
-	handleScannerOpen: (value: boolean) => void;
+	toggleScannerModal: () => void;
 	scannerOpen: boolean;
 	transactionOpen: boolean;
-	handleTransactionOpen: (value: boolean) => void;
+	toggleTransactionModal: () => void;
 	emailVerificationOpen: boolean;
 	toggleEmailVerification: () => void;
 	biometricsVisible: boolean;
@@ -23,8 +23,8 @@ export const ModalContext = createContext<ModalContextTypes>({
 	profileOpen: false,
 	toggleProfileVisible: () => {},
 	scannerOpen: false,
-	handleScannerOpen: () => {},
-	handleTransactionOpen: () => {},
+	toggleScannerModal: () => {},
+	toggleTransactionModal: () => {},
 	transactionOpen: false,
 	emailVerificationOpen: false,
 	toggleEmailVerification: () => {},
@@ -43,12 +43,12 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 		setProfileOpen(!profileOpen);
 	};
 
-	const handleScannerOpen = (value: boolean) => {
-		setScannerOpen(value);
+	const toggleScannerModal = () => {
+		setScannerOpen(!scannerOpen);
 	};
 
-	const handleTransactionOpen = (value: boolean) => {
-		setTransactionOpen(value);
+	const toggleTransactionModal = () => {
+		setTransactionOpen(!transactionOpen);
 	};
 
 	const toggleEmailVerification = () => {
@@ -65,9 +65,9 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 				profileOpen,
 				toggleProfileVisible,
 				scannerOpen,
-				handleScannerOpen,
+				toggleScannerModal,
 				transactionOpen,
-				handleTransactionOpen,
+				toggleTransactionModal,
 				emailVerificationOpen,
 				toggleEmailVerification,
 				biometricsVisible,

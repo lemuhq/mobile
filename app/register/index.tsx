@@ -13,12 +13,36 @@ import { Colors } from "@/constants/Colors";
 import Button from "@/components/Button";
 import { router } from "expo-router";
 import PhoneNumberInput from "@/components/inputs/PhoneNumberInput";
-import globalStyles from "@/styles/global.styles";
 import { SPACING } from "@/constants/Theme";
+import { useSendOtpMutation } from "@/redux/services/auth";
 
 export default function Register() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [phoneNumber, setPhoneNumber] = useState<string>("");
+	const [sendOtp, { isLoading }] = useSendOtpMutation();
+	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [successMessage, setSuccessMessage] = useState<string>("");
+
+	const handleOtpRequest = async () => {
+		if (phoneNumber?.length < 11) {
+			setErrorMessage("Please enter a valid 11-digit phone number.");
+			return;
+		}
+
+		try {
+			const {
+				data: { data, message },
+			} = await sendOtp({ phoneNumber });
+
+			setSuccessMessage(message);
+			router.navigate(
+				`/register/confirmPhone?phoneNumber=${phoneNumber}&otpId=${data?.otpId}&expiryTime=${data?.expiryTime}`
+			);
+		} catch (error: any) {
+			console.log("🚀 ~ sendOtp ~ error:", error);
+			// setErrorMessage("Failed to send OTP. Please try again later.");
+		}
+	};
 
 	return (
 		<KeyboardAvoidingView
@@ -41,6 +65,7 @@ export default function Register() {
 				<View
 					style={{
 						paddingHorizontal: SPACING.space_20,
+						paddingTop: SPACING.space_10,
 						flex: 1,
 					}}
 				>
@@ -58,13 +83,14 @@ export default function Register() {
 
 					<View
 						style={{
-							marginTop: SPACING.space_30,
+							marginTop: SPACING.space_10,
 							flex: 1,
 						}}
 					>
 						<PhoneNumberInput
 							value={phoneNumber}
 							setValue={setPhoneNumber}
+							errorMessage={errorMessage}
 						/>
 						<Text
 							style={[
@@ -75,7 +101,7 @@ export default function Register() {
 								},
 							]}
 						>
-							By clicking "continue", you confirm that you agree to our{" "}
+							By clicking "continue", you confirm that you agree to our
 							<Text
 								style={{
 									fontFamily: "PoppinsSemiBold",
@@ -99,10 +125,14 @@ export default function Register() {
 					<Button
 						buttonText="Continue"
 						onPress={() => {
-							router.navigate("/register/confirmPhone");
+							handleOtpRequest();
 						}}
-						isLoading={false}
-						disabled={false}
+						isLoading={isLoading}
+						disabled={
+							(phoneNumber.length === 0 || phoneNumber.length < 11
+								? true
+								: false) || isLoading
+						}
 						variant="primary"
 					/>
 				</View>
