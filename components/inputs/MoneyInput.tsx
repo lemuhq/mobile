@@ -11,6 +11,34 @@ export default function MoneyInput({
 	setValue: Dispatch<SetStateAction<string>>;
 }) {
 	const [focus, setFocus] = useState(false);
+
+	const formatCurrency = (val: string) => {
+		const cleanedValue = val.replace(/[^0-9]/g, "");
+
+		if (/[^0-9]/.test(val.slice(-1))) {
+			return;
+		}
+
+		let numberValue = (parseInt(cleanedValue, 10) / 100).toFixed(2);
+
+		// Format the number to add commas for thousands
+		return new Intl.NumberFormat("en-US", {
+			minimumFractionDigits: 2,
+			maximumFractionDigits: 2,
+		}).format(parseFloat(numberValue));
+	};
+
+	const handleChange = (digit: string) => {
+		let newValue = digit?.replace(".", "").replace(/^0+/, "");
+
+		let formattedValue = formatCurrency(newValue);
+		if (formattedValue === "NaN") {
+			setValue("0.00");
+			return;
+		}
+
+		setValue(formattedValue!);
+	};
 	return (
 		<View
 			style={[
@@ -25,21 +53,21 @@ export default function MoneyInput({
 				style={{
 					position: "absolute",
 					left: 10,
-					transform: "translateY(14%)",
+					transform: [{ translateY: 17 }],
 					fontSize: 20,
 					fontFamily: "PoppinsBold",
 					color: Colors.orange,
 				}}
 			>
-				N
+				₦
 			</Text>
 			<TextInput
-				placeholder="Enter text"
-				style={{ flex: 1, paddingLeft: 20 }}
+				placeholder="Enter amount"
+				style={{ flex: 1, paddingLeft: 25, fontFamily: "PoppinsMedium" }}
 				placeholderTextColor={Colors.silver}
-				value={value}
+				value={String(value)}
 				keyboardType="default"
-				onChangeText={setValue}
+				onChangeText={handleChange}
 				onFocus={() => setFocus(true)}
 				onBlur={() => setFocus(false)}
 			/>

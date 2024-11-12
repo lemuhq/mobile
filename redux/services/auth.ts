@@ -103,6 +103,22 @@ export const authApi = createApi({
 				headers: { "Content-Type": "application/json" },
 			}),
 		}),
+
+		//Login user
+		loginUser: builder.mutation({
+			query: ({
+				phoneNumber,
+				password,
+			}: {
+				phoneNumber: string;
+				password: string;
+			}) => ({
+				url: "/user/login",
+				method: "POST",
+				body: { phoneNumber, password },
+				headers: { "Content-Type": "application/json" },
+			}),
+		}),
 	}),
 });
 
@@ -113,4 +129,5 @@ export const {
 	useInitiateBvnVerficationMutation,
 	useValidateBvnVerificationMutation,
 	useCreateNewUserMutation,
+	useLoginUserMutation,
 } = authApi;

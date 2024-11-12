@@ -6,13 +6,13 @@ import { Colors } from "@/constants/Colors";
 import TabBarButton from "./TabBarButton";
 import { BORDERRADIUS, SPACING } from "@/constants/Theme";
 
-import Modal from "../Modal";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import ScanModal from "../modals/ScanModal";
 import ProfileModal from "../modals/ProfileModal";
 import { ModalContext } from "@/provider/ModalProvider";
 import EmailVerificationModal from "../modals/EmailVerificationModal";
 import BiometricsModal from "../modals/BiometricsModal";
+import TransactionModal from "../modals/TransactionModal";
 
 interface BottomTabBarProps {
 	state: {
@@ -39,13 +39,13 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 	const { toggleScannerModal, toggleBiometrics } = useContext(ModalContext);
 	const { isDarkMode, theme } = useContext(ThemeContext);
 
-	const user = null;
+	// const user = null;
 
-	useEffect(() => {
-		if (!user) {
-			toggleBiometrics();
-		}
-	}, [user]);
+	// useEffect(() => {
+	// 	if (!user) {
+	// 		toggleBiometrics();
+	// 	}
+	// }, [user]);
 
 	return (
 		<>
@@ -143,6 +143,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 			<ScanModal />
 			<ProfileModal />
 			<EmailVerificationModal />
+			<TransactionModal />
 
 			{/* <ModalOverlay /> */}
 		</>

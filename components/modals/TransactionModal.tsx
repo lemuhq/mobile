@@ -2,11 +2,9 @@ import {
 	View,
 	Text,
 	StyleSheet,
-	Dimensions,
 	Platform,
 	TouchableOpacity,
 	Image,
-	Modal,
 } from "react-native";
 import {
 	widthPercentageToDP as wp,
@@ -19,41 +17,18 @@ import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { Colors } from "@/constants/Colors";
 import { StatusBar } from "expo-status-bar";
 import { ModalContext } from "@/provider/ModalProvider";
-import Animated, {
-	runOnJS,
-	useAnimatedStyle,
-	useSharedValue,
-	withSpring,
-} from "react-native-reanimated";
 import Constants from "expo-constants";
+import BottomSheetModal from "./BottomSheetModal";
+import { useGetCurrentUserQuery } from "@/redux/services/user";
 
-const { height: SCREEN_HEIGHT } = Dimensions.get("screen");
 export default function TransactionModal() {
 	const { transactionOpen, toggleTransactionModal } = useContext(ModalContext);
+	const { data } = useGetCurrentUserQuery();
+
 	const [amount, onChangeAmount] = useState<string>("");
 	const [isActive, setIsActive] = useState<boolean>(false);
 	const statusHeight =
 		Platform.OS === "android" ? Constants.statusBarHeight : 50;
-
-	const translateY = useSharedValue(SCREEN_HEIGHT);
-
-	const closeModal = () => {
-		translateY.value = withSpring(SCREEN_HEIGHT, { damping: 20 }, () => {
-			runOnJS(toggleTransactionModal)();
-		});
-	};
-
-	const animatedStyle = useAnimatedStyle(() => {
-		return {
-			transform: [{ translateY: translateY.value }],
-		};
-	});
-
-	useEffect(() => {
-		if (transactionOpen) {
-			translateY.value = withSpring(0, { damping: 20 });
-		}
-	}, [transactionOpen]);
 
 	const formatCurrency = (val: string) => {
 		const cleanedValue = val.replace(/[^0-9]/g, "");
@@ -92,37 +67,19 @@ export default function TransactionModal() {
 	}, [amount]);
 
 	return (
-		<Modal
-			transparent
-			visible={transactionOpen}
-			animationType="none"
-			onRequestClose={closeModal}
+		<BottomSheetModal
+			isOpen={transactionOpen}
+			onDismiss={toggleTransactionModal}
+			fullHeight={true}
 		>
 			<StatusBar style="light" backgroundColor="black" />
-			<Animated.View
-				style={[
-					animatedStyle,
-					{
-						backgroundColor: "black",
-						position: "absolute",
-						bottom: 0,
-						height: SCREEN_HEIGHT,
-						width: "100%",
-						zIndex: 2,
-						flex: 1,
-					},
-				]}
-			>
+			<View style={styles.contentContainer}>
 				<View
 					style={[
+						styles.formWrapper,
 						{
-							flex: 1,
-							position: "relative",
-							paddingTop:
-								Platform.OS === "ios"
-									? statusHeight
-									: statusHeight + 52,
-							paddingHorizontal: SPACING.space_20,
+							paddingTop: statusHeight,
+							paddingBottom: statusHeight - 30,
 						},
 					]}
 				>
@@ -132,7 +89,7 @@ export default function TransactionModal() {
 							justifyContent: "flex-end",
 						}}
 					>
-						<TouchableOpacity onPress={closeModal}>
+						<TouchableOpacity onPress={toggleTransactionModal}>
 							<MaterialCommunityIcons
 								name="close"
 								size={24}
@@ -140,11 +97,11 @@ export default function TransactionModal() {
 							/>
 						</TouchableOpacity>
 					</View>
+
 					<View
 						style={{
 							flex: 1,
-							paddingVertical: SPACING.space_20,
-							paddingTop: SPACING.space_10,
+							paddingBottom: SPACING.space_20,
 						}}
 					>
 						<View
@@ -152,24 +109,10 @@ export default function TransactionModal() {
 								marginBottom: SPACING.space_10,
 							}}
 						>
-							<Text
-								style={{
-									color: "white",
-									fontFamily: "PoppinsRegular",
-									fontSize: FONTSIZE.size_10,
-								}}
-							>
-								Current Balance
-							</Text>
+							<Text style={styles.currentBalance}>Current Balance</Text>
 
-							<Text
-								style={{
-									color: "white",
-									fontFamily: "PoppinsSemiBold",
-									fontSize: FONTSIZE.size_20,
-								}}
-							>
-								₦5000.00
+							<Text style={styles.amountText}>
+								₦{data?.accountBalance}
 							</Text>
 						</View>
 
@@ -237,22 +180,10 @@ export default function TransactionModal() {
 											}}
 										/>
 										<View>
-											<Text
-												style={{
-													fontSize: 12,
-													fontFamily: "PoppinsSemiBold",
-													color: "#fff",
-												}}
-											>
+											<Text style={styles.receiverName}>
 												Thami Frama
 											</Text>
-											<Text
-												style={{
-													fontSize: 12,
-													fontFamily: "PoppinsRegular",
-													color: "#fff",
-												}}
-											>
+											<Text style={styles.receiverAccountNumber}>
 												1234567891
 											</Text>
 										</View>
@@ -346,7 +277,7 @@ export default function TransactionModal() {
 										borderWidth: 1,
 										borderColor: Colors.silver,
 									}}
-									onPress={() => closeModal()}
+									onPress={() => toggleTransactionModal()}
 								>
 									<Text
 										style={{
@@ -363,7 +294,6 @@ export default function TransactionModal() {
 										backgroundColor: isActive
 											? Colors.orange
 											: Colors.gunMetal,
-										// paddingVertical: 15,
 										borderRadius: 10,
 										justifyContent: "center",
 										alignItems: "center",
@@ -375,7 +305,7 @@ export default function TransactionModal() {
 											? Colors.orange
 											: Colors.gunMetal,
 									}}
-									onPress={closeModal}
+									onPress={toggleTransactionModal}
 									disabled={!isActive}
 								>
 									<Text
@@ -392,8 +322,8 @@ export default function TransactionModal() {
 						</View>
 					</View>
 				</View>
-			</Animated.View>
-		</Modal>
+			</View>
+		</BottomSheetModal>
 	);
 }
 
@@ -404,15 +334,21 @@ const styles = StyleSheet.create({
 		backgroundColor: "grey",
 	},
 	sheetContainer: {
-		// add horizontal space
 		marginHorizontal: 24,
 	},
 	contentContainer: {
+		backgroundColor: "black",
+		width: "100%",
+		zIndex: 2,
 		flex: 1,
-
-		// height: Platform.OS === "ios" ? height : 0,
-		paddingTop: SPACING.space_20,
-		paddingBottom: 10,
+	},
+	formWrapper: {
+		flex: 1,
+		padding: SPACING.space_20,
+		gap: wp("5%"),
+		width: "100%",
+		overflow: "hidden",
+		zIndex: 2,
 	},
 
 	keypad: {
@@ -464,5 +400,29 @@ const styles = StyleSheet.create({
 		bottom: 10,
 		right: -100,
 		zIndex: 10,
+	},
+
+	currentBalance: {
+		color: "white",
+		fontFamily: "PoppinsRegular",
+		fontSize: FONTSIZE.size_10,
+	},
+
+	amountText: {
+		color: "white",
+		fontFamily: "PoppinsSemiBold",
+		fontSize: FONTSIZE.size_20,
+	},
+
+	receiverName: {
+		fontSize: 12,
+		fontFamily: "PoppinsSemiBold",
+		color: "#fff",
+	},
+
+	receiverAccountNumber: {
+		fontSize: 12,
+		fontFamily: "PoppinsRegular",
+		color: "#fff",
 	},
 });

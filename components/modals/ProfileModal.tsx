@@ -1,226 +1,167 @@
 import {
 	View,
 	Text,
-	Dimensions,
 	StyleSheet,
 	TouchableOpacity,
 	Image,
-	Modal,
 	Platform,
 } from "react-native";
-import React, { useContext, useEffect } from "react";
+import React, { useContext } from "react";
 import { ModalContext } from "@/provider/ModalProvider";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Colors } from "@/constants/Colors";
-import Animated, {
-	runOnJS,
-	useAnimatedStyle,
-	useSharedValue,
-	withSpring,
-} from "react-native-reanimated";
 import {
 	widthPercentageToDP as wp,
 	heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-
-const { height: SCREEN_HEIGHT } = Dimensions.get("screen");
+import { useGetCurrentUserQuery } from "@/redux/services/user";
+import BottomSheetModal from "./BottomSheetModal";
 
 const ProfileModal = () => {
 	const { profileOpen, toggleProfileVisible } = useContext(ModalContext);
-
-	const translateY = useSharedValue(SCREEN_HEIGHT);
-
-	const closeModal = () => {
-		translateY.value = withSpring(SCREEN_HEIGHT, { damping: 20 }, () => {
-			runOnJS(toggleProfileVisible)();
-		});
-	};
-
-	const animatedStyle = useAnimatedStyle(() => {
-		return {
-			transform: [{ translateY: translateY.value }],
-		};
-	});
-
-	useEffect(() => {
-		if (profileOpen) {
-			translateY.value = withSpring(0, { damping: 20 });
-		}
-	}, [profileOpen]);
+	const { data, error, isLoading, refetch } = useGetCurrentUserQuery();
 
 	return (
-		<Modal
-			transparent
-			visible={profileOpen}
-			animationType="none"
-			onRequestClose={closeModal}
-		>
+		<BottomSheetModal isOpen={profileOpen} onDismiss={toggleProfileVisible}>
 			<View
 				style={[
 					{
-						position: "absolute",
-						top: 0,
-						left: 0,
-						right: 0,
-						bottom: 0,
+						width: "100%",
+						padding: SPACING.space_20,
+						overflow: "hidden",
+						zIndex: 2,
+						paddingBottom:
+							Platform.OS === "ios"
+								? SPACING.space_30
+								: SPACING.space_10,
 						flex: 1,
-						zIndex: 1,
-						backgroundColor: "rgba(0,0,0,.8)",
-						height: "100%",
+						gap: wp("10%"),
 					},
-					,
 				]}
 			>
-				<Animated.View
-					style={[
-						animatedStyle,
-						{
-							backgroundColor: "#fff",
-							position: "absolute",
-							bottom: 0,
-							height: hp("90%"),
-							width: "100%",
-							borderTopRightRadius: BORDERRADIUS.radius_25,
-							borderTopLeftRadius: BORDERRADIUS.radius_25,
-							padding: SPACING.space_20,
-							overflow: "hidden",
-							zIndex: 2,
-							paddingBottom:
-								Platform.OS === "ios"
-									? SPACING.space_30
-									: SPACING.space_10,
-							flex: 1,
-						},
-					]}
+				<TouchableOpacity
+					style={{
+						position: "absolute",
+						right: SPACING.space_20,
+						top: "3%",
+						zIndex: 3,
+					}}
+					onPress={toggleProfileVisible}
 				>
-					<TouchableOpacity
+					<MaterialCommunityIcons name="close" size={24} color="black" />
+				</TouchableOpacity>
+				<View style={styles.imageWrapper}>
+					<View
 						style={{
-							position: "absolute",
-							right: SPACING.space_20,
-							top: "3%",
-							zIndex: 3,
+							height: Platform.OS === "ios" ? hp("10%") : hp("11%"),
+							width: wp("23%"),
+							borderRadius: wp("100%"),
+
+							marginBottom: SPACING.space_10,
+							overflow: "hidden",
 						}}
-						onPress={closeModal}
 					>
-						<MaterialCommunityIcons
-							name="close"
-							size={24}
-							color="black"
-						/>
-					</TouchableOpacity>
-
-					<View style={styles.imageWrapper}>
-						<View
+						<Image
+							// source={require("@/assets/default-user.png")}
+							source={{ uri: data?.image }}
 							style={{
-								height: Platform.OS === "ios" ? hp("10%") : hp("11%"),
-								width: wp("23%"),
+								width: "100%",
+								height: "100%",
+								backgroundColor: Colors.whiteSmoke,
 								borderRadius: wp("100%"),
-
-								marginBottom: SPACING.space_10,
-								overflow: "hidden",
+								objectFit: "cover",
 							}}
-						>
-							<Image
-								source={require("@/assets/default-user.png")}
-								style={{
-									width: "100%",
-									height: "100%",
-									backgroundColor: Colors.whiteSmoke,
-									borderRadius: wp("100%"),
-									objectFit: "cover",
-								}}
-							/>
-						</View>
-
-						<View>
-							<Text style={styles.fullName}>Joshua Magani</Text>
-							<Text style={styles.accountType}>
-								Lemu Premium Account
-							</Text>
-						</View>
+						/>
 					</View>
 
-					<View style={styles.scannerWrapper}>
-						<View
-							style={{
-								// padding: 10,
-								borderWidth: 2,
-								borderColor: Colors.whiteSmoke,
-								alignItems: "center",
-								justifyContent: "center",
-								width: wp("50%"),
-								height: hp("25%"),
-								borderTopLeftRadius: 50,
-								borderBottomRightRadius: 50,
-								paddingTop: SPACING.space_10,
-								// backgroundColor: "red",
-							}}
-						>
-							<Image
-								source={require("@/assets/profile-scanner.png")}
-								style={{
-									width: "90%",
-									height: "90%",
-
-									marginBottom: SPACING.space_8,
-									objectFit: "contain",
-								}}
-							/>
-						</View>
-						<Text style={styles.accountType}>
-							Scan the QR code above to send or receive money.
+					<View>
+						<Text style={styles.fullName}>
+							{data?.firstName + " " + data?.lastName}
 						</Text>
+						<Text style={styles.accountType}>Lemu Premium Account</Text>
 					</View>
+				</View>
 
-					<View style={styles.userInfoWrapper}>
+				<View style={styles.scannerWrapper}>
+					<View
+						style={{
+							// padding: 10,
+							borderWidth: 2,
+							borderColor: Colors.whiteSmoke,
+							alignItems: "center",
+							justifyContent: "center",
+							width: wp("50%"),
+							height: hp("25%"),
+							borderTopLeftRadius: 50,
+							borderBottomRightRadius: 50,
+							paddingTop: SPACING.space_10,
+							// backgroundColor: "red",
+						}}
+					>
+						<Image
+							source={require("@/assets/profile-scanner.png")}
+							style={{
+								width: "90%",
+								height: "90%",
+
+								marginBottom: SPACING.space_8,
+								objectFit: "contain",
+							}}
+						/>
+					</View>
+					<Text style={styles.accountType}>
+						Scan the QR code above to send or receive money.
+					</Text>
+				</View>
+
+				<View style={styles.userInfoWrapper}>
+					<View>
+						<Text style={styles.userTitle}>Account Name</Text>
+						<Text style={styles.userName}>{data?.accountName}</Text>
+					</View>
+					<View>
+						<Text style={styles.userTitle}>Bank Name</Text>
+						<Text style={styles.userName}>Safe Haven MFB</Text>
+					</View>
+					<View
+						style={{
+							flexDirection: "row",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
 						<View>
-							<Text style={styles.userTitle}>Account Name</Text>
-							<Text style={styles.userName}>Joshua Magani</Text>
+							<Text style={styles.userTitle}>Account Number</Text>
+							<Text style={styles.userName}>{data?.accountNumber}</Text>
 						</View>
-						<View>
-							<Text style={styles.userTitle}>Bank Name</Text>
-							<Text style={styles.userName}>Safe Haven MFB</Text>
-						</View>
-						<View
+						<TouchableOpacity
 							style={{
 								flexDirection: "row",
 								justifyContent: "space-between",
-								alignItems: "center",
+								gap: SPACING.space_2,
 							}}
 						>
-							<View>
-								<Text style={styles.userTitle}>Bank Name</Text>
-								<Text style={styles.userName}>Safe Haven MFB</Text>
-							</View>
-							<TouchableOpacity
+							<Text
 								style={{
-									flexDirection: "row",
-									justifyContent: "space-between",
-									gap: SPACING.space_2,
+									fontSize: FONTSIZE.size_12,
+									fontFamily: "PoppinsMedium",
+									color: Colors.black,
 								}}
 							>
-								<Text
-									style={{
-										fontSize: FONTSIZE.size_12,
-										fontFamily: "PoppinsMedium",
-										color: Colors.black,
-									}}
-								>
-									Copy
-								</Text>
-								<MaterialIcons
-									name="content-copy"
-									size={18}
-									color={Colors.orange}
-								/>
-							</TouchableOpacity>
-						</View>
+								Copy
+							</Text>
+							<MaterialIcons
+								name="content-copy"
+								size={18}
+								color={Colors.orange}
+							/>
+						</TouchableOpacity>
 					</View>
-				</Animated.View>
+				</View>
 			</View>
-		</Modal>
+		</BottomSheetModal>
 	);
 };
 

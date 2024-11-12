@@ -21,7 +21,8 @@ import {
 } from "react-native-responsive-screen";
 import { Colors } from "@/constants/Colors";
 import VerificationSuccess from "@/components/VerificationSuccessScreen";
-import { saveLockKey } from "@/helpers/token";
+import useToast from "@/hooks/useToast";
+import { storage } from "@/utils/storage";
 
 export default function CreateLoginPin() {
 	const paramsData: {
@@ -40,21 +41,21 @@ export default function CreateLoginPin() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [pin, setPin] = useState<number[]>([]);
 	// const [isSuccess, setIsSuccess] = useState<boolean>(false);
-	console.log("🚀 ~ CreateLoginPin ~ paramsData:", paramsData);
+	const { showCustomToast } = useToast();
 
 	const [createNewUser, { isLoading, isSuccess: verificationSuccess }] =
 		useCreateNewUserMutation();
 
+	// 08170923421
 	async function handleCreateUser() {
 		const userData = { ...paramsData, lockPin: pin.join("") };
-		console.log("🚀 ~ handleCreateUser ~ data:", userData);
 
 		try {
 			const { data, error } = await createNewUser({
 				phoneNumber: userData.phoneNumber,
 				emailAddress: "jkwaltomayi@gmail.com",
 				identityType: "BVN",
-				identityNumber: userData.identityNumber,
+				identityNumber: "22446422520", //userData.identityNumber,
 				identityId: userData.identityId,
 				otp: userData.otp,
 				password: userData.password,
@@ -64,11 +65,20 @@ export default function CreateLoginPin() {
 
 			if (error) {
 				console.log("��� ~ handleCreateUser ~ error:", error);
+
+				showCustomToast(
+					"error",
+					//@ts-ignore
+					error?.data?.message ?? error?.message ?? "Failed to create user"
+				);
+
 				return;
 			}
-			console.log("🚀 ~ handleCreateUser ~ data:", data);
 
-			saveLockKey(userData?.lockPin);
+			await storage.saveLockPin(userData?.lockPin);
+			await storage.saveUserFirstName(userData?.firstName);
+
+			router.push("/login");
 		} catch (err) {
 			console.log("��� ~ handleCreateUser ~ err:", err);
 		}

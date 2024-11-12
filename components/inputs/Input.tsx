@@ -9,6 +9,7 @@ export default function Input({
 	keyboardType = "default",
 	placeholder,
 	editable = true,
+	maxLength = 1000,
 }: {
 	value: string;
 	setValue: Dispatch<SetStateAction<string>>;
@@ -22,6 +23,7 @@ export default function Input({
 		| "url";
 	placeholder?: string;
 	editable?: boolean;
+	maxLength?: number;
 }) {
 	const [focus, setFocus] = useState(false);
 	return (
@@ -44,6 +46,7 @@ export default function Input({
 				onFocus={() => setFocus(true)}
 				onBlur={() => setFocus(false)}
 				editable={editable}
+				maxLength={maxLength}
 			/>
 		</View>
 	);

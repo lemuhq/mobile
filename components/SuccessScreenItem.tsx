@@ -1,14 +1,23 @@
-import { View, Text, Image, useWindowDimensions } from "react-native";
+import {
+	View,
+	Text,
+	Image,
+	useWindowDimensions,
+	TouchableOpacity,
+} from "react-native";
 import React from "react";
 import { Colors } from "@/constants/Colors";
-import { FONTSIZE, SPACING } from "@/constants/Theme";
+import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
+import Button from "./Button";
 
 export default function SuccessScreenItem({
 	header,
 	subHeader,
+	handleProceed,
 }: {
 	header: string;
 	subHeader: string;
+	handleProceed?: () => void;
 }) {
 	const { width, height } = useWindowDimensions();
 
@@ -71,6 +80,31 @@ export default function SuccessScreenItem({
 				>
 					{subHeader}
 				</Text>
+
+				{handleProceed && (
+					<TouchableOpacity
+						style={{
+							backgroundColor: "transparent",
+							borderWidth: 1,
+							borderColor: Colors.white,
+							paddingHorizontal: SPACING.space_30,
+							paddingVertical: SPACING.space_10,
+							borderRadius: BORDERRADIUS.radius_10,
+						}}
+						onPress={handleProceed}
+					>
+						<Text
+							style={{
+								color: Colors.white,
+								fontFamily: "PoppinsMedium",
+								fontSize: FONTSIZE.size_14,
+								textAlign: "center",
+							}}
+						>
+							Done
+						</Text>
+					</TouchableOpacity>
+				)}
 			</View>
 			<View
 				style={{

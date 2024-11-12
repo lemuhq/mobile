@@ -1,18 +1,9 @@
-import {
-	View,
-	Text,
-	SafeAreaView,
-	Platform,
-	TouchableOpacity,
-	Image,
-} from "react-native";
+import { View, Text, Platform, TouchableOpacity, Image } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import SuccessScreenItem from "@/components/SuccessScreenItem";
-import { FONTSIZE, SPACING } from "@/constants/Theme";
-import { Ionicons } from "@expo/vector-icons";
 import PinInputSheet from "@/components/PinInputSheet";
 import {
 	widthPercentageToDP as wp,
@@ -20,23 +11,66 @@ import {
 } from "react-native-responsive-screen";
 import { Colors } from "@/constants/Colors";
 import Constants from "expo-constants";
+import { fetchCurrentUser } from "@/redux/slice/user.slice";
+import useToast from "@/hooks/useToast";
+import { storage } from "@/utils/storage";
 
 const AuthenticatedUser = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
+	const { showCustomToast } = useToast();
 	const [pin, setPin] = useState<number[]>([]);
 	const [isSuccess, setIsSuccess] = useState<boolean>(false);
 	const statusHeight =
 		Platform.OS === "android" ? Constants.statusBarHeight : 60;
+	const [lockKey, setLockKey] = useState<string>("");
+	const [firstName, setFirstName] = useState<string>("");
+
+	async function verifyPin() {
+		try {
+			if (pin.join("").toString() === lockKey) {
+				// console.log("Pin already");
+				setIsSuccess(true);
+				const response = await fetchCurrentUser();
+
+				if (response) {
+					if (response.message === "Invalid token.") {
+						showCustomToast("error", response.message);
+
+						router.push("/login");
+
+						return;
+					}
+
+					router.push("/(tabs)/home");
+				}
+			} else {
+				alert("Incorrect pin");
+			}
+			setPin([]);
+		} catch (error) {
+			console.log(error);
+		}
+	}
 
 	useEffect(() => {
-		if (pin.length === 6) {
-			setTimeout(() => {
-				setIsSuccess(true);
-			}, 2000);
+		async function fetchLockKey() {
+			const lockPin = await storage.getLockPin();
+			const lockUser = await storage.getUserFirstName();
 
-			setTimeout(() => {
-				router.push("/(tabs)/home");
-			}, 5000);
+			if (lockPin && lockUser) {
+				setLockKey(lockPin);
+				setFirstName(lockUser);
+			} else {
+				router.push("/login");
+			}
+		}
+
+		fetchLockKey();
+	}, []);
+
+	useEffect(() => {
+		if (pin.length === 4) {
+			verifyPin();
 		}
 	}, [pin]);
 
@@ -81,11 +115,11 @@ const AuthenticatedUser = () => {
 							/>
 						</View>
 						<PinInputSheet
-							header="Welcome back, Afy"
+							header={`Welcome back, ${firstName}`}
 							subheader="Enter passcode to continue"
 							pin={pin}
 							setPin={setPin}
-							pinCount={6}
+							pinCount={4}
 							hasBiometrics={true}
 						/>
 						<View
@@ -108,20 +142,6 @@ const AuthenticatedUser = () => {
 						</View>
 					</View>
 				</>
-				// <SafeAreaView
-				// 	style={[
-				// 		{
-				// 			flex: 1,
-				// 			backgroundColor: theme.background,
-				// 			paddingTop:
-				// 				Platform.OS === "android" ? SPACING.space_20 : 0,
-				// 			paddingBottom:
-				// 				Platform.OS === "android" ? SPACING.space_10 : 0,
-				// 		},
-				// 	]}
-				// >
-
-				// </SafeAreaView>
 			)}
 		</>
 	);

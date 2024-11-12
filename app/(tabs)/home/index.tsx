@@ -8,11 +8,11 @@ import {
 	Pressable,
 	Platform,
 	TouchableOpacity,
+	ActivityIndicator,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ThemeContext } from "@/provider/ThemeProvider";
-import globalStyles from "@/styles/global.styles";
 import { Colors } from "@/constants/Colors";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -26,6 +26,18 @@ import TransactionItem from "@/components/TransactionItem";
 import TransactionModal from "@/components/modals/TransactionModal";
 import { ModalContext } from "@/provider/ModalProvider";
 import { router } from "expo-router";
+import { useGetCurrentUserQuery } from "@/redux/services/user";
+import { useDispatch } from "react-redux";
+import DebitCard from "@/components/DebitCard";
+import { useGetBankListQuery } from "@/redux/services/transfer";
+import {
+	clearBeneficiaryUser,
+	clearPaymentData,
+	setBankList,
+} from "@/redux/slice/transfer.slice";
+import { storage } from "@/utils/storage";
+import { useFocusEffect } from "@react-navigation/native";
+import { setCurrentUser } from "@/redux/slice/user.slice";
 
 const transactionData: {
 	status: "success" | "failed" | "pending";
@@ -60,13 +72,46 @@ const transactionData: {
 ];
 
 export default function Home() {
+	const dispatch = useDispatch();
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const {
 		toggleProfileVisible,
 		toggleTransactionModal,
 		toggleEmailVerification,
 	} = useContext(ModalContext);
-	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
+
+	const { data, isLoading, refetch } = useGetCurrentUserQuery();
+
+	useEffect(() => {
+		async function saveUserPin() {
+			if (data) {
+				await storage.saveLockPin(data.lockPin);
+			}
+		}
+
+		saveUserPin();
+	}, [data]);
+
+	// This will run every time the screen comes into focus
+	useFocusEffect(
+		React.useCallback(() => {
+			refetch();
+
+			// Optional: Clean up function
+			return () => {
+				dispatch(clearPaymentData());
+				dispatch(clearBeneficiaryUser());
+			};
+		}, [refetch])
+	);
+
+	const { data: bankData, isLoading: bankLoading } = useGetBankListQuery({});
+
+	useEffect(() => {
+		if (bankData && !bankLoading) {
+			dispatch(setBankList(bankData.data));
+		}
+	}, [bankData, bankLoading]);
 
 	const widgetsData: { name: string; icon: any }[] = [
 		{
@@ -115,6 +160,16 @@ export default function Home() {
 		},
 	];
 
+	if (isLoading) {
+		return (
+			<View
+				style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+			>
+				<ActivityIndicator size="large" />
+			</View>
+		);
+	}
+
 	return (
 		<SafeAreaView
 			style={[
@@ -152,7 +207,7 @@ export default function Home() {
 									variant="sm"
 									imageUrl={require(`@/assets/default-user.png`)}
 								/>
-								<Text>Hello, Joshua</Text>
+								<Text>Hello, {data?.firstName}</Text>
 								<MaterialIcons
 									name="keyboard-arrow-down"
 									size={18}
@@ -190,105 +245,7 @@ export default function Home() {
 						},
 					]}
 				>
-					<LinearGradient
-						colors={
-							isDarkMode
-								? [Colors.orangeTint, Colors.orange]
-								: ["#3E3E3E", "#1C1C1C"]
-						}
-						style={styles.card}
-					>
-						<View style={styles.cardContentWrapper}>
-							<View
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-									justifyContent: "space-between",
-								}}
-							>
-								<Image
-									source={require(`@/assets/lemu-icon.png`)}
-									style={{
-										width: 18,
-										height: 18,
-										resizeMode: "cover",
-									}}
-								/>
-
-								<Text
-									style={{
-										fontSize: FONTSIZE.size_12,
-										color: isDarkMode ? Colors.black : Colors.white,
-										fontFamily: "PoppinsLight",
-									}}
-								>
-									Show Account Details
-								</Text>
-							</View>
-
-							<View
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-									justifyContent: "space-between",
-								}}
-							>
-								<View>
-									<Text
-										style={{
-											color: isDarkMode
-												? Colors.black
-												: Colors.white,
-											fontSize: FONTSIZE.size_10,
-											fontFamily: "PoppinsRegular",
-										}}
-									>
-										Orange Balance
-									</Text>
-									<Text
-										style={{
-											color: isDarkMode
-												? Colors.black
-												: Colors.white,
-											fontSize: FONTSIZE.size_20,
-											fontFamily: "PoppinsSemiBold",
-										}}
-									>
-										<Text>{"\u20A6"}</Text> 3,000
-									</Text>
-								</View>
-
-								<Pressable>
-									{balanceVisible ? (
-										<MaterialCommunityIcons
-											name="eye"
-											size={24}
-											color={
-												isDarkMode ? Colors.black : Colors.white
-											}
-										/>
-									) : (
-										<MaterialCommunityIcons
-											name="eye-off"
-											size={24}
-											color={Colors.orange}
-										/>
-									)}
-								</Pressable>
-							</View>
-						</View>
-
-						<View style={styles.cardBackgroundImage}>
-							<Image
-								source={require(`@/assets/card-icons.png`)}
-								style={{
-									resizeMode: "cover",
-									width: "100%",
-									height: "100%",
-								}}
-							/>
-						</View>
-					</LinearGradient>
+					<DebitCard isLoading={true} currentUser={data!} />
 
 					<View style={styles.widgetsContainer}>
 						{widgetsData.map((item, idx) => (
@@ -299,6 +256,9 @@ export default function Home() {
 									if (item.name === "Send") {
 										// toggleTransactionModal();
 										router.push("/transfer");
+									}
+									if (item.name === "Account") {
+										toggleTransactionModal();
 									}
 								}}
 							>
@@ -496,7 +456,7 @@ export default function Home() {
 					</View>
 				</View>
 			</ScrollView>
-			<TransactionModal />
+			{/* <TransactionModal /> */}
 		</SafeAreaView>
 	);
 }

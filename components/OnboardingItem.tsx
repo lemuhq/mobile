@@ -11,7 +11,7 @@ import React, { useContext } from "react";
 import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
-import globalStyles from "@/styles/global.styles";
+import Constants from "expo-constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -27,12 +27,14 @@ export default function OnboardingItem({
 	index: number;
 }) {
 	const { theme } = useContext(ThemeContext);
+	const statusHeight =
+		Platform.OS === "android" ? Constants.statusBarHeight : 60;
 	return (
 		<SafeAreaView
 			style={[
 				{
 					flex: 1,
-					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
+					paddingTop: statusHeight,
 					paddingBottom: Platform.OS === "android" ? SPACING.space_10 : 0,
 				},
 			]}
