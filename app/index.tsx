@@ -11,13 +11,12 @@ const App = () => {
 
 	useEffect(() => {
 		const prepare = async () => {
-			await new Promise((resolve) => setTimeout(resolve, 2000));
 			const tokenExist = await storage.getToken();
 
 			const lockKeyExist = await storage.getLockPin();
 
 			if (!lockKeyExist) {
-				router.navigate("/onboarding");
+				router.navigate("/login");
 			} else {
 				if (tokenExist) {
 					router.navigate("/login/authUser");

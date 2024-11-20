@@ -11,10 +11,19 @@ export const storage = {
 
 	async getToken() {
 		try {
-			return await AsyncStorage.getItem("lemuToken");
+			const token = await AsyncStorage.getItem("lemuToken");
+			return token;
 		} catch (error) {
 			console.error("Error getting token:", error);
 			return null;
+		}
+	},
+
+	async clearToken() {
+		try {
+			await AsyncStorage.removeItem("lemuToken");
+		} catch (error) {
+			console.error("Error clearing token:", error);
 		}
 	},
 

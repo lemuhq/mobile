@@ -1,7 +1,8 @@
-import { View, Text, TextInput } from "react-native";
+import { View, Text, TextInput, Platform } from "react-native";
 import React, { Dispatch, SetStateAction, useState } from "react";
 import inputStyles from "@/styles/input.styles";
 import { Colors } from "@/constants/Colors";
+import { widthPercentageToDP } from "react-native-responsive-screen";
 
 export default function MoneyInput({
 	value,
@@ -53,8 +54,8 @@ export default function MoneyInput({
 				style={{
 					position: "absolute",
 					left: 10,
-					transform: [{ translateY: 17 }],
-					fontSize: 20,
+					transform: [{ translateY: Platform.OS === "ios" ? 17 : 14 }],
+					fontSize: widthPercentageToDP("5%"),
 					fontFamily: "PoppinsBold",
 					color: Colors.orange,
 				}}
@@ -66,7 +67,7 @@ export default function MoneyInput({
 				style={{ flex: 1, paddingLeft: 25, fontFamily: "PoppinsMedium" }}
 				placeholderTextColor={Colors.silver}
 				value={String(value)}
-				keyboardType="default"
+				keyboardType="number-pad"
 				onChangeText={handleChange}
 				onFocus={() => setFocus(true)}
 				onBlur={() => setFocus(false)}

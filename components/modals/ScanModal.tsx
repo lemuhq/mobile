@@ -22,6 +22,7 @@ import {
 	heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
 import BottomSheetModal from "./BottomSheetModal";
+import { Camera, CameraView, useCameraPermissions } from "expo-camera";
 
 export default function ScanModal() {
 	const { scannerOpen, toggleScannerModal, toggleTransactionModal } =
@@ -29,8 +30,21 @@ export default function ScanModal() {
 	const statusHeight =
 		Platform.OS === "android" ? Constants.statusBarHeight : 60;
 
+	const [permission, requestPermission] = useCameraPermissions();
+
 	const handleValueChange = (value: number) => {
 		console.log("Slider Value:", value);
+	};
+
+	const isPermissionGranted = Boolean(permission?.granted);
+
+	const handleBarCodeScan = async ({ data }: any) => {
+		if (!isPermissionGranted) {
+			// requestPermission();
+			return;
+		}
+
+		console.log("🚀 ~ handleBarCodeScan ~ data:", data);
 	};
 
 	return (
@@ -101,14 +115,19 @@ export default function ScanModal() {
 									height: hp("35%"),
 								}}
 							>
-								<Image
+								<CameraView
+									style={StyleSheet.absoluteFillObject}
+									facing="back"
+									onBarcodeScanned={handleBarCodeScan}
+								/>
+								{/* <Image
 									source={require(`@/assets/scanner.png`)}
 									style={{
 										width: "100%",
 										height: "100%",
 										resizeMode: "cover",
 									}}
-								/>
+								/> */}
 							</View>
 						</Pressable>
 						<View

@@ -1,7 +1,7 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { BACKEND_URL } from "@/constants";
 import { storage } from "@/utils/storage";
-import { PaymentRequest } from "@/types/transfer";
+import { Pagination, PaymentRequest, Transaction } from "@/types/transfer";
 
 const baseQuery = fetchBaseQuery({
 	baseUrl: BACKEND_URL,
@@ -55,6 +55,17 @@ export const transferApi = createApi({
 				},
 			}),
 		}),
+
+		//Transaction history
+		getTransactionHistory: builder.query<
+			{ pagination: Pagination; transactions: Transaction[] },
+			{ currentPage?: number }
+		>({
+			query: () => ({
+				url: "/transaction/get-transaction-history",
+				method: "GET",
+			}),
+		}),
 	}),
 });
 
@@ -62,4 +73,5 @@ export const {
 	useGetBankListQuery,
 	useVerifyAccountNumberMutation,
 	useTransferToBankMutation,
+	useGetTransactionHistoryQuery,
 } = transferApi;

@@ -19,7 +19,7 @@ import { StatusBar } from "expo-status-bar";
 import { ModalContext } from "@/provider/ModalProvider";
 import Constants from "expo-constants";
 import BottomSheetModal from "./BottomSheetModal";
-import { useGetCurrentUserQuery } from "@/redux/services/user";
+import { useGetCurrentUserQuery } from "@/redux/services/auth";
 
 export default function TransactionModal() {
 	const { transactionOpen, toggleTransactionModal } = useContext(ModalContext);

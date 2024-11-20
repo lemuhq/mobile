@@ -17,6 +17,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import PageHeader from "@/components/PageHeader";
 import PasswordInput from "@/components/inputs/PasswordInput";
 import Button from "@/components/Button";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
+import Constants from "expo-constants";
+import VerificationPageHeader from "@/components/VerificationPageHeader";
 
 export default function CreatePassword() {
 	const paramsData: {
@@ -36,6 +39,11 @@ export default function CreatePassword() {
 	const [confirmPassword, setConfirmPassword] = useState("");
 	const [confirmError, setConfirmError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
+
+	const statusHeight =
+		Platform.OS === "android"
+			? Constants.statusBarHeight
+			: Constants.statusBarHeight;
 
 	function passwordValidation() {
 		if (password) {
@@ -79,24 +87,22 @@ export default function CreatePassword() {
 	}, [password, confirmPassword]);
 
 	return (
-		<SafeAreaView
+		<View
 			style={[
 				{
 					flex: 1,
 					backgroundColor: theme.background,
-					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
-					paddingBottom: Platform.OS === "android" ? SPACING.space_10 : 0,
+					// backgroundColor: "green",
+					paddingTop: statusHeight,
+					paddingBottom: statusHeight - 30,
 				},
 			]}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			<View style={{ flex: 1 }}>
+			<View style={{ flex: 1, paddingHorizontal: SPACING.space_20 }}>
 				<View
 					style={{
 						flexDirection: "row",
-						justifyContent: "space-between",
-						alignItems: "center",
-						paddingHorizontal: SPACING.space_20,
 					}}
 				>
 					<TouchableOpacity onPress={() => router.back()}>
@@ -112,6 +118,7 @@ export default function CreatePassword() {
 							color: theme.text,
 							fontFamily: "PoppinsLight",
 							fontSize: FONTSIZE.size_20,
+							marginLeft: "auto",
 						}}
 					>
 						<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 4/</Text>
@@ -119,11 +126,7 @@ export default function CreatePassword() {
 					</Text>
 				</View>
 
-				<KeyboardAvoidingView
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-					keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
-					style={{ flex: 1 }}
-				>
+				<KeyboardAvoidingViewContainer>
 					<ScrollView
 						showsVerticalScrollIndicator={false}
 						contentContainerStyle={{
@@ -133,17 +136,13 @@ export default function CreatePassword() {
 					>
 						<View
 							style={{
-								marginTop: SPACING.space_20,
+								// marginTop: SPACING.space_20,
 								gap: SPACING.space_20,
-								paddingHorizontal: SPACING.space_20,
+
 								flex: 1,
 							}}
 						>
-							<PageHeader
-								header="Create new password"
-								// subHeader="Enter new password"
-								variant="left"
-							/>
+							<VerificationPageHeader header="Create new password" />
 							<View
 								style={{
 									marginVertical: SPACING.space_20,
@@ -180,7 +179,6 @@ export default function CreatePassword() {
 						</View>
 						<View
 							style={{
-								paddingHorizontal: SPACING.space_20,
 								flex: 1,
 								justifyContent: "flex-end",
 							}}
@@ -204,9 +202,9 @@ export default function CreatePassword() {
 							/>
 						</View>
 					</ScrollView>
-				</KeyboardAvoidingView>
+				</KeyboardAvoidingViewContainer>
 			</View>
-		</SafeAreaView>
+		</View>
 	);
 }
 

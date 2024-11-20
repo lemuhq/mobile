@@ -25,3 +25,33 @@ export interface PaymentRequest {
 	beneficiaryAccountNumber: string;
 	narration?: string;
 }
+
+export type Transaction = {
+	_id: string;
+	transactionType: "Outwards" | "Inwards";
+	amount: number;
+	status: "Completed" | "Pending" | "Failed";
+	reference: string;
+	narration: string;
+	senderAccountNumber: string;
+	receiverAccountNumber: string;
+	senderAccountName: string;
+	receiverAccountName: string;
+	senderBank: string;
+	receiverBank: string;
+	providerChannel: string;
+	createdAt: string;
+	updatedAt: string;
+	transactionLocation: string;
+	fees: number;
+	sessionId: string;
+	client: string;
+	__v: number;
+};
+
+export type Pagination = {
+	currentPage: number;
+	itemsPerPage: number;
+	totalItems: number;
+	totalPages: number;
+};

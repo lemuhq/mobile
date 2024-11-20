@@ -205,7 +205,6 @@ const styles = StyleSheet.create({
 	keypad: {
 		alignItems: "center",
 		justifyContent: "center",
-
 		position: "relative",
 	},
 	keyPadGroup: {
@@ -214,7 +213,7 @@ const styles = StyleSheet.create({
 		marginVertical: Platform.OS === "android" ? 0 : 15,
 	},
 	key: {
-		width: wp("20%"),
+		width: Platform.OS === "ios" ? wp("20%") : wp("22%"),
 		height: Platform.OS === "ios" ? hp("9%") : hp("10%"),
 		borderRadius: wp("100%"),
 		backgroundColor: "#f0f0f0",

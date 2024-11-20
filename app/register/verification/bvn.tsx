@@ -16,6 +16,7 @@ import Input from "@/components/inputs/Input";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import PageHeader from "@/components/PageHeader";
 import { useInitiateBvnVerficationMutation } from "@/redux/services/auth";
+import VerificationPageHeader from "@/components/VerificationPageHeader";
 
 const BvnVerification = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
@@ -106,11 +107,10 @@ const BvnVerification = () => {
 					<View
 						style={{
 							flex: 1,
-							marginTop: SPACING.space_20,
 							gap: SPACING.space_20,
 						}}
 					>
-						<PageHeader
+						<VerificationPageHeader
 							header="Bank Verification Number (BVN)"
 							subHeader="To verify your account enter your BVN"
 						/>

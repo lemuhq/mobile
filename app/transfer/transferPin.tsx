@@ -23,7 +23,7 @@ import { ThemeContext } from "@/provider/ThemeProvider";
 import PinInputSheet from "@/components/PinInputSheet";
 import SuccessScreenItem from "@/components/SuccessScreenItem";
 import { useTransferToBankMutation } from "@/redux/services/transfer";
-import { useGetCurrentUserQuery } from "@/redux/services/user";
+import { useGetCurrentUserQuery } from "@/redux/services/auth";
 import useToast from "@/hooks/useToast";
 import { PaymentRequest } from "@/types/transfer";
 import { router } from "expo-router";

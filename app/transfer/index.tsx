@@ -39,10 +39,10 @@ import {
 } from "@/redux/slice/transfer.slice";
 import { Colors } from "@/constants/Colors";
 import { Ionicons } from "@expo/vector-icons";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
 
 export default function TransferPage() {
-	const statusHeight =
-		Platform.OS === "android" ? Constants.statusBarHeight + 5 : 60;
+	const statusHeight = Constants.statusBarHeight;
 
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const { showCustomToast } = useToast();
@@ -129,8 +129,9 @@ export default function TransferPage() {
 			style={[
 				styles.container,
 				{
-					paddingTop: statusHeight,
-					paddingBottom: statusHeight - 40,
+					paddingTop: statusHeight + 10,
+					paddingBottom:
+						Platform.OS === "ios" ? statusHeight - 30 : statusHeight - 50,
 					backgroundColor: theme.background,
 				},
 			]}
@@ -147,108 +148,112 @@ export default function TransferPage() {
 					</TouchableOpacity>
 					<Text style={styles.pageHeader}>Transfer to Bank Account</Text>
 				</View>
-				<KeyboardAvoidingView
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-					keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
-					style={{ flex: 1, gap: 5, paddingBottom: 10 }}
-				>
+				<KeyboardAvoidingViewContainer>
 					<ScrollView
 						showsVerticalScrollIndicator={false}
 						contentContainerStyle={{
-							paddingBottom: SPACING.space_20,
+							// paddingBottom: SPACING.space_20,
 							paddingTop: SPACING.space_30,
 							paddingHorizontal: SPACING.space_10,
-							flex: 1,
-							gap: 20,
+							flexGrow: 1,
 						}}
 					>
-						<View>
-							<Text style={styles.inputLabel}>Recepient Account</Text>
-							<Input
-								value={accountNumber}
-								setValue={onChangeAccountNumber}
-								placeholder="Enter account number"
-								keyboardType="number-pad"
-								maxLength={10}
-							/>
-						</View>
-						<View>
-							<Text style={styles.inputLabel}>Select Bank</Text>
-							<BankSelectInput value={selectedBank} />
+						<View
+							style={{
+								gap: 20,
+								flex: 1,
+							}}
+						>
+							<View>
+								<Text style={styles.inputLabel}>Recepient Account</Text>
+								<Input
+									value={accountNumber}
+									setValue={onChangeAccountNumber}
+									placeholder="Enter account number"
+									keyboardType="number-pad"
+									maxLength={10}
+								/>
+							</View>
+							<View>
+								<Text style={styles.inputLabel}>Select Bank</Text>
+								<BankSelectInput value={selectedBank} />
+							</View>
+
+							{beneficiaryUser && (
+								<>
+									{beneficiaryUser?.accountName.includes("LEMU") ? (
+										<View
+											style={[
+												styles.verifiedUser,
+												{ backgroundColor: Colors.silver },
+											]}
+										>
+											<View style={styles.lemuIcon}>
+												<Image
+													source={require(`@/assets/lemu-icon.png`)}
+													style={{
+														width: 14,
+														height: 14,
+														resizeMode: "contain",
+													}}
+												/>
+											</View>
+											<Text
+												style={[
+													styles.beneficiaryName,
+													{ color: Colors.black },
+												]}
+											>
+												{beneficiaryUser?.accountName}
+											</Text>
+										</View>
+									) : (
+										<View
+											style={[
+												styles.verifiedUser,
+												{ backgroundColor: "#E5FFCD" },
+											]}
+										>
+											<View style={styles.verifiedIcon}>
+												<Ionicons
+													name="checkmark-sharp"
+													size={20}
+													color="#68F611"
+												/>
+											</View>
+											<Text
+												style={[
+													styles.beneficiaryName,
+													{ color: Colors.black },
+												]}
+											>
+												{beneficiaryUser?.accountName}
+											</Text>
+										</View>
+									)}
+								</>
+							)}
 						</View>
 
-						{beneficiaryUser && (
-							<>
-								{beneficiaryUser?.accountName.includes("LEMU") ? (
-									<View
-										style={[
-											styles.verifiedUser,
-											{ backgroundColor: Colors.silver },
-										]}
-									>
-										<View style={styles.lemuIcon}>
-											<Image
-												source={require(`@/assets/lemu-icon.png`)}
-												style={{
-													width: 14,
-													height: 14,
-													resizeMode: "contain",
-												}}
-											/>
-										</View>
-										<Text
-											style={[
-												styles.beneficiaryName,
-												{ color: Colors.black },
-											]}
-										>
-											{beneficiaryUser?.accountName}
-										</Text>
-									</View>
-								) : (
-									<View
-										style={[
-											styles.verifiedUser,
-											{ backgroundColor: "#E5FFCD" },
-										]}
-									>
-										<View style={styles.verifiedIcon}>
-											<Ionicons
-												name="checkmark-sharp"
-												size={20}
-												color="#68F611"
-											/>
-										</View>
-										<Text
-											style={[
-												styles.beneficiaryName,
-												{ color: Colors.black },
-											]}
-										>
-											{beneficiaryUser?.accountName}
-										</Text>
-									</View>
-								)}
-							</>
-						)}
+						<View style={{}}>
+							<Button
+								buttonText="Next"
+								disabled={
+									!selectedBank ||
+									!accountNumber ||
+									!isAccountVerified ||
+									isLoading
+								}
+								onPress={() => {
+									router.push("/transfer/transferAmount");
+								}}
+								isLoading={isLoading}
+							/>
+						</View>
 					</ScrollView>
-					<View style={{ paddingHorizontal: SPACING.space_10 }}>
-						<Button
-							buttonText="Next"
-							disabled={
-								!selectedBank ||
-								!accountNumber ||
-								!isAccountVerified ||
-								isLoading
-							}
-							onPress={() => {
-								router.push("/transfer/transferAmount");
-							}}
-							isLoading={isLoading}
-						/>
-					</View>
+
 					<BankListModal setSelectedBank={setSelectedBank} />
-				</KeyboardAvoidingView>
+				</KeyboardAvoidingViewContainer>
 			</View>
 		</View>
 	);

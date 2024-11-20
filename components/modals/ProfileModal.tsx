@@ -16,12 +16,14 @@ import {
 	widthPercentageToDP as wp,
 	heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
-import { useGetCurrentUserQuery } from "@/redux/services/user";
+import { useGetCurrentUserQuery } from "@/redux/services/auth";
 import BottomSheetModal from "./BottomSheetModal";
+import useCopyToClipboard from "@/hooks/useCopyToClipboard";
 
 const ProfileModal = () => {
 	const { profileOpen, toggleProfileVisible } = useContext(ModalContext);
 	const { data, error, isLoading, refetch } = useGetCurrentUserQuery();
+	const { handleCopyText } = useCopyToClipboard();
 
 	return (
 		<BottomSheetModal isOpen={profileOpen} onDismiss={toggleProfileVisible}>
@@ -136,28 +138,32 @@ const ProfileModal = () => {
 							<Text style={styles.userTitle}>Account Number</Text>
 							<Text style={styles.userName}>{data?.accountNumber}</Text>
 						</View>
-						<TouchableOpacity
-							style={{
-								flexDirection: "row",
-								justifyContent: "space-between",
-								gap: SPACING.space_2,
-							}}
-						>
-							<Text
+
+						{data?.accountNumber && (
+							<TouchableOpacity
 								style={{
-									fontSize: FONTSIZE.size_12,
-									fontFamily: "PoppinsMedium",
-									color: Colors.black,
+									flexDirection: "row",
+									justifyContent: "space-between",
+									gap: SPACING.space_2,
 								}}
+								onPress={() => handleCopyText(data?.accountNumber)}
 							>
-								Copy
-							</Text>
-							<MaterialIcons
-								name="content-copy"
-								size={18}
-								color={Colors.orange}
-							/>
-						</TouchableOpacity>
+								<Text
+									style={{
+										fontSize: FONTSIZE.size_12,
+										fontFamily: "PoppinsMedium",
+										color: Colors.black,
+									}}
+								>
+									Copy
+								</Text>
+								<MaterialIcons
+									name="content-copy"
+									size={18}
+									color={Colors.orange}
+								/>
+							</TouchableOpacity>
+						)}
 					</View>
 				</View>
 			</View>

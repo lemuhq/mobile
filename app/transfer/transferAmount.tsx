@@ -27,13 +27,14 @@ import { Ionicons } from "@expo/vector-icons";
 import Input from "@/components/inputs/Input";
 import MoneyInput from "@/components/inputs/MoneyInput";
 import Button from "@/components/Button";
-import { useGetCurrentUserQuery } from "@/redux/services/user";
+
 import { ModalContext } from "@/provider/ModalProvider";
 import ConfirmTransactionModal from "@/components/modals/ConfirmTransactionModal";
+import { useGetCurrentUserQuery } from "@/redux/services/auth";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
 
 const TransferAmount = () => {
-	const statusHeight =
-		Platform.OS === "android" ? Constants.statusBarHeight + 5 : 60;
+	const statusHeight = Constants.statusBarHeight;
 
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const { showCustomToast } = useToast();
@@ -60,8 +61,9 @@ const TransferAmount = () => {
 			style={[
 				styles.container,
 				{
-					paddingTop: statusHeight,
-					paddingBottom: statusHeight - 40,
+					paddingTop: statusHeight + 10,
+					paddingBottom:
+						Platform.OS === "ios" ? statusHeight - 30 : statusHeight - 50,
 					backgroundColor: theme.background,
 				},
 			]}
@@ -79,11 +81,7 @@ const TransferAmount = () => {
 					<Text style={styles.pageHeader}>Transfer to Bank Account</Text>
 				</View>
 
-				<KeyboardAvoidingView
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-					keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 30}
-					style={{ flex: 1, gap: 5, paddingBottom: 10 }}
-				>
+				<KeyboardAvoidingViewContainer>
 					<View
 						style={{
 							flex: 1,
@@ -154,7 +152,7 @@ const TransferAmount = () => {
 						)}
 
 						<View>
-							<Text style={styles.inputLabel}>Recepient Account</Text>
+							<Text style={styles.inputLabel}> Amount</Text>
 							<MoneyInput value={amount} setValue={onChangeAmount} />
 						</View>
 
@@ -178,7 +176,7 @@ const TransferAmount = () => {
 							onPress={toggleConfirmTransactionModal}
 						/>
 					</View>
-				</KeyboardAvoidingView>
+				</KeyboardAvoidingViewContainer>
 			</View>
 			<ConfirmTransactionModal
 				amount={amount}

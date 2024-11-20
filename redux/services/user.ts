@@ -7,7 +7,6 @@ const baseQuery = fetchBaseQuery({
 	baseUrl: BACKEND_URL,
 	prepareHeaders: async (headers) => {
 		const token = await storage.getToken();
-		console.log("🚀 ~ prepareHeaders: ~ token:", token);
 
 		if (token) {
 			headers.set("authorization", `Bearer ${token}`);
@@ -20,6 +19,7 @@ const baseQuery = fetchBaseQuery({
 export const userApi = createApi({
 	reducerPath: "currentUser",
 	baseQuery: baseQuery,
+	tagTypes: ["LoginUser", "User"],
 
 	endpoints: (builder) => ({
 		getCurrentUser: builder.query<User, void>({
@@ -27,8 +27,15 @@ export const userApi = createApi({
 				url: "/user/current-user",
 				method: "GET",
 			}),
+			providesTags: ["User", "LoginUser"],
 		}),
 	}),
 });
 
-export const { useGetCurrentUserQuery } = userApi;
+const { util } = userApi;
+
+export const clearUserCache = () => {
+	util.resetApiState(); // Clear all cache
+};
+
+export const {} = userApi;

@@ -11,44 +11,50 @@ import {
 } from "react-native-responsive-screen";
 import { Colors } from "@/constants/Colors";
 import Constants from "expo-constants";
-import { fetchCurrentUser } from "@/redux/slice/user.slice";
+import { fetchCurrentUser, setCurrentUser } from "@/redux/slice/user.slice";
 import useToast from "@/hooks/useToast";
 import { storage } from "@/utils/storage";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { BACKEND_URL } from "@/constants";
 
 const AuthenticatedUser = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const { showCustomToast } = useToast();
 	const [pin, setPin] = useState<number[]>([]);
 	const [isSuccess, setIsSuccess] = useState<boolean>(false);
-	const statusHeight =
-		Platform.OS === "android" ? Constants.statusBarHeight : 60;
+	const statusHeight = Constants.statusBarHeight;
 	const [lockKey, setLockKey] = useState<string>("");
 	const [firstName, setFirstName] = useState<string>("");
+	const dispatch = useDispatch();
 
 	async function verifyPin() {
 		try {
 			if (pin.join("").toString() === lockKey) {
-				// console.log("Pin already");
 				setIsSuccess(true);
-				const response = await fetchCurrentUser();
-
-				if (response) {
-					if (response.message === "Invalid token.") {
-						showCustomToast("error", response.message);
-
-						router.push("/login");
-
-						return;
+				const token = await storage.getToken();
+				const response = await axios.get(
+					`${BACKEND_URL}/user/current-user`,
+					{
+						headers: {
+							Authorization: `Bearer ${token}`,
+							"Cache-Control": "no-cache",
+							Pragma: "no-cache",
+							Expires: "0",
+						},
 					}
+				);
 
-					router.push("/(tabs)/home");
-				}
+				dispatch(setCurrentUser(response.data));
+				router.push("/(tabs)/home");
 			} else {
-				alert("Incorrect pin");
+				showCustomToast("error", "Incorrect pin");
 			}
 			setPin([]);
 		} catch (error) {
 			console.log(error);
+			showCustomToast("error", "Invalid token");
+			router.push("/login");
 		}
 	}
 
@@ -88,8 +94,8 @@ const AuthenticatedUser = () => {
 					<StatusBar style={isDarkMode ? "light" : "dark"} />
 					<View
 						style={{
-							paddingTop: statusHeight + 10,
-							paddingBottom: statusHeight - 20,
+							paddingTop: statusHeight + 30,
+							paddingBottom: statusHeight,
 							flex: 1,
 							gap: 5,
 						}}

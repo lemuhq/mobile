@@ -23,53 +23,25 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TransactionItem from "@/components/TransactionItem";
-import TransactionModal from "@/components/modals/TransactionModal";
 import { ModalContext } from "@/provider/ModalProvider";
 import { router } from "expo-router";
-import { useGetCurrentUserQuery } from "@/redux/services/user";
 import { useDispatch } from "react-redux";
 import DebitCard from "@/components/DebitCard";
-import { useGetBankListQuery } from "@/redux/services/transfer";
+import {
+	useGetBankListQuery,
+	useGetTransactionHistoryQuery,
+} from "@/redux/services/transfer";
 import {
 	clearBeneficiaryUser,
 	clearPaymentData,
 	setBankList,
+	setTransactionHistory,
 } from "@/redux/slice/transfer.slice";
-import { storage } from "@/utils/storage";
 import { useFocusEffect } from "@react-navigation/native";
-import { setCurrentUser } from "@/redux/slice/user.slice";
-
-const transactionData: {
-	status: "success" | "failed" | "pending";
-	amount: string;
-	type: string;
-	date: string;
-}[] = [
-	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{
-		status: "pending",
-		type: "Credit",
-		amount: "1,000",
-		date: "Today 12:30pm",
-	},
-	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{
-		status: "pending",
-		type: "Credit",
-		amount: "1,000",
-		date: "Today 12:30pm",
-	},
-	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{
-		status: "pending",
-		type: "Credit",
-		amount: "1,000",
-		date: "Today 12:30pm",
-	},
-	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-];
+import { selectUser, setCurrentUser } from "@/redux/slice/user.slice";
+import { useSelector } from "react-redux";
+import { useGetCurrentUserQuery } from "@/redux/services/auth";
+import { Transaction } from "@/types/transfer";
 
 export default function Home() {
 	const dispatch = useDispatch();
@@ -80,30 +52,27 @@ export default function Home() {
 		toggleEmailVerification,
 	} = useContext(ModalContext);
 
+	const { currentUser } = useSelector(selectUser);
+
 	const { data, isLoading, refetch } = useGetCurrentUserQuery();
-
-	useEffect(() => {
-		async function saveUserPin() {
-			if (data) {
-				await storage.saveLockPin(data.lockPin);
-			}
-		}
-
-		saveUserPin();
-	}, [data]);
+	const { data: transactionData, isLoading: transactionLoading } =
+		useGetTransactionHistoryQuery({});
 
 	// This will run every time the screen comes into focus
-	useFocusEffect(
-		React.useCallback(() => {
-			refetch();
+	// useFocusEffect(
+	// 	React.useCallback(() => {
+	// 		if (!currentUser) {
+	// 			refetch();
 
-			// Optional: Clean up function
-			return () => {
-				dispatch(clearPaymentData());
-				dispatch(clearBeneficiaryUser());
-			};
-		}, [refetch])
-	);
+	// 			// Optional: Clean up function
+	// 			return () => {
+	// 				dispatch(setCurrentUser(data!));
+	// 				dispatch(clearPaymentData());
+	// 				dispatch(clearBeneficiaryUser());
+	// 			};
+	// 		}
+	// 	}, [refetch, currentUser])
+	// );
 
 	const { data: bankData, isLoading: bankLoading } = useGetBankListQuery({});
 
@@ -112,6 +81,12 @@ export default function Home() {
 			dispatch(setBankList(bankData.data));
 		}
 	}, [bankData, bankLoading]);
+
+	useEffect(() => {
+		if (!transactionLoading && transactionData?.transactions) {
+			dispatch(setTransactionHistory(transactionData?.transactions));
+		}
+	}, [transactionData]);
 
 	const widgetsData: { name: string; icon: any }[] = [
 		{
@@ -207,7 +182,9 @@ export default function Home() {
 									variant="sm"
 									imageUrl={require(`@/assets/default-user.png`)}
 								/>
-								<Text>Hello, {data?.firstName}</Text>
+								<Text>
+									Hello, {currentUser?.firstName || data?.firstName}
+								</Text>
 								<MaterialIcons
 									name="keyboard-arrow-down"
 									size={18}
@@ -245,7 +222,7 @@ export default function Home() {
 						},
 					]}
 				>
-					<DebitCard isLoading={true} currentUser={data!} />
+					<DebitCard isLoading={true} currentUser={currentUser || data!} />
 
 					<View style={styles.widgetsContainer}>
 						{widgetsData.map((item, idx) => (
@@ -423,7 +400,7 @@ export default function Home() {
 							<Text
 								style={{
 									fontFamily: "PoppinsSemiBold",
-									// fontWeight: "500",
+
 									fontSize: FONTSIZE.size_14 - 1,
 									color: isDarkMode ? Colors.orange : Colors.black,
 								}}
@@ -431,7 +408,12 @@ export default function Home() {
 								Transaction History
 							</Text>
 
-							<Pressable style={styles.viewButton}>
+							<TouchableOpacity
+								style={styles.viewButton}
+								onPress={() => {
+									router.push("/(tabs)/history");
+								}}
+							>
 								<Text
 									style={{
 										color: Colors.orange,
@@ -446,12 +428,14 @@ export default function Home() {
 									size={20}
 									color={Colors.orange}
 								/>
-							</Pressable>
+							</TouchableOpacity>
 						</View>
 						<View style={styles.transactionContainer}>
-							{transactionData.map((transaction, index) => (
-								<TransactionItem key={index} {...transaction} />
-							))}
+							{transactionData?.transactions.map(
+								(transaction: Transaction, index) => (
+									<TransactionItem key={index} {...transaction} />
+								)
+							)}
 						</View>
 					</View>
 				</View>

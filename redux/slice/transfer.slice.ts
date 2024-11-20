@@ -1,17 +1,24 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { BankItem, BeneficiaryUser, PaymentRequest } from "@/types/transfer";
+import {
+	BankItem,
+	BeneficiaryUser,
+	PaymentRequest,
+	Transaction,
+} from "@/types/transfer";
 import { RootState } from "../store";
 
 interface TransferSliceState {
 	bankList: BankItem[];
 	beneficiaryUser: BeneficiaryUser | null;
 	paymentData: PaymentRequest | null;
+	transactionHistory: Transaction[];
 }
 
 const initialState: TransferSliceState = {
 	bankList: [],
 	beneficiaryUser: null,
 	paymentData: null,
+	transactionHistory: [],
 };
 
 const transferSlice = createSlice({
@@ -54,6 +61,10 @@ const transferSlice = createSlice({
 		clearPaymentData: (state) => {
 			state.paymentData = null;
 		},
+
+		setTransactionHistory: (state, action: PayloadAction<Transaction[]>) => {
+			state.transactionHistory = action.payload;
+		},
 	},
 });
 
@@ -63,6 +74,7 @@ export const {
 	clearBeneficiaryUser,
 	setPaymentData,
 	clearPaymentData,
+	setTransactionHistory,
 } = transferSlice.actions;
 
 export default transferSlice.reducer;

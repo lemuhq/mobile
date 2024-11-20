@@ -1,10 +1,8 @@
 import {
 	View,
 	Text,
-	SafeAreaView,
 	StyleSheet,
 	Platform,
-	KeyboardAvoidingView,
 	TouchableOpacity,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
@@ -21,8 +19,15 @@ import {
 	useResendOtpMutation,
 	useVerifyOtpMutation,
 } from "@/redux/services/auth";
+import Constants from "expo-constants";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
 
 export default function ConfirmPhone() {
+	const statusHeight =
+		Platform.OS === "android"
+			? Constants.statusBarHeight
+			: Constants.statusBarHeight;
+
 	const { theme, isDarkMode } = useContext(ThemeContext);
 	const [otp, setOtp] = useState<string>("");
 	const {
@@ -99,119 +104,116 @@ export default function ConfirmPhone() {
 	};
 
 	return (
-		<KeyboardAvoidingView
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
-			style={{ flex: 1, backgroundColor: theme.background }}
-		>
+		<>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			<SafeAreaView
+			<View
 				style={[
 					{
 						flex: 1,
 						backgroundColor: theme.background,
-						paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
-						paddingBottom:
-							Platform.OS === "android" ? SPACING.space_10 : 0,
+						paddingTop: statusHeight,
+						paddingBottom: statusHeight - 30,
 					},
 				]}
 			>
-				<View
-					style={{
-						paddingHorizontal: SPACING.space_20,
-						flex: 1,
-					}}
-				>
-					<TouchableOpacity onPress={() => router.back()}>
-						<Ionicons
-							name="arrow-back-outline"
-							size={30}
-							color={theme.text}
-						/>
-					</TouchableOpacity>
-					<Text
-						style={[
-							styles.welcomeH2,
-							{
-								color: theme.pageTextColor,
-								marginTop: 20,
-								textAlign: "left",
-							},
-						]}
-					>
-						Confirm Phone Number
-					</Text>
-					<Text
-						style={[
-							styles.subText,
-							{
-								color: theme.text,
-								marginTop: 2,
-							},
-						]}
-					>
-						Enter OTP code sent to the number ending with{" "}
-						{phoneNumber &&
-							phoneNumber.slice(
-								phoneNumber.length - 4,
-								phoneNumber.length
-							)}
-					</Text>
-					<View style={{ marginTop: 20, flex: 1 }}>
-						<OtpInput otpVal={otp} setOtpVal={setOtp} />
-						{errorMessage && (
-							<Text
-								style={{
-									color: "red",
-									fontSize: 11,
-									marginTop: 10,
-									fontFamily: "PoppinsMedium",
-								}}
-							>
-								{errorMessage}
-							</Text>
-						)}
-					</View>
-
-					<Button
-						buttonText="Continue"
-						onPress={() => {
-							handleOtpVerify();
+				<KeyboardAvoidingViewContainer>
+					<View
+						style={{
+							paddingHorizontal: SPACING.space_20,
+							flex: 1,
 						}}
-						isLoading={isLoading}
-						disabled={(otp.length < 4 ? true : false) || isLoading}
-						variant="primary"
-					/>
-					<View style={{ marginTop: 10 }}>
-						{isExpired ? (
-							<TouchableOpacity onPress={handleOtpResend}>
+					>
+						<TouchableOpacity onPress={() => router.back()}>
+							<Ionicons
+								name="arrow-back-outline"
+								size={30}
+								color={theme.text}
+							/>
+						</TouchableOpacity>
+						<Text
+							style={[
+								styles.welcomeH2,
+								{
+									color: theme.pageTextColor,
+									marginTop: 20,
+									textAlign: "left",
+								},
+							]}
+						>
+							Confirm Phone Number
+						</Text>
+						<Text
+							style={[
+								styles.subText,
+								{
+									color: theme.text,
+									marginTop: 2,
+								},
+							]}
+						>
+							Enter OTP code sent to the number ending with{" "}
+							{phoneNumber &&
+								phoneNumber.slice(
+									phoneNumber.length - 4,
+									phoneNumber.length
+								)}
+						</Text>
+						<View style={{ marginTop: 20, flex: 1 }}>
+							<OtpInput otpVal={otp} setOtpVal={setOtp} />
+							{errorMessage && (
 								<Text
 									style={{
-										color: Colors.orange,
+										color: "red",
+										fontSize: 11,
+										marginTop: 10,
 										fontFamily: "PoppinsMedium",
 									}}
 								>
-									Resend Otp
+									{errorMessage}
 								</Text>
-							</TouchableOpacity>
-						) : (
-							<Text
-								style={{
-									color: theme.text,
-									fontFamily: "PoppinsRegular",
-								}}
-							>
-								Request new OTP in? (
-								<Text style={{ color: Colors.orange }}>
-									{minutes}:{seconds}
+							)}
+						</View>
+
+						<Button
+							buttonText="Continue"
+							onPress={() => {
+								handleOtpVerify();
+							}}
+							isLoading={isLoading}
+							disabled={(otp.length < 4 ? true : false) || isLoading}
+							variant="primary"
+						/>
+						<View style={{ marginTop: 10 }}>
+							{isExpired ? (
+								<TouchableOpacity onPress={handleOtpResend}>
+									<Text
+										style={{
+											color: Colors.orange,
+											fontFamily: "PoppinsMedium",
+										}}
+									>
+										Resend Otp
+									</Text>
+								</TouchableOpacity>
+							) : (
+								<Text
+									style={{
+										color: theme.text,
+										fontFamily: "PoppinsRegular",
+									}}
+								>
+									Request new OTP in? (
+									<Text style={{ color: Colors.orange }}>
+										{minutes}:{seconds}
+									</Text>
+									)
 								</Text>
-								)
-							</Text>
-						)}
+							)}
+						</View>
 					</View>
-				</View>
-			</SafeAreaView>
-		</KeyboardAvoidingView>
+				</KeyboardAvoidingViewContainer>
+			</View>
+		</>
 	);
 }
 

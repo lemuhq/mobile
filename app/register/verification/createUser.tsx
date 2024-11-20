@@ -18,6 +18,8 @@ import PageHeader from "@/components/PageHeader";
 import Button from "@/components/Button";
 import { Colors } from "@/constants/Colors";
 import Input from "@/components/inputs/Input";
+import VerificationPageHeader from "@/components/VerificationPageHeader";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
 
 export default function CreateUser() {
 	const params: {
@@ -79,26 +81,23 @@ export default function CreateUser() {
 					</Text>
 				</View>
 
-				<KeyboardAvoidingView
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-					keyboardVerticalOffset={Platform.OS === "ios" ? 60 : 0}
-					style={{ flex: 1 }}
-				>
+				<KeyboardAvoidingViewContainer>
 					<ScrollView
 						showsVerticalScrollIndicator={false}
-						contentContainerStyle={{ paddingBottom: SPACING.space_20 }}
+						contentContainerStyle={{
+							flexGrow: 1,
+						}}
 					>
 						<View
 							style={{
-								marginTop: SPACING.space_20,
 								gap: SPACING.space_20,
 								paddingHorizontal: SPACING.space_20,
+								flex: 1,
 							}}
 						>
-							<PageHeader
+							<VerificationPageHeader
 								header="Account Setup"
 								subHeader="Confirm or update the following personal information with your legal name, date of birth etc."
-								variant="left"
 							/>
 
 							<View
@@ -173,9 +172,7 @@ export default function CreateUser() {
 						</View>
 						<View
 							style={{
-								// backgroundColor: Colors.white,
 								paddingHorizontal: SPACING.space_20,
-								flex: 1,
 								justifyContent: "flex-end",
 							}}
 						>
@@ -193,7 +190,7 @@ export default function CreateUser() {
 							/>
 						</View>
 					</ScrollView>
-				</KeyboardAvoidingView>
+				</KeyboardAvoidingViewContainer>
 			</View>
 		</SafeAreaView>
 	);

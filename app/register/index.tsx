@@ -15,6 +15,7 @@ import { router } from "expo-router";
 import PhoneNumberInput from "@/components/inputs/PhoneNumberInput";
 import { SPACING } from "@/constants/Theme";
 import { useSendOtpMutation } from "@/redux/services/auth";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
 
 export default function Register() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
@@ -29,10 +30,16 @@ export default function Register() {
 			return;
 		}
 
+		console.log(phoneNumber, "Phone number");
+
 		try {
+			console.log(phoneNumber, "Phone number");
 			const {
 				data: { data, message },
+				error,
 			} = await sendOtp({ phoneNumber });
+			console.log("🚀 ~ handleOtpRequest ~ data:", data);
+			console.log("🚀 ~ handleOtpRequest ~ error:", error);
 
 			setSuccessMessage(message);
 			router.navigate(
@@ -45,11 +52,7 @@ export default function Register() {
 	};
 
 	return (
-		<KeyboardAvoidingView
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			keyboardVerticalOffset={Platform.OS === "ios" ? 30 : 0}
-			style={{ flex: 1, backgroundColor: theme.background }}
-		>
+		<KeyboardAvoidingViewContainer>
 			<SafeAreaView
 				style={[
 					{
@@ -137,7 +140,7 @@ export default function Register() {
 					/>
 				</View>
 			</SafeAreaView>
-		</KeyboardAvoidingView>
+		</KeyboardAvoidingViewContainer>
 	);
 }
 
