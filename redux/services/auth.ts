@@ -1,11 +1,25 @@
 import { BACKEND_URL } from "@/constants";
+import { User } from "@/types/user";
+import { storage } from "@/utils/storage";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+const baseQuery = fetchBaseQuery({
+	baseUrl: BACKEND_URL,
+	prepareHeaders: async (headers) => {
+		const token = await storage.getToken();
+
+		if (token) {
+			headers.set("authorization", `Bearer ${token}`);
+		}
+
+		return headers;
+	},
+});
 
 export const authApi = createApi({
 	reducerPath: "auth",
-	baseQuery: fetchBaseQuery({
-		baseUrl: BACKEND_URL,
-	}),
+	baseQuery: baseQuery,
+	tagTypes: ["LoginUser"],
 	endpoints: (builder) => ({
 		//Onboarding
 		//Send otp
@@ -103,8 +117,38 @@ export const authApi = createApi({
 				headers: { "Content-Type": "application/json" },
 			}),
 		}),
+
+		//Login user
+		loginUser: builder.mutation({
+			query: ({
+				phoneNumber,
+				password,
+			}: {
+				phoneNumber: string;
+				password: string;
+			}) => ({
+				url: "/user/login",
+				method: "POST",
+				body: { phoneNumber, password },
+				headers: { "Content-Type": "application/json" },
+			}),
+		}),
+
+		getCurrentUser: builder.query<User, void>({
+			query: () => ({
+				url: "/user/current-user",
+				method: "GET",
+			}),
+			providesTags: ["LoginUser"],
+		}),
 	}),
 });
+
+const { util } = authApi;
+
+export const clearAuthCache = () => {
+	util.invalidateTags(["LoginUser"]);
+};
 
 export const {
 	useSendOtpMutation,
@@ -113,4 +157,6 @@ export const {
 	useInitiateBvnVerficationMutation,
 	useValidateBvnVerificationMutation,
 	useCreateNewUserMutation,
+	useLoginUserMutation,
+	useGetCurrentUserQuery,
 } = authApi;

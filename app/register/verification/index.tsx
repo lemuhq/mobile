@@ -16,8 +16,11 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import Constants from "expo-constants";
+import VerificationPageHeader from "@/components/VerificationPageHeader";
 
 export default function Verification() {
+	const statusHeight = Constants.statusBarHeight;
 	const { phoneNumber }: { phoneNumber: string } = useLocalSearchParams();
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [selectedSlug, setSelectedSlug] = useState<string>("");
@@ -30,28 +33,28 @@ export default function Verification() {
 		},
 	];
 	return (
-		<SafeAreaView
+		<View
 			style={[
 				{
 					flex: 1,
 					backgroundColor: theme.background,
-					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
-					paddingBottom: Platform.OS === "android" ? SPACING.space_10 : 0,
+					paddingTop: statusHeight,
+					paddingBottom: statusHeight - 10,
 				},
 			]}
 		>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<View
 				style={{
-					paddingTop: SPACING.space_10,
 					paddingHorizontal: SPACING.space_20,
 					flex: 1,
 				}}
 			>
-				<PageHeader
+				<VerificationPageHeader
 					header="Identy Verfication"
 					subHeader="We need this information to upgrade your account and to legally verify who you are."
 				/>
+
 				<ScrollView
 					showsHorizontalScrollIndicator={false}
 					contentContainerStyle={{
@@ -126,17 +129,8 @@ export default function Verification() {
 						</TouchableOpacity>
 					))}
 				</ScrollView>
-
-				{/* <View
-					style={{
-						flex: 1,
-						marginTop: SPACING.space_20 * 2,
-					}}
-				>
-					
-				</View> */}
 			</View>
-		</SafeAreaView>
+		</View>
 	);
 }
 

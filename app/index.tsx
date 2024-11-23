@@ -4,19 +4,21 @@ import { router } from "expo-router";
 import splashStyles from "@/styles/splashStyles.styles";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { StatusBar } from "expo-status-bar";
+import { storage } from "@/utils/storage";
 
 const App = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
-	const user = null;
-	const storageUser = { name: "Joshua" };
+
 	useEffect(() => {
 		const prepare = async () => {
-			await new Promise((resolve) => setTimeout(resolve, 2000));
-			if (!user) {
-				router.navigate("/onboarding");
-				// router.navigate("/register/verification/createLoginPin");
+			const tokenExist = await storage.getToken();
+
+			const lockKeyExist = await storage.getLockPin();
+
+			if (!lockKeyExist) {
+				router.navigate("/login");
 			} else {
-				if (storageUser) {
+				if (tokenExist) {
 					router.navigate("/login/authUser");
 				} else {
 					router.navigate("/login");

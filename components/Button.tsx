@@ -33,6 +33,8 @@ const Button: FC<ButtonProps> = ({
 				buttonStyles.button,
 				{
 					width: width === "full" ? "100%" : "auto",
+					// height: 54,
+					// flex: 1,
 					paddingHorizontal: width === "full" ? 0 : SPACING.space_30 + 10,
 					backgroundColor:
 						variant === "primary"

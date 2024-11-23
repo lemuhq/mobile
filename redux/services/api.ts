@@ -1,14 +1,14 @@
-import { getCurrentUserToken } from "@/helpers/token";
+import { storage } from "@/utils/storage";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
 	baseUrl: "https://your-api-endpoint.com/",
 	prepareHeaders: async (headers) => {
-		const token = await getCurrentUserToken();
+		const token = await storage.getToken();
 		if (token) {
-			headers.set("Authorization", `Bearer ${token}`);
+			headers.set("authorization", `Bearer ${token}`);
 		}
-		headers.set("Content-Type", "application/json");
+		// headers.set("Content-Type", "application/json");
 		return headers;
 	},
 });

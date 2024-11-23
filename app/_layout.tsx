@@ -4,9 +4,9 @@ import { ThemeProvider } from "@/provider/ThemeProvider";
 import { useFonts } from "expo-font";
 import { Provider } from "react-redux";
 import { store } from "@/redux/store";
-import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { ModalProvider } from "@/provider/ModalProvider";
+import Toast from "react-native-toast-message";
 
 const RootLayout = () => {
 	const [loaded, error] = useFonts({
@@ -28,9 +28,8 @@ const RootLayout = () => {
 			<ModalProvider>
 				<Provider store={store}>
 					<GestureHandlerRootView style={{ flex: 1 }}>
-						<BottomSheetModalProvider>
-							<Slot />
-						</BottomSheetModalProvider>
+						<Slot />
+						<Toast />
 					</GestureHandlerRootView>
 				</Provider>
 			</ModalProvider>

@@ -16,6 +16,7 @@ import {
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import Constants from "expo-constants";
 import { MaterialIcons } from "@expo/vector-icons";
+import { router } from "expo-router";
 
 export default function VerificationSuccess() {
 	const statusHeight =
@@ -223,6 +224,7 @@ export default function VerificationSuccess() {
 						height: 52,
 						borderRadius: BORDERRADIUS.radius_15,
 					}}
+					onPress={() => router.push("/(tabs)/home")}
 				>
 					<Text
 						style={{

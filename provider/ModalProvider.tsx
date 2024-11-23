@@ -17,6 +17,10 @@ interface ModalContextTypes {
 	toggleEmailVerification: () => void;
 	biometricsVisible: boolean;
 	toggleBiometrics: () => void;
+	banksModalOpen: boolean;
+	toggleBankModal: () => void;
+	confirmTransactionOpen: boolean;
+	toggleConfirmTransactionModal: () => void;
 }
 
 export const ModalContext = createContext<ModalContextTypes>({
@@ -30,6 +34,10 @@ export const ModalContext = createContext<ModalContextTypes>({
 	toggleEmailVerification: () => {},
 	biometricsVisible: false,
 	toggleBiometrics: () => {},
+	banksModalOpen: false,
+	toggleBankModal: () => {},
+	confirmTransactionOpen: false,
+	toggleConfirmTransactionModal: () => {},
 });
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
@@ -38,6 +46,8 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 	const [transactionOpen, setTransactionOpen] = useState(false);
 	const [emailVerificationOpen, setEmailVerificationOpen] = useState(false);
 	const [biometricsVisible, setBiometricsVisible] = useState(false);
+	const [banksModalOpen, setBankModalOpen] = useState(false);
+	const [confirmTransactionOpen, setConfirmTransactionOpen] = useState(false);
 
 	const toggleProfileVisible = () => {
 		setProfileOpen(!profileOpen);
@@ -59,6 +69,14 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 		setBiometricsVisible(!biometricsVisible);
 	};
 
+	const toggleBankModal = () => {
+		setBankModalOpen(!banksModalOpen);
+	};
+
+	const toggleConfirmTransactionModal = () => {
+		setConfirmTransactionOpen(!confirmTransactionOpen);
+	};
+
 	return (
 		<ModalContext.Provider
 			value={{
@@ -72,6 +90,10 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 				toggleEmailVerification,
 				biometricsVisible,
 				toggleBiometrics,
+				banksModalOpen,
+				toggleBankModal,
+				confirmTransactionOpen,
+				toggleConfirmTransactionModal,
 			}}
 		>
 			{children}

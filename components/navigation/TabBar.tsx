@@ -1,18 +1,18 @@
-import { View, Text, StyleSheet, Image, TouchableOpacity } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import { View, StyleSheet, Image, TouchableOpacity } from "react-native";
+import React, { useContext } from "react";
 import { Route } from "@react-navigation/native";
 import { BottomTabDescriptor } from "@react-navigation/bottom-tabs/lib/typescript/src/types";
 import { Colors } from "@/constants/Colors";
 import TabBarButton from "./TabBarButton";
 import { BORDERRADIUS, SPACING } from "@/constants/Theme";
-
-import Modal from "../Modal";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import ScanModal from "../modals/ScanModal";
 import ProfileModal from "../modals/ProfileModal";
 import { ModalContext } from "@/provider/ModalProvider";
 import EmailVerificationModal from "../modals/EmailVerificationModal";
 import BiometricsModal from "../modals/BiometricsModal";
+import TransactionModal from "../modals/TransactionModal";
+import { usePathname } from "expo-router";
 
 interface BottomTabBarProps {
 	state: {
@@ -38,14 +38,7 @@ export interface RoutesProps {
 const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 	const { toggleScannerModal, toggleBiometrics } = useContext(ModalContext);
 	const { isDarkMode, theme } = useContext(ThemeContext);
-
-	const user = null;
-
-	useEffect(() => {
-		if (!user) {
-			toggleBiometrics();
-		}
-	}, [user]);
+	const pathname = usePathname();
 
 	return (
 		<>
@@ -59,7 +52,9 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 				]}
 			>
 				{state.routes.slice(0, 2).map((route, index) => {
-					const isFocused = state.index === index;
+					const firstRouteIndex = route.name.split("/")[0];
+					const isFocused =
+						state.index === index || pathname.includes(firstRouteIndex);
 
 					const onPress = () => {
 						const event = navigation.emit({
@@ -109,7 +104,11 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 				</TouchableOpacity>
 
 				{state.routes.slice(2, 4).map((route, index) => {
-					const isFocused = state.index === index + 2;
+					const firstRouteIndex = route.name.split("/")[0];
+
+					const isFocused =
+						state.index === index + 2 ||
+						pathname.includes(firstRouteIndex);
 
 					const onPress = () => {
 						const event = navigation.emit({
@@ -143,6 +142,7 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 			<ScanModal />
 			<ProfileModal />
 			<EmailVerificationModal />
+			<TransactionModal />
 
 			{/* <ModalOverlay /> */}
 		</>

@@ -2,15 +2,28 @@ import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
 import { api } from "./services/api";
 import { authApi } from "./services/auth";
+import { userApi } from "./services/user";
+import userReducer from "./slice/user.slice";
+import { transferApi } from "./services/transfer";
+import bankReducer from "./slice/transfer.slice";
 
 export const store = configureStore({
 	reducer: {
 		[api.reducerPath]: api.reducer,
 		[authApi.reducerPath]: authApi.reducer,
+		[userApi.reducerPath]: userApi.reducer,
+		[transferApi.reducerPath]: transferApi.reducer,
+		user: userReducer,
+		bank: bankReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>
-		getDefaultMiddleware().concat(api.middleware, authApi.middleware),
+		getDefaultMiddleware().concat(
+			api.middleware,
+			authApi.middleware,
+			userApi.middleware,
+			transferApi.middleware
+		),
 });
 
 //This is helpful for caching

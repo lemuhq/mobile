@@ -3,15 +3,17 @@ import {
 	Text,
 	StyleSheet,
 	Image,
-	Platform,
 	SafeAreaView,
 	Dimensions,
 } from "react-native";
-import React, { useContext } from "react";
+import React from "react";
 import { Colors } from "@/constants/Colors";
-import { ThemeContext } from "@/provider/ThemeProvider";
-import { FONTSIZE, SPACING } from "@/constants/Theme";
-import globalStyles from "@/styles/global.styles";
+import {
+	widthPercentageToDP as wp,
+	heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
+import { SPACING } from "@/constants/Theme";
+import Constants from "expo-constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -26,14 +28,14 @@ export default function OnboardingItem({
 	};
 	index: number;
 }) {
-	const { theme } = useContext(ThemeContext);
+	const statusHeight = Constants.statusBarHeight;
 	return (
 		<SafeAreaView
 			style={[
 				{
 					flex: 1,
-					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
-					paddingBottom: Platform.OS === "android" ? SPACING.space_10 : 0,
+					paddingTop: statusHeight + 10,
+					paddingBottom: statusHeight - 20,
 				},
 			]}
 		>
@@ -171,21 +173,19 @@ const styles = StyleSheet.create({
 	},
 	header: {
 		textAlign: "center",
-		fontSize: FONTSIZE.size_24,
+		fontSize: wp("5.5%"),
 		marginBottom: 1,
 		fontFamily: "PoppinsSemiBold",
 	},
 	subHeader: {
 		textAlign: "center",
 		fontFamily: "PoppinsLight",
-		fontSize: FONTSIZE.size_10 + 1,
-		maxWidth: "90%",
+		fontSize: hp("1.6%"),
 		marginHorizontal: "auto",
 	},
 	contentContainer: {
-		height: 115,
-		paddingHorizontal:
-			Platform.OS === "ios" ? SPACING.space_15 - 1 : SPACING.space_10,
+		height: 120,
+		paddingHorizontal: SPACING.space_20,
 		zIndex: 30,
 		alignItems: "center",
 	},

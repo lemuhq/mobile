@@ -8,11 +8,11 @@ import {
 	Pressable,
 	Platform,
 	TouchableOpacity,
+	ActivityIndicator,
 } from "react-native";
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
 import { ThemeContext } from "@/provider/ThemeProvider";
-import globalStyles from "@/styles/global.styles";
 import { Colors } from "@/constants/Colors";
 import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
@@ -23,50 +23,70 @@ import Entypo from "@expo/vector-icons/Entypo";
 import { LinearGradient } from "expo-linear-gradient";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import TransactionItem from "@/components/TransactionItem";
-import TransactionModal from "@/components/modals/TransactionModal";
 import { ModalContext } from "@/provider/ModalProvider";
 import { router } from "expo-router";
-
-const transactionData: {
-	status: "success" | "failed" | "pending";
-	amount: string;
-	type: string;
-	date: string;
-}[] = [
-	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{
-		status: "pending",
-		type: "Credit",
-		amount: "1,000",
-		date: "Today 12:30pm",
-	},
-	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{
-		status: "pending",
-		type: "Credit",
-		amount: "1,000",
-		date: "Today 12:30pm",
-	},
-	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{ status: "success", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-	{
-		status: "pending",
-		type: "Credit",
-		amount: "1,000",
-		date: "Today 12:30pm",
-	},
-	{ status: "failed", type: "Debit", amount: "1,000", date: "Today 12:30pm" },
-];
+import { useDispatch } from "react-redux";
+import DebitCard from "@/components/DebitCard";
+import {
+	useGetBankListQuery,
+	useGetTransactionHistoryQuery,
+} from "@/redux/services/transfer";
+import {
+	clearBeneficiaryUser,
+	clearPaymentData,
+	setBankList,
+	setTransactionHistory,
+} from "@/redux/slice/transfer.slice";
+import { useFocusEffect } from "@react-navigation/native";
+import { selectUser, setCurrentUser } from "@/redux/slice/user.slice";
+import { useSelector } from "react-redux";
+import { useGetCurrentUserQuery } from "@/redux/services/auth";
+import { Transaction } from "@/types/transfer";
 
 export default function Home() {
+	const dispatch = useDispatch();
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const {
 		toggleProfileVisible,
 		toggleTransactionModal,
 		toggleEmailVerification,
 	} = useContext(ModalContext);
-	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
+
+	const { currentUser } = useSelector(selectUser);
+
+	const { data, isLoading, refetch } = useGetCurrentUserQuery();
+	const { data: transactionData, isLoading: transactionLoading } =
+		useGetTransactionHistoryQuery({});
+
+	// This will run every time the screen comes into focus
+	// useFocusEffect(
+	// 	React.useCallback(() => {
+	// 		if (!currentUser) {
+	// 			refetch();
+
+	// 			// Optional: Clean up function
+	// 			return () => {
+	// 				dispatch(setCurrentUser(data!));
+	// 				dispatch(clearPaymentData());
+	// 				dispatch(clearBeneficiaryUser());
+	// 			};
+	// 		}
+	// 	}, [refetch, currentUser])
+	// );
+
+	const { data: bankData, isLoading: bankLoading } = useGetBankListQuery({});
+
+	useEffect(() => {
+		if (bankData && !bankLoading) {
+			dispatch(setBankList(bankData.data));
+		}
+	}, [bankData, bankLoading]);
+
+	useEffect(() => {
+		if (!transactionLoading && transactionData?.transactions) {
+			dispatch(setTransactionHistory(transactionData?.transactions));
+		}
+	}, [transactionData]);
 
 	const widgetsData: { name: string; icon: any }[] = [
 		{
@@ -115,6 +135,16 @@ export default function Home() {
 		},
 	];
 
+	if (isLoading) {
+		return (
+			<View
+				style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+			>
+				<ActivityIndicator size="large" />
+			</View>
+		);
+	}
+
 	return (
 		<SafeAreaView
 			style={[
@@ -152,7 +182,9 @@ export default function Home() {
 									variant="sm"
 									imageUrl={require(`@/assets/default-user.png`)}
 								/>
-								<Text>Hello, Joshua</Text>
+								<Text>
+									Hello, {currentUser?.firstName || data?.firstName}
+								</Text>
 								<MaterialIcons
 									name="keyboard-arrow-down"
 									size={18}
@@ -190,105 +222,7 @@ export default function Home() {
 						},
 					]}
 				>
-					<LinearGradient
-						colors={
-							isDarkMode
-								? [Colors.orangeTint, Colors.orange]
-								: ["#3E3E3E", "#1C1C1C"]
-						}
-						style={styles.card}
-					>
-						<View style={styles.cardContentWrapper}>
-							<View
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-									justifyContent: "space-between",
-								}}
-							>
-								<Image
-									source={require(`@/assets/lemu-icon.png`)}
-									style={{
-										width: 18,
-										height: 18,
-										resizeMode: "cover",
-									}}
-								/>
-
-								<Text
-									style={{
-										fontSize: FONTSIZE.size_12,
-										color: isDarkMode ? Colors.black : Colors.white,
-										fontFamily: "PoppinsLight",
-									}}
-								>
-									Show Account Details
-								</Text>
-							</View>
-
-							<View
-								style={{
-									flexDirection: "row",
-									alignItems: "center",
-									justifyContent: "space-between",
-								}}
-							>
-								<View>
-									<Text
-										style={{
-											color: isDarkMode
-												? Colors.black
-												: Colors.white,
-											fontSize: FONTSIZE.size_10,
-											fontFamily: "PoppinsRegular",
-										}}
-									>
-										Orange Balance
-									</Text>
-									<Text
-										style={{
-											color: isDarkMode
-												? Colors.black
-												: Colors.white,
-											fontSize: FONTSIZE.size_20,
-											fontFamily: "PoppinsSemiBold",
-										}}
-									>
-										<Text>{"\u20A6"}</Text> 3,000
-									</Text>
-								</View>
-
-								<Pressable>
-									{balanceVisible ? (
-										<MaterialCommunityIcons
-											name="eye"
-											size={24}
-											color={
-												isDarkMode ? Colors.black : Colors.white
-											}
-										/>
-									) : (
-										<MaterialCommunityIcons
-											name="eye-off"
-											size={24}
-											color={Colors.orange}
-										/>
-									)}
-								</Pressable>
-							</View>
-						</View>
-
-						<View style={styles.cardBackgroundImage}>
-							<Image
-								source={require(`@/assets/card-icons.png`)}
-								style={{
-									resizeMode: "cover",
-									width: "100%",
-									height: "100%",
-								}}
-							/>
-						</View>
-					</LinearGradient>
+					<DebitCard isLoading={true} currentUser={currentUser || data!} />
 
 					<View style={styles.widgetsContainer}>
 						{widgetsData.map((item, idx) => (
@@ -299,6 +233,9 @@ export default function Home() {
 									if (item.name === "Send") {
 										// toggleTransactionModal();
 										router.push("/transfer");
+									}
+									if (item.name === "Account") {
+										toggleTransactionModal();
 									}
 								}}
 							>
@@ -463,7 +400,7 @@ export default function Home() {
 							<Text
 								style={{
 									fontFamily: "PoppinsSemiBold",
-									// fontWeight: "500",
+
 									fontSize: FONTSIZE.size_14 - 1,
 									color: isDarkMode ? Colors.orange : Colors.black,
 								}}
@@ -471,7 +408,12 @@ export default function Home() {
 								Transaction History
 							</Text>
 
-							<Pressable style={styles.viewButton}>
+							<TouchableOpacity
+								style={styles.viewButton}
+								onPress={() => {
+									router.push("/(tabs)/history");
+								}}
+							>
 								<Text
 									style={{
 										color: Colors.orange,
@@ -486,17 +428,19 @@ export default function Home() {
 									size={20}
 									color={Colors.orange}
 								/>
-							</Pressable>
+							</TouchableOpacity>
 						</View>
 						<View style={styles.transactionContainer}>
-							{transactionData.map((transaction, index) => (
-								<TransactionItem key={index} {...transaction} />
-							))}
+							{transactionData?.transactions.map(
+								(transaction: Transaction, index) => (
+									<TransactionItem key={index} {...transaction} />
+								)
+							)}
 						</View>
 					</View>
 				</View>
 			</ScrollView>
-			<TransactionModal />
+			{/* <TransactionModal /> */}
 		</SafeAreaView>
 	);
 }
