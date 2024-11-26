@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 export const storage = {
 	async setToken(token: string) {
@@ -59,5 +60,20 @@ export const storage = {
 			console.error("Error getting user first name:", error);
 			return null;
 		}
+	},
+
+	async saveUserToken(key: string, value: string) {
+		await SecureStore.setItemAsync(key, value);
+	},
+
+	async saveRefreshToken(key: string, value: string) {
+		await SecureStore.setItemAsync(key, value);
+	},
+	async getUserToken(key: string) {
+		return await SecureStore.getItemAsync(key);
+	},
+
+	async getRefreshToken(key: string) {
+		return await SecureStore.getItemAsync(key);
 	},
 };

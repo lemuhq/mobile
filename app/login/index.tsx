@@ -24,32 +24,22 @@ import Input from "@/components/inputs/Input";
 import PasswordInput from "@/components/inputs/PasswordInput";
 import { clearAuthCache, useLoginUserMutation } from "@/redux/services/auth";
 import useToast from "@/hooks/useToast";
-import { useDispatch } from "react-redux";
 import { storage } from "@/utils/storage";
-import axios from "axios";
-import { BACKEND_URL } from "@/constants";
-import { setCurrentUser } from "@/redux/slice/user.slice";
-import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
+
 import { ScrollView } from "react-native";
-import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
-import { Keyboard } from "react-native";
 
 export default function LoginScreen() {
 	const statusHeight = Constants.statusBarHeight;
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const { showCustomToast } = useToast();
-	const dispatch = useDispatch();
+	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 10 : 60;
 
 	const [phoneNumber, onChangePhoneNumber] = useState("");
 	const [password, onChangePassword] = useState("");
 	const [loading, setIsLoading] = useState<boolean>(false);
-
 	const [loginUser, { isLoading }] = useLoginUserMutation();
 
 	async function handleLoginUser() {
-		console.log("🚀 ~ handleLoginUser ~ password:", password);
-		console.log("Phonenumber", phoneNumber);
-
 		try {
 			setIsLoading(true);
 
@@ -58,11 +48,7 @@ export default function LoginScreen() {
 				password,
 			});
 
-			console.log("🚀 ~ handleLoginUser ~ error:", error);
-
 			if (error) {
-				console.log("Error logging in user:", error);
-
 				showCustomToast(
 					"error",
 					//@ts-ignore
@@ -78,29 +64,10 @@ export default function LoginScreen() {
 			}
 
 			if (data) {
-				const response = await axios.get(
-					`${BACKEND_URL}/user/current-user`,
-					{
-						headers: {
-							Authorization: `Bearer ${data?.token}`,
-							"Cache-Control": "no-cache", // Prevents caching by the browser
-							Pragma: "no-cache", // HTTP 1.0 cache control for compatibility
-							Expires: "0", // Immediately expires the cached response
-						},
-					}
-				);
-				console.log("��� ~ handleLoginUser ~ response:", response?.data);
+				await storage.saveUserToken("token", data?.accessToken);
+				await storage.saveRefreshToken("refreshToken", data?.refreshToken);
 
-				onChangePassword("");
-				onChangePhoneNumber("");
-				dispatch(setCurrentUser(response.data));
-
-				await storage.saveUserFirstName(response.data?.firstName);
-				await storage.saveLockPin(response.data?.lockPin);
-				await storage.setToken(data?.token);
 				router.push("/(tabs)/home");
-				setIsLoading(false);
-				clearAuthCache();
 			}
 		} catch (error) {
 			//@ts-ignore
@@ -144,15 +111,18 @@ export default function LoginScreen() {
 				)}
 
 				<Text style={styles.formHeader}>Welcome back</Text>
-				<KeyboardAwareScrollView
+
+				<KeyboardAvoidingView
 					style={styles.container}
-					onTouchStart={() => Keyboard.dismiss()}
-					extraScrollHeight={80}
-					keyboardShouldPersistTaps="handled"
-					contentContainerStyle={styles.scrollViewContent}
-					showsVerticalScrollIndicator={false}
+					behavior={Platform.OS === "ios" ? "padding" : "height"}
+					keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
 				>
-					<View style={styles.content}>
+					<ScrollView
+						showsVerticalScrollIndicator={false}
+						contentContainerStyle={{
+							paddingBottom: SPACING.space_20,
+						}}
+					>
 						<View>
 							<Text style={[styles.inputLabel, { color: theme.text }]}>
 								Phone Number
@@ -164,7 +134,6 @@ export default function LoginScreen() {
 								keyboardType="number-pad"
 							/>
 						</View>
-
 						<View
 							style={{
 								marginTop: SPACING.space_20,
@@ -179,58 +148,66 @@ export default function LoginScreen() {
 								// errorMessage={passwordError}
 							/>
 						</View>
-
+					</ScrollView>
+					<View
+						style={{
+							justifyContent: "flex-end",
+							marginTop: SPACING.space_30,
+						}}
+					>
+						<Button
+							buttonText="Sign in"
+							disabled={!password || !phoneNumber ? true : false}
+							isLoading={isLoading || loading}
+							onPress={handleLoginUser}
+						/>
 						<View
 							style={{
+								alignItems: "center",
 								justifyContent: "flex-end",
-								marginTop: SPACING.space_30,
+								marginTop: SPACING.space_20,
 							}}
 						>
-							<Button
-								buttonText="Sign in"
-								disabled={!password || !phoneNumber ? true : false}
-								isLoading={isLoading || loading}
-								onPress={handleLoginUser}
-							/>
-							<View
-								style={{
-									alignItems: "center",
-									justifyContent: "flex-end",
-									marginTop: SPACING.space_20,
+							<TouchableOpacity
+								onPress={() => {
+									router.push("/onboarding");
 								}}
 							>
-								<TouchableOpacity
-									onPress={() => {
-										router.push("/onboarding");
+								<Text
+									style={{
+										fontFamily: "PoppinsMedium",
+										color: Colors.black,
 									}}
 								>
+									Don't have an account?{" "}
 									<Text
 										style={{
-											fontFamily: "PoppinsMedium",
-											color: Colors.black,
+											fontFamily: "PoppinsSemiBold",
+											color: Colors.orange,
 										}}
 									>
-										Don't have an account?{" "}
-										<Text
-											style={{
-												fontFamily: "PoppinsSemiBold",
-												color: Colors.orange,
-											}}
-										>
-											Create one
-										</Text>
+										Create one
 									</Text>
-								</TouchableOpacity>
-							</View>
+								</Text>
+							</TouchableOpacity>
 						</View>
 					</View>
-				</KeyboardAwareScrollView>
+				</KeyboardAvoidingView>
 			</View>
 		</View>
 	);
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+		width: "100%",
+		justifyContent: "space-between",
+	},
+	content: {
+		flex: 1,
+	},
+
 	formContainer: {
 		flex: 1,
 		width: "100%",
@@ -252,16 +229,5 @@ const styles = StyleSheet.create({
 		fontSize: hp("1.5%"),
 		fontFamily: "PoppinsRegular",
 		marginBottom: 8,
-	},
-	container: {
-		flex: 1,
-		width: "100%",
-	},
-	scrollViewContent: {
-		flexGrow: 1,
-	},
-	content: {
-		flex: 1,
-		marginTop: 20,
 	},
 });

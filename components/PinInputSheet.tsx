@@ -15,6 +15,7 @@ import {
 	widthPercentageToDP as wp,
 	heightPercentageToDP as hp,
 } from "react-native-responsive-screen";
+import { fontSizes, windowHeight, windowWidth } from "@/constants";
 
 interface IProps {
 	header: string;
@@ -50,7 +51,7 @@ export default function PinInputSheet({
 			<View
 				style={{
 					paddingHorizontal: SPACING.space_20,
-					paddingBottom: SPACING.space_30,
+					paddingBottom: SPACING.space_10,
 				}}
 			>
 				<Text style={[styles.title, { color: theme.pageTextColor }]}>
@@ -168,16 +169,16 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	title: {
-		fontSize: FONTSIZE.size_24,
+		fontSize: fontSizes.FONT28,
 		fontFamily: "PoppinsBold",
 		textAlign: "center",
 		marginBottom: 8,
 	},
 	subtitle: {
-		fontSize: FONTSIZE.size_10 + 1,
+		fontSize: fontSizes.FONT14,
 		textAlign: "center",
 		marginBottom: SPACING.space_30,
-		lineHeight: 16.5,
+
 		fontFamily: "PoppinsLight",
 	},
 	pinContainer: {
@@ -204,58 +205,57 @@ const styles = StyleSheet.create({
 	},
 	keypad: {
 		alignItems: "center",
-		justifyContent: "center",
+		// justifyContent: "center",
 		position: "relative",
+		flex: 1,
 	},
 	keyPadGroup: {
 		flexDirection: "row",
-		gap: Platform.OS === "android" ? 5 : 10,
-		marginVertical: Platform.OS === "android" ? 0 : 15,
 	},
 	key: {
-		width: Platform.OS === "ios" ? wp("20%") : wp("22%"),
-		height: Platform.OS === "ios" ? hp("9%") : hp("10%"),
-		borderRadius: wp("100%"),
+		width: windowWidth(100),
+		height: windowHeight(65),
+		borderRadius: wp(100),
 		backgroundColor: "#f0f0f0",
 		justifyContent: "center",
 		alignItems: "center",
-		margin: 10,
+		marginHorizontal: windowWidth(20),
+		marginVertical: windowHeight(20),
 	},
 	keyText: {
-		fontSize: 24,
+		fontSize: fontSizes.FONT30,
 		color: "#000",
-		fontFamily: "PoppinsRegular",
+		fontFamily: "PoppinsSemiBold",
 	},
 	emptyKey: {
-		width: 75,
-		height: 75,
-		borderRadius: 40,
+		width: windowWidth(100),
+		height: windowHeight(65),
+		borderRadius: wp(100),
 		backgroundColor: "transparent",
 		justifyContent: "center",
 		alignItems: "center",
-		// margin: 10,
 	},
 	deletKey: {
-		width: 75,
-		height: 75,
-		borderRadius: 40,
+		width: windowWidth(100),
+		height: windowHeight(65),
+		borderRadius: wp(100),
 		backgroundColor: "transparent",
 		justifyContent: "center",
 		alignItems: "center",
 		position: "absolute",
-		bottom: 10,
+		bottom: 20,
 		right: -100,
 		zIndex: 10,
 	},
 	biometricsKey: {
-		width: 75,
-		height: 75,
-		borderRadius: 40,
+		width: windowWidth(100),
+		height: windowHeight(65),
+		borderRadius: wp(100),
 		backgroundColor: "transparent",
 		justifyContent: "center",
 		alignItems: "center",
 		position: "absolute",
-		bottom: 10,
+		bottom: 20,
 		left: -100,
 		zIndex: 10,
 	},

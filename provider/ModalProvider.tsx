@@ -21,6 +21,8 @@ interface ModalContextTypes {
 	toggleBankModal: () => void;
 	confirmTransactionOpen: boolean;
 	toggleConfirmTransactionModal: () => void;
+	successScreenVisible: boolean;
+	toggleSuccessScreen: () => void;
 }
 
 export const ModalContext = createContext<ModalContextTypes>({
@@ -38,6 +40,8 @@ export const ModalContext = createContext<ModalContextTypes>({
 	toggleBankModal: () => {},
 	confirmTransactionOpen: false,
 	toggleConfirmTransactionModal: () => {},
+	successScreenVisible: false,
+	toggleSuccessScreen: () => {},
 });
 
 export const ModalProvider = ({ children }: { children: ReactNode }) => {
@@ -48,6 +52,7 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 	const [biometricsVisible, setBiometricsVisible] = useState(false);
 	const [banksModalOpen, setBankModalOpen] = useState(false);
 	const [confirmTransactionOpen, setConfirmTransactionOpen] = useState(false);
+	const [successScreenVisible, setSuccessScreenVisible] = useState(false);
 
 	const toggleProfileVisible = () => {
 		setProfileOpen(!profileOpen);
@@ -77,6 +82,10 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 		setConfirmTransactionOpen(!confirmTransactionOpen);
 	};
 
+	const toggleSuccessScreen = () => {
+		setSuccessScreenVisible(!successScreenVisible);
+	};
+
 	return (
 		<ModalContext.Provider
 			value={{
@@ -94,6 +103,8 @@ export const ModalProvider = ({ children }: { children: ReactNode }) => {
 				toggleBankModal,
 				confirmTransactionOpen,
 				toggleConfirmTransactionModal,
+				successScreenVisible,
+				toggleSuccessScreen,
 			}}
 		>
 			{children}

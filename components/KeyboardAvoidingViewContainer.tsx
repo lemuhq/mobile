@@ -1,4 +1,10 @@
-import { View, Platform, KeyboardAvoidingView, StyleSheet } from "react-native";
+import {
+	View,
+	Platform,
+	KeyboardAvoidingView,
+	StyleSheet,
+	ScrollView,
+} from "react-native";
 import React from "react";
 
 const KeyboardAvoidingViewContainer = ({
@@ -6,14 +12,16 @@ const KeyboardAvoidingViewContainer = ({
 }: {
 	children: React.ReactNode;
 }) => {
-	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 60 : 75;
+	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 20 : 0;
 	return (
 		<KeyboardAvoidingView
 			style={styles.container}
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
 			keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
 		>
-			<View style={styles.content}>{children}</View>
+			<ScrollView contentContainerStyle={styles.content}>
+				{children}
+			</ScrollView>
 		</KeyboardAvoidingView>
 	);
 };

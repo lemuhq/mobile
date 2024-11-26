@@ -12,6 +12,7 @@ interface IProps {
 	onDismiss: () => void;
 	children: ReactNode;
 	fullHeight?: boolean;
+	isRounded?: boolean;
 }
 
 const BottomSheetModal: FC<IProps> = ({
@@ -19,6 +20,7 @@ const BottomSheetModal: FC<IProps> = ({
 	onDismiss,
 	children,
 	fullHeight,
+	isRounded = true,
 }) => {
 	return (
 		<Modal
@@ -40,6 +42,12 @@ const BottomSheetModal: FC<IProps> = ({
 							maxHeight: fullHeight ? hp("100%") : hp("92%"),
 							height: fullHeight ? "100%" : "auto",
 							paddingVertical: fullHeight ? 0 : SPACING.space_20,
+							borderTopLeftRadius: isRounded
+								? BORDERRADIUS.radius_20
+								: 0,
+							borderTopRightRadius: isRounded
+								? BORDERRADIUS.radius_20
+								: 0,
 						},
 					]}
 				>
@@ -71,7 +79,7 @@ const styles = StyleSheet.create({
 		bottom: 0,
 		position: "absolute",
 
-		borderTopLeftRadius: BORDERRADIUS.radius_20,
-		borderTopRightRadius: BORDERRADIUS.radius_20,
+		// borderTopLeftRadius: BORDERRADIUS.radius_20,
+		// borderTopRightRadius: BORDERRADIUS.radius_20,
 	},
 });

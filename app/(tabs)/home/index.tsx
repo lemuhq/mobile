@@ -8,7 +8,7 @@ import {
 	Pressable,
 	Platform,
 	TouchableOpacity,
-	ActivityIndicator,
+	FlatList,
 } from "react-native";
 import React, { useContext, useEffect, useState } from "react";
 import { StatusBar } from "expo-status-bar";
@@ -32,49 +32,49 @@ import {
 	useGetTransactionHistoryQuery,
 } from "@/redux/services/transfer";
 import {
-	clearBeneficiaryUser,
-	clearPaymentData,
 	setBankList,
 	setTransactionHistory,
 } from "@/redux/slice/transfer.slice";
-import { useFocusEffect } from "@react-navigation/native";
 import { selectUser, setCurrentUser } from "@/redux/slice/user.slice";
 import { useSelector } from "react-redux";
 import { useGetCurrentUserQuery } from "@/redux/services/auth";
 import { Transaction } from "@/types/transfer";
+import { Skeleton } from "moti/skeleton";
+import {
+	heightPercentageToDP,
+	widthPercentageToDP as wp,
+} from "react-native-responsive-screen";
+import { storage } from "@/utils/storage";
 
 export default function Home() {
 	const dispatch = useDispatch();
 	const { isDarkMode, theme } = useContext(ThemeContext);
+	const colorMode: "light" | "dark" = isDarkMode ? "dark" : "light";
 	const {
 		toggleProfileVisible,
 		toggleTransactionModal,
 		toggleEmailVerification,
 	} = useContext(ModalContext);
 
+	const { data, isLoading } = useGetCurrentUserQuery();
 	const { currentUser } = useSelector(selectUser);
 
-	const { data, isLoading, refetch } = useGetCurrentUserQuery();
 	const { data: transactionData, isLoading: transactionLoading } =
 		useGetTransactionHistoryQuery({});
 
-	// This will run every time the screen comes into focus
-	// useFocusEffect(
-	// 	React.useCallback(() => {
-	// 		if (!currentUser) {
-	// 			refetch();
-
-	// 			// Optional: Clean up function
-	// 			return () => {
-	// 				dispatch(setCurrentUser(data!));
-	// 				dispatch(clearPaymentData());
-	// 				dispatch(clearBeneficiaryUser());
-	// 			};
-	// 		}
-	// 	}, [refetch, currentUser])
-	// );
-
 	const { data: bankData, isLoading: bankLoading } = useGetBankListQuery({});
+
+	useEffect(() => {
+		async function checkForLockPin() {
+			const userLockPin = await storage.getLockPin();
+
+			if (!userLockPin) {
+				await storage.saveLockPin(data?.lockPin!);
+			}
+		}
+
+		checkForLockPin();
+	}, [data]);
 
 	useEffect(() => {
 		if (bankData && !bankLoading) {
@@ -87,6 +87,12 @@ export default function Home() {
 			dispatch(setTransactionHistory(transactionData?.transactions));
 		}
 	}, [transactionData]);
+
+	useEffect(() => {
+		if (!isLoading && data) {
+			dispatch(setCurrentUser(data));
+		}
+	}, [data]);
 
 	const widgetsData: { name: string; icon: any }[] = [
 		{
@@ -135,16 +141,6 @@ export default function Home() {
 		},
 	];
 
-	if (isLoading) {
-		return (
-			<View
-				style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-			>
-				<ActivityIndicator size="large" />
-			</View>
-		);
-	}
-
 	return (
 		<SafeAreaView
 			style={[
@@ -176,40 +172,68 @@ export default function Home() {
 					]}
 				>
 					<View style={styles.stickyHeaderBody}>
-						<TouchableOpacity onPress={() => toggleProfileVisible()}>
+						<TouchableOpacity
+							onPress={() => {
+								if (!isLoading) {
+									toggleProfileVisible();
+								}
+							}}
+						>
 							<View style={styles.userInfoContainer}>
-								<Avatar
-									variant="sm"
-									imageUrl={require(`@/assets/default-user.png`)}
-								/>
-								<Text>
-									Hello, {currentUser?.firstName || data?.firstName}
-								</Text>
-								<MaterialIcons
-									name="keyboard-arrow-down"
-									size={18}
-									color="black"
-									style={{ marginLeft: 5 }}
-								/>
+								<Skeleton
+									colorMode={colorMode}
+									width={25}
+									height={25}
+									radius={"round"}
+								>
+									{isLoading ? null : (
+										<Avatar
+											variant="sm"
+											imageUrl={require(`@/assets/default-user.png`)}
+										/>
+									)}
+								</Skeleton>
+								<Skeleton
+									width={wp("15%")}
+									height={10}
+									colorMode={colorMode}
+								>
+									{isLoading ? null : (
+										<Text>
+											Hello,{" "}
+											{data?.firstName || currentUser?.firstName}
+										</Text>
+									)}
+								</Skeleton>
+								{!isLoading && (
+									<MaterialIcons
+										name="keyboard-arrow-down"
+										size={18}
+										color="black"
+										style={{ marginLeft: 5 }}
+									/>
+								)}
 							</View>
 						</TouchableOpacity>
-						<View style={{ position: "relative" }}>
-							<View
-								style={{
-									position: "absolute",
-									width: 8,
-									height: 8,
-									borderRadius: 50,
-									backgroundColor: Colors.orange,
-									right: 3,
-								}}
-							/>
-							<MaterialCommunityIcons
-								name="bell-outline"
-								size={24}
-								color={isDarkMode ? Colors.orange : Colors.black}
-							/>
-						</View>
+						{!isLoading && (
+							<View style={{ position: "relative" }}>
+								<View
+									style={{
+										position: "absolute",
+										width: 8,
+										height: 8,
+										borderRadius: 50,
+										backgroundColor: Colors.orange,
+										right: 3,
+									}}
+								/>
+								<MaterialCommunityIcons
+									name="bell-outline"
+									size={24}
+									color={isDarkMode ? Colors.orange : Colors.black}
+								/>
+							</View>
+						)}
 					</View>
 				</View>
 				<View
@@ -222,67 +246,86 @@ export default function Home() {
 						},
 					]}
 				>
-					<DebitCard isLoading={true} currentUser={currentUser || data!} />
+					<DebitCard
+						isLoading={isLoading}
+						currentUser={data! || currentUser}
+					/>
 
 					<View style={styles.widgetsContainer}>
-						{widgetsData.map((item, idx) => (
-							<TouchableOpacity
-								key={idx}
-								style={styles.navigationButtons}
-								onPress={() => {
-									if (item.name === "Send") {
-										// toggleTransactionModal();
-										router.push("/transfer");
-									}
-									if (item.name === "Account") {
-										toggleTransactionModal();
-									}
-								}}
-							>
-								<View
-									style={[
-										styles.iconWrapper,
-										{
-											backgroundColor: isDarkMode
-												? Colors.orangeTint
-												: Colors.white,
-										},
-									]}
-								>
-									{item.icon()}
-									<View
-										style={{
-											width: 15,
-											height: 15,
-											borderRadius: 50,
-											backgroundColor: isDarkMode
-												? Colors.orangeTintTwo
-												: Colors.orangeTint,
-
-											top: 20,
-											left: 25,
-											position: "absolute",
-											zIndex: 1,
-										}}
+						{widgetsData.map((item, idx) => {
+							if (isLoading) {
+								return (
+									<Skeleton
+										colorMode={colorMode}
+										width={54}
+										height={54}
+										radius={"round"}
+										key={idx}
 									/>
-								</View>
-								<Text
-									style={[
-										styles.widgetLabel,
-										{
-											color: isDarkMode
-												? Colors.orangeTint
-												: Colors.black,
-											fontFamily: "PoppinsRegular",
-										},
-									]}
+								);
+							}
+
+							return (
+								<TouchableOpacity
+									key={idx}
+									style={styles.navigationButtons}
+									onPress={() => {
+										if (item.name === "Send") {
+											// toggleTransactionModal();
+											router.push("/transfer");
+										}
+										if (item.name === "Account") {
+											toggleTransactionModal();
+										}
+									}}
 								>
-									{item.name}
-								</Text>
-							</TouchableOpacity>
-						))}
+									<View
+										style={[
+											styles.iconWrapper,
+											{
+												backgroundColor: isDarkMode
+													? Colors.orangeTint
+													: Colors.white,
+											},
+										]}
+									>
+										{item.icon()}
+										<View
+											style={{
+												width: 15,
+												height: 15,
+												borderRadius: 50,
+												backgroundColor: isDarkMode
+													? Colors.orangeTintTwo
+													: Colors.orangeTint,
+
+												top: 20,
+												left: 25,
+												position: "absolute",
+												zIndex: 1,
+											}}
+										/>
+									</View>
+									<Text
+										style={[
+											styles.widgetLabel,
+											{
+												color: isDarkMode
+													? Colors.orangeTint
+													: Colors.black,
+												fontFamily: "PoppinsRegular",
+											},
+										]}
+									>
+										{item.name}
+									</Text>
+								</TouchableOpacity>
+							);
+						})}
 					</View>
 				</View>
+
+				{/*KYC section*/}
 				<Pressable onPress={() => toggleEmailVerification()}>
 					<View
 						style={{
@@ -295,29 +338,33 @@ export default function Home() {
 								: Colors.whiteSmoke,
 						}}
 					>
-						<View style={styles.kycWrapper}>
-							<Text style={styles.kycText}>
-								Get your flame on with Lemu.
-							</Text>
-							<Text style={styles.kycText}>
-								<Text style={{ color: Colors.orangeTint }}>
-									Update your KYC
-								</Text>
-								information today!.
-							</Text>
+						<Skeleton colorMode={colorMode} width={"100%"} height={65}>
+							{isLoading ? null : (
+								<View style={styles.kycWrapper}>
+									<Text style={styles.kycText}>
+										Get your flame on with Lemu.
+									</Text>
+									<Text style={styles.kycText}>
+										<Text style={{ color: Colors.orangeTint }}>
+											Update your KYC
+										</Text>
+										information today!.
+									</Text>
 
-							<Image
-								source={require(`@/assets/kyc.png`)}
-								style={{
-									width: 135,
-									height: 135,
-									position: "absolute",
-									bottom: -39,
-									right: 0,
-									resizeMode: "contain",
-								}}
-							/>
-						</View>
+									<Image
+										source={require(`@/assets/kyc.png`)}
+										style={{
+											width: 135,
+											height: 135,
+											position: "absolute",
+											bottom: -39,
+											right: 0,
+											resizeMode: "contain",
+										}}
+									/>
+								</View>
+							)}
+						</Skeleton>
 					</View>
 				</Pressable>
 				<View
@@ -327,57 +374,65 @@ export default function Home() {
 					}}
 				>
 					<View style={styles.trendContainer}>
-						<Text
-							style={{
-								fontFamily: "PoppinsSemiBold",
-								// fontWeight: "500",
-								fontSize: FONTSIZE.size_14 - 1,
-								color: isDarkMode ? Colors.orange : Colors.black,
-							}}
-						>
-							Trending today
-						</Text>
-						<LinearGradient
-							colors={["#F99B6D", "#FF6113"]}
-							style={styles.trendItem}
-						>
-							<Text style={styles.trendHeader}>Orange sure looks</Text>
-							<Text style={styles.trendHeader}>good on you!</Text>
+						{!isLoading && (
 							<Text
 								style={{
-									fontFamily: "PoppinsRegular",
-									fontSize: FONTSIZE.size_10 - 2,
-									color: Colors.black,
-									zIndex: 3,
+									fontFamily: "PoppinsSemiBold",
+
+									fontSize: FONTSIZE.size_14 - 1,
+									color: isDarkMode ? Colors.orange : Colors.black,
 								}}
 							>
-								Get cashback on every transaction
+								Trending today
 							</Text>
-							<Image
-								source={require(`@/assets/trend-person.png`)}
-								style={{
-									width: 220,
-									height: 200,
-									resizeMode: "contain",
-									position: "absolute",
-									top: -40,
-									right: -10,
-									zIndex: 2,
-								}}
-							/>
+						)}
+						<Skeleton colorMode={colorMode} width={"100%"} height={90}>
+							{isLoading ? null : (
+								<LinearGradient
+									colors={["#F99B6D", "#FF6113"]}
+									style={styles.trendItem}
+								>
+									<Text style={styles.trendHeader}>
+										Orange sure looks
+									</Text>
+									<Text style={styles.trendHeader}>good on you!</Text>
+									<Text
+										style={{
+											fontFamily: "PoppinsRegular",
+											fontSize: FONTSIZE.size_10 - 2,
+											color: Colors.black,
+											zIndex: 3,
+										}}
+									>
+										Get cashback on every transaction
+									</Text>
+									<Image
+										source={require(`@/assets/trend-person.png`)}
+										style={{
+											width: 220,
+											height: 200,
+											resizeMode: "contain",
+											position: "absolute",
+											top: -40,
+											right: -10,
+											zIndex: 2,
+										}}
+									/>
 
-							<Image
-								source={require(`@/assets/trend-pattern.png`)}
-								style={{
-									width: 230,
-									height: 180,
-									resizeMode: "contain",
-									position: "absolute",
-									top: -38,
-									right: -40,
-								}}
-							/>
-						</LinearGradient>
+									<Image
+										source={require(`@/assets/trend-pattern.png`)}
+										style={{
+											width: 230,
+											height: 180,
+											resizeMode: "contain",
+											position: "absolute",
+											top: -38,
+											right: -40,
+										}}
+									/>
+								</LinearGradient>
+							)}
+						</Skeleton>
 					</View>
 
 					<View
@@ -397,46 +452,130 @@ export default function Home() {
 								},
 							]}
 						>
-							<Text
-								style={{
-									fontFamily: "PoppinsSemiBold",
-
-									fontSize: FONTSIZE.size_14 - 1,
-									color: isDarkMode ? Colors.orange : Colors.black,
-								}}
+							<Skeleton
+								width={wp("30%")}
+								height={14}
+								colorMode={colorMode}
 							>
-								Transaction History
-							</Text>
+								{isLoading ? null : (
+									<Text
+										style={{
+											fontFamily: "PoppinsSemiBold",
 
-							<TouchableOpacity
-								style={styles.viewButton}
-								onPress={() => {
-									router.push("/(tabs)/history");
-								}}
+											fontSize: FONTSIZE.size_14 - 1,
+											color: isDarkMode
+												? Colors.orange
+												: Colors.black,
+										}}
+									>
+										Transaction History
+									</Text>
+								)}
+							</Skeleton>
+
+							<Skeleton
+								width={wp("20%")}
+								height={14}
+								colorMode={colorMode}
 							>
-								<Text
-									style={{
-										color: Colors.orange,
-										fontFamily: "PoppinsSemiBold",
-										fontSize: FONTSIZE.size_10 + 3,
-									}}
-								>
-									View all
-								</Text>
-								<MaterialIcons
-									name="keyboard-arrow-right"
-									size={20}
-									color={Colors.orange}
-								/>
-							</TouchableOpacity>
+								{isLoading ? null : (
+									<TouchableOpacity
+										style={styles.viewButton}
+										onPress={() => {
+											router.push("/(tabs)/history");
+										}}
+									>
+										<Text
+											style={{
+												color: Colors.orange,
+												fontFamily: "PoppinsSemiBold",
+												fontSize: FONTSIZE.size_10 + 3,
+											}}
+										>
+											View all
+										</Text>
+										<MaterialIcons
+											name="keyboard-arrow-right"
+											size={20}
+											color={Colors.orange}
+										/>
+									</TouchableOpacity>
+								)}
+							</Skeleton>
 						</View>
-						<View style={styles.transactionContainer}>
-							{transactionData?.transactions.map(
-								(transaction: Transaction, index) => (
-									<TransactionItem key={index} {...transaction} />
-								)
-							)}
-						</View>
+
+						{/* <View style={styles.transactionContainer}>
+							<FlatList
+								data={
+									isLoading || transactionLoading
+										? []
+										: transactionData?.transactions
+								}
+								renderItem={({ item }) => <TransactionItem {...item} />}
+								keyExtractor={(item) => item._id}
+								contentContainerStyle={{
+									gap: 5,
+								}}
+								ListEmptyComponent={() => {
+									if (isLoading || transactionLoading) {
+										return (
+											<>
+												{Array(5)
+													.fill("")
+													.map((_, idx) => (
+														<View
+															style={{
+																flex: 1,
+																justifyContent: "space-between",
+																alignItems: "center",
+																marginBottom: 10,
+																paddingVertical:
+																	heightPercentageToDP("2%"),
+																flexDirection: "row",
+															}}
+															key={idx}
+														>
+															<View style={{ gap: 5 }}>
+																<Skeleton
+																	width={wp("20%")}
+																	height={10}
+																	colorMode={colorMode}
+																/>
+																<Skeleton
+																	width={wp("30%")}
+																	height={15}
+																	colorMode={colorMode}
+																/>
+															</View>
+
+															<Skeleton
+																width={wp("30%")}
+																height={15}
+																colorMode={colorMode}
+															/>
+														</View>
+													))}
+											</>
+										);
+									}
+									return (
+										<View
+											style={{ flex: 1, justifyContent: "center" }}
+										>
+											<Text
+												style={{
+													fontFamily: "PoppinsRegular",
+													fontSize: FONTSIZE.size_14,
+												}}
+											>
+												No transactions found.
+											</Text>
+										</View>
+									);
+								}}
+								showsVerticalScrollIndicator={false}
+							/>
+						</View> */}
 					</View>
 				</View>
 			</ScrollView>

@@ -6,7 +6,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 const baseQuery = fetchBaseQuery({
 	baseUrl: BACKEND_URL,
 	prepareHeaders: async (headers) => {
-		const token = await storage.getToken();
+		const token = await storage.getUserToken("token");
 
 		if (token) {
 			headers.set("authorization", `Bearer ${token}`);
@@ -134,6 +134,16 @@ export const authApi = createApi({
 			}),
 		}),
 
+		//Get referesh token
+		getNewRefreshToken: builder.mutation({
+			query: ({ oldRefreshToken }: { oldRefreshToken: string }) => ({
+				url: "/user/refresh-token",
+				method: "POST",
+				body: { refreshToken: oldRefreshToken },
+				headers: { "Content-Type": "application/json" },
+			}),
+		}),
+
 		getCurrentUser: builder.query<User, void>({
 			query: () => ({
 				url: "/user/current-user",
@@ -159,4 +169,5 @@ export const {
 	useCreateNewUserMutation,
 	useLoginUserMutation,
 	useGetCurrentUserQuery,
+	useGetNewRefreshTokenMutation,
 } = authApi;
