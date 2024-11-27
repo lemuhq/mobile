@@ -14,6 +14,11 @@ import { BORDERRADIUS, FONTSIZE, SPACING } from "@/constants/Theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { formatNumberWithCommas } from "@/helpers/formatter";
 import { User } from "@/types/user";
+import { Skeleton } from "moti/skeleton";
+import {
+	widthPercentageToDP as wp,
+	heightPercentageToDP as hp,
+} from "react-native-responsive-screen";
 
 interface CardProps {
 	isLoading: boolean;
@@ -22,8 +27,19 @@ interface CardProps {
 
 const DebitCard: FC<CardProps> = ({ isLoading, currentUser }) => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
+	const colorMode: "light" | "dark" = isDarkMode ? "dark" : "light";
 
 	const [balanceVisible, setBalanceVisible] = useState<boolean>(true);
+
+	if (isLoading) {
+		return (
+			<Skeleton
+				width={"100%"}
+				height={hp("18%")}
+				colorMode={colorMode}
+			></Skeleton>
+		);
+	}
 	return (
 		<LinearGradient
 			colors={
@@ -74,6 +90,7 @@ const DebitCard: FC<CardProps> = ({ isLoading, currentUser }) => {
 								color: isDarkMode ? Colors.black : Colors.white,
 								fontSize: FONTSIZE.size_10,
 								fontFamily: "PoppinsRegular",
+								marginBottom: 5,
 							}}
 						>
 							Orange Balance
@@ -97,13 +114,15 @@ const DebitCard: FC<CardProps> = ({ isLoading, currentUser }) => {
 					</View>
 
 					<TouchableOpacity
-						onPress={() => setBalanceVisible(!balanceVisible)}
+						onPress={() => {
+							console.log("Clicked me");
+							setBalanceVisible(!balanceVisible);
+						}}
 						style={{
 							width: 40,
 							height: 40,
 							alignItems: "center",
 							justifyContent: "center",
-							zIndex: 100,
 						}}
 					>
 						{balanceVisible ? (

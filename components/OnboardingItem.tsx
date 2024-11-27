@@ -14,6 +14,7 @@ import {
 } from "react-native-responsive-screen";
 import { SPACING } from "@/constants/Theme";
 import Constants from "expo-constants";
+import { fontSizes } from "@/constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -173,14 +174,14 @@ const styles = StyleSheet.create({
 	},
 	header: {
 		textAlign: "center",
-		fontSize: wp("5.5%"),
+		fontSize: fontSizes.FONT30,
 		marginBottom: 1,
 		fontFamily: "PoppinsSemiBold",
 	},
 	subHeader: {
 		textAlign: "center",
 		fontFamily: "PoppinsLight",
-		fontSize: hp("1.6%"),
+		fontSize: fontSizes.FONT16,
 		marginHorizontal: "auto",
 	},
 	contentContainer: {

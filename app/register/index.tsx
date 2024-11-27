@@ -16,13 +16,17 @@ import PhoneNumberInput from "@/components/inputs/PhoneNumberInput";
 import { SPACING } from "@/constants/Theme";
 import { useSendOtpMutation } from "@/redux/services/auth";
 import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
+import Constants from "expo-constants";
+import axios from "axios";
+import { BACKEND_URL, fontSizes, statusBarHeight } from "@/constants";
+import useToast from "@/hooks/useToast";
 
 export default function Register() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [phoneNumber, setPhoneNumber] = useState<string>("");
 	const [sendOtp, { isLoading }] = useSendOtpMutation();
 	const [errorMessage, setErrorMessage] = useState<string>("");
-	const [successMessage, setSuccessMessage] = useState<string>("");
+	const { showCustomToast } = useToast();
 
 	const handleOtpRequest = async () => {
 		if (phoneNumber?.length < 11) {
@@ -30,46 +34,46 @@ export default function Register() {
 			return;
 		}
 
-		console.log(phoneNumber, "Phone number");
-
 		try {
-			console.log(phoneNumber, "Phone number");
 			const {
 				data: { data, message },
 				error,
-			} = await sendOtp({ phoneNumber });
-			console.log("🚀 ~ handleOtpRequest ~ data:", data);
-			console.log("🚀 ~ handleOtpRequest ~ error:", error);
+			} = await sendOtp({ phoneNumber: phoneNumber });
 
-			setSuccessMessage(message);
+			if (error) {
+				console.log("🚀 ~ handleOtpRequest ~ error:", error);
+				showCustomToast("error", "Something went wrong.");
+				return;
+			}
+
+			console.log("🚀 ~ handleOtpRequest ~ data:", data);
+
 			router.navigate(
 				`/register/confirmPhone?phoneNumber=${phoneNumber}&otpId=${data?.otpId}&expiryTime=${data?.expiryTime}`
 			);
 		} catch (error: any) {
-			console.log("🚀 ~ sendOtp ~ error:", error);
-			// setErrorMessage("Failed to send OTP. Please try again later.");
+			console.log("🚀 ~ handleOtpRequest ~ error:", error);
+			showCustomToast("error", "Something went wrong.");
 		}
 	};
 
 	return (
 		<KeyboardAvoidingViewContainer>
-			<SafeAreaView
-				style={[
-					{
-						flex: 1,
-						backgroundColor: theme.background,
-						paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
-						paddingBottom:
-							Platform.OS === "android" ? SPACING.space_10 : 0,
-					},
-				]}
+			<StatusBar style={isDarkMode ? "light" : "dark"} />
+			<View
+				style={{
+					backgroundColor: theme.background,
+					flex: 1,
+					paddingTop: statusBarHeight + 20,
+					paddingBottom: statusBarHeight - 20,
+				}}
 			>
-				<StatusBar style={isDarkMode ? "light" : "dark"} />
 				<View
 					style={{
-						paddingHorizontal: SPACING.space_20,
-						paddingTop: SPACING.space_10,
 						flex: 1,
+						backgroundColor: theme.background,
+						paddingHorizontal: SPACING.space_20,
+						justifyContent: "space-between",
 					}}
 				>
 					<Text
@@ -104,7 +108,7 @@ export default function Register() {
 								},
 							]}
 						>
-							By clicking "continue", you confirm that you agree to our
+							By clicking "continue", you confirm that you agree to our{" "}
 							<Text
 								style={{
 									fontFamily: "PoppinsSemiBold",
@@ -139,8 +143,113 @@ export default function Register() {
 						variant="primary"
 					/>
 				</View>
-			</SafeAreaView>
+			</View>
 		</KeyboardAvoidingViewContainer>
+		// <View
+		// 	style={[
+		// 		{
+		// 			flex: 1,
+		// 			backgroundColor: theme.background,
+
+		// 			paddingTop: statusBarHeight,
+		// 			paddingBottom: statusBarHeight - 30,
+		// 		},
+		// 	]}
+		// >
+		// 	<KeyboardAvoidingViewContainer>
+		// 		<View
+		// 			style={[
+		// 				{
+		// 					flexGrow: 1,
+		// 					backgroundColor: theme.background,
+		// 				},
+		// 			]}
+		// 		>
+		// 			<StatusBar style={isDarkMode ? "light" : "dark"} />
+		// 			<View
+		// 				style={{
+		// 					paddingHorizontal: SPACING.space_20,
+		// 					flex: 1,
+		// 				}}
+		// 			>
+		// <Text
+		// 	style={[
+		// 		styles.welcomeH2,
+		// 		{
+		// 			color: theme.pageTextColor,
+		// 			textAlign: "center",
+		// 		},
+		// 	]}
+		// >
+		// 	Welcome to Lemu
+		// </Text>
+
+		// <View
+		// 	style={{
+		// 		marginTop: SPACING.space_10,
+		// 		flex: 1,
+		// 	}}
+		// >
+		// <PhoneNumberInput
+		// 	value={phoneNumber}
+		// 	setValue={setPhoneNumber}
+		// 	errorMessage={errorMessage}
+		// />
+		// <Text
+		// 	style={[
+		// 		styles.subText,
+		// 		{
+		// 			color: theme.text,
+		// 			marginTop: 10,
+		// 		},
+		// 	]}
+		// >
+		// 	By clicking "continue", you confirm that you agree to
+		// 	our
+		// 	<Text
+		// 		style={{
+		// 			fontFamily: "PoppinsSemiBold",
+		// 			color: Colors.orange,
+		// 		}}
+		// 	>
+		// 		Terms and Conditions
+		// 	</Text>{" "}
+		// 	and{" "}
+		// 	<Text
+		// 		style={{
+		// 			fontFamily: "PoppinsSemiBold",
+		// 			color: Colors.orange,
+		// 		}}
+		// 	>
+		// 		Privacy Policy.
+		// 	</Text>
+		// </Text>
+		// 				</View>
+
+		// 				<View
+		// 					style={{
+		// 						// flex: 1,
+		// 						justifyContent: "flex-end",
+		// 					}}
+		// 				>
+		// <Button
+		// 	buttonText="Continue"
+		// 	onPress={() => {
+		// 		handleOtpRequest();
+		// 	}}
+		// 	isLoading={isLoading}
+		// 	disabled={
+		// 		(phoneNumber.length === 0 || phoneNumber.length < 11
+		// 			? true
+		// 			: false) || isLoading
+		// 	}
+		// 	variant="primary"
+		// />
+		// 				</View>
+		// 			</View>
+		// 		</View>
+		// 	</KeyboardAvoidingViewContainer>
+		// </View>
 	);
 }
 
@@ -150,7 +259,7 @@ const styles = StyleSheet.create({
 		flex: 1,
 	},
 	welcomeH2: {
-		fontSize: 28,
+		fontSize: fontSizes.FONT28,
 		fontFamily: "PoppinsBold",
 	},
 	subText: {

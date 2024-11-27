@@ -12,7 +12,7 @@ import { useDispatch } from "react-redux";
 import { clearCurrentUser, selectUser } from "@/redux/slice/user.slice";
 import { storage } from "@/utils/storage";
 import { router } from "expo-router";
-import { clearAuthCache } from "@/redux/services/auth";
+import { clearAuthCache, useGetCurrentUserQuery } from "@/redux/services/auth";
 import { clearUserCache } from "@/redux/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Colors } from "@/constants/Colors";
@@ -28,8 +28,8 @@ import useCopyToClipboard from "@/hooks/useCopyToClipboard";
 import { formatNumberWithCommas } from "@/helpers/formatter";
 
 export default function Profile() {
-	const { currentUser } = useSelector(selectUser);
-	const dispatch = useDispatch();
+	const { data, isLoading } = useGetCurrentUserQuery();
+
 	const statusHeight =
 		Platform.OS === "android" ? Constants.statusBarHeight + 30 : 70;
 
@@ -93,13 +93,13 @@ export default function Profile() {
 						/>
 					</View>
 					<Text style={styles.userFullname}>
-						{currentUser?.firstName + " " + currentUser?.lastName}
+						{data?.firstName + " " + data?.lastName}
 					</Text>
 					<TouchableOpacity
-						onPress={() => handleCopyText(currentUser?.accountNumber!)}
+						onPress={() => handleCopyText(data?.accountNumber!)}
 					>
 						<Text style={styles.userAccountNumber}>
-							{currentUser?.accountNumber}
+							{data?.accountNumber}
 						</Text>
 					</TouchableOpacity>
 				</View>
@@ -139,7 +139,7 @@ export default function Profile() {
 						}}
 					>
 						{"\u20A6"}
-						{formatNumberWithCommas(currentUser?.accountBalance!)}
+						{formatNumberWithCommas(data?.accountBalance!)}
 					</Text>
 				</View>
 				<View style={styles.actionRow}>

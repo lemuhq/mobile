@@ -17,6 +17,9 @@ import { storage } from "@/utils/storage";
 import axios from "axios";
 import { useDispatch } from "react-redux";
 import { BACKEND_URL } from "@/constants";
+import { useGetNewRefreshTokenMutation } from "@/redux/services/auth";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 const AuthenticatedUser = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
@@ -28,25 +31,34 @@ const AuthenticatedUser = () => {
 	const [firstName, setFirstName] = useState<string>("");
 	const dispatch = useDispatch();
 
+	const [getNewRefreshToken, { isLoading }] = useGetNewRefreshTokenMutation();
+
 	async function verifyPin() {
 		try {
 			if (pin.join("").toString() === lockKey) {
 				setIsSuccess(true);
-				const token = await storage.getToken();
-				const response = await axios.get(
-					`${BACKEND_URL}/user/current-user`,
-					{
-						headers: {
-							Authorization: `Bearer ${token}`,
-							"Cache-Control": "no-cache",
-							Pragma: "no-cache",
-							Expires: "0",
-						},
-					}
-				);
+				const refreshToken = await storage.getRefreshToken("refreshToken");
 
-				dispatch(setCurrentUser(response.data));
-				router.push("/(tabs)/home");
+				if (refreshToken) {
+					const { data, error } = await getNewRefreshToken({
+						oldRefreshToken: refreshToken,
+					});
+
+					if (error) {
+						console.log("🚀 ~ verifyPin ~ error:", error);
+						showCustomToast("error", "Incorrect pin");
+						return;
+					}
+
+					if (data) {
+						await storage.saveUserToken("token", data?.accessToken);
+						await storage.saveRefreshToken(
+							"refreshToken",
+							data?.refreshToken
+						);
+						router.push("/(tabs)/home");
+					}
+				}
 			} else {
 				showCustomToast("error", "Incorrect pin");
 			}
@@ -61,6 +73,7 @@ const AuthenticatedUser = () => {
 	useEffect(() => {
 		async function fetchLockKey() {
 			const lockPin = await storage.getLockPin();
+
 			const lockUser = await storage.getUserFirstName();
 
 			if (lockPin && lockUser) {
@@ -94,8 +107,8 @@ const AuthenticatedUser = () => {
 					<StatusBar style={isDarkMode ? "light" : "dark"} />
 					<View
 						style={{
-							paddingTop: statusHeight + 30,
-							paddingBottom: statusHeight,
+							paddingTop: statusHeight + 10,
+							paddingBottom: statusHeight - 28,
 							flex: 1,
 							gap: 5,
 						}}
@@ -115,7 +128,7 @@ const AuthenticatedUser = () => {
 								style={{
 									width: "100%",
 									height: "100%",
-									// borderRadius: 100,
+
 									resizeMode: "cover",
 								}}
 							/>
@@ -132,7 +145,8 @@ const AuthenticatedUser = () => {
 							style={{
 								alignItems: "center",
 								justifyContent: "flex-end",
-								height: 40,
+
+								height: 20,
 							}}
 						>
 							<TouchableOpacity>

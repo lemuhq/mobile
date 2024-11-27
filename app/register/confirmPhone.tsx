@@ -72,7 +72,6 @@ export default function ConfirmPhone() {
 				setErrorMessage(error?.data?.message);
 				return;
 			}
-			console.log("🚀 ~ handleOtpResend ~ data:", data);
 
 			setTimer(data?.expiryTime);
 		} catch (error) {

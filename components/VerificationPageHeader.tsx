@@ -1,12 +1,8 @@
+import { fontSizes } from "@/constants";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import React, { FC, useContext } from "react";
 import { StyleSheet } from "react-native";
 import { Text, View } from "react-native";
-
-import {
-	widthPercentageToDP as wp,
-	heightPercentageToDP as hp,
-} from "react-native-responsive-screen";
 
 const VerificationPageHeader: FC<{ header: string; subHeader?: string }> = ({
 	header,
@@ -47,12 +43,11 @@ const VerificationPageHeader: FC<{ header: string; subHeader?: string }> = ({
 export default VerificationPageHeader;
 const styles = StyleSheet.create({
 	welcomeH2: {
-		fontSize: wp("6%"),
+		fontSize: fontSizes.FONT25,
 		fontFamily: "PoppinsSemiBold",
 	},
 	subText: {
-		fontSize: wp("3%"),
-		lineHeight: 18,
+		fontSize: fontSizes.FONT16,
 		fontFamily: "PoppinsLight",
 	},
 });
