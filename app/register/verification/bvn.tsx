@@ -251,112 +251,112 @@ const BvnVerification = () => {
 	};
 
 	//Data
-	const registeData: { name: string; pageComponent: any }[] = [
-		{
-			name: "bvn",
-			pageComponent: (
-				<BvnScreen
-					next={() => {
-						if (bvnNumber.length === 11 && otp.length === 4) {
-							handleNextScreen(2);
-							return;
-						}
+	// const registeData: { name: string; pageComponent: any }[] = [
+	// 	{
+	// 		name: "bvn",
+	// 		pageComponent: (
+	// 			<BvnScreen
+	// 				next={() => {
+	// 					if (bvnNumber.length === 11 && otp.length === 4) {
+	// 						handleNextScreen(2);
+	// 						return;
+	// 					}
 
-						handleBvnSubmit();
-					}}
-					bvnNumber={bvnNumber}
-					onChangeBvnNumber={setBvnNumber}
-					isLoading={isBvnLoading}
-				/>
-			),
-		},
-		{
-			name: "verification",
-			pageComponent: (
-				<ValidateBvnScreen
-					prev={() => {
-						handlePrevScreen(0);
-					}}
-					next={() => {
-						handleValidateBvn();
-					}}
-					otpValue={otp}
-					onChangeOtp={setOtp}
-					isLoading={isLoading}
-				/>
-			),
-		},
-		{
-			name: "userInfo",
-			pageComponent: (
-				<CreateUserScreen
-					prev={() => {
-						handlePrevScreen(1);
-					}}
-					next={() => {
-						// handleNextScreen(3);
-						handleUserInfo();
-					}}
-					firstName={firstName}
-					onChangeFirstName={setFirstName}
-					lastName={lastName}
-					onChangeLastName={setLastName}
-					referalCode={referalCode}
-					onChangeReferalCode={setReferalCode}
-					email={email}
-					onChangeEmail={setEmail}
-				/>
-			),
-		},
-		{
-			name: "password",
-			pageComponent: (
-				<CreatePasswordScreen
-					prev={() => {
-						handlePassword();
-					}}
-					next={() => {
-						handleNextScreen(4);
-					}}
-					password={password}
-					confirmPassword={confirmPassword}
-					onChangePassword={setPassword}
-					onChangeConfirmPassword={setConfirmPassword}
-				/>
-			),
-		},
-		{
-			name: "transactionPin",
-			pageComponent: (
-				<CreateTransactionPinScreen
-					prev={() => {
-						handlePrevScreen(3);
-					}}
-					next={() => {
-						// handleNextScreen(5);
-						handleTransactionPin();
-					}}
-					pin={transactionPin}
-					onChangePin={setTransactionPin}
-				/>
-			),
-		},
-		{
-			name: "loginpin",
-			pageComponent: (
-				<CreateLoginPinScreen
-					prev={() => {
-						handlePrevScreen(4);
-					}}
-					next={() => {
-						handleCreateUser();
-					}}
-					pin={lockPin}
-					onChangePin={setLockPin}
-				/>
-			),
-		},
-	];
+	// 					handleBvnSubmit();
+	// 				}}
+	// 				bvnNumber={bvnNumber}
+	// 				onChangeBvnNumber={setBvnNumber}
+	// 				isLoading={isBvnLoading}
+	// 			/>
+	// 		),
+	// 	},
+	// 	{
+	// 		name: "verification",
+	// 		pageComponent: (
+	// 			<ValidateBvnScreen
+	// 				prev={() => {
+	// 					handlePrevScreen(0);
+	// 				}}
+	// 				next={() => {
+	// 					handleValidateBvn();
+	// 				}}
+	// 				otpValue={otp}
+	// 				onChangeOtp={setOtp}
+	// 				isLoading={isLoading}
+	// 			/>
+	// 		),
+	// 	},
+	// 	{
+	// 		name: "userInfo",
+	// 		pageComponent: (
+	// 			<CreateUserScreen
+	// 				prev={() => {
+	// 					handlePrevScreen(1);
+	// 				}}
+	// 				next={() => {
+	// 					// handleNextScreen(3);
+	// 					handleUserInfo();
+	// 				}}
+	// 				firstName={firstName}
+	// 				onChangeFirstName={setFirstName}
+	// 				lastName={lastName}
+	// 				onChangeLastName={setLastName}
+	// 				referalCode={referalCode}
+	// 				onChangeReferalCode={setReferalCode}
+	// 				email={email}
+	// 				onChangeEmail={setEmail}
+	// 			/>
+	// 		),
+	// 	},
+	// 	{
+	// 		name: "password",
+	// 		pageComponent: (
+	// 			<CreatePasswordScreen
+	// 				prev={() => {
+	// 					handlePassword();
+	// 				}}
+	// 				next={() => {
+	// 					handleNextScreen(4);
+	// 				}}
+	// 				password={password}
+	// 				confirmPassword={confirmPassword}
+	// 				onChangePassword={setPassword}
+	// 				onChangeConfirmPassword={setConfirmPassword}
+	// 			/>
+	// 		),
+	// 	},
+	// 	{
+	// 		name: "transactionPin",
+	// 		pageComponent: (
+	// 			<CreateTransactionPinScreen
+	// 				prev={() => {
+	// 					handlePrevScreen(3);
+	// 				}}
+	// 				next={() => {
+	// 					// handleNextScreen(5);
+	// 					handleTransactionPin();
+	// 				}}
+	// 				pin={transactionPin}
+	// 				onChangePin={setTransactionPin}
+	// 			/>
+	// 		),
+	// 	},
+	// 	{
+	// 		name: "loginpin",
+	// 		pageComponent: (
+	// 			<CreateLoginPinScreen
+	// 				prev={() => {
+	// 					handlePrevScreen(4);
+	// 				}}
+	// 				next={() => {
+	// 					handleCreateUser();
+	// 				}}
+	// 				pin={lockPin}
+	// 				onChangePin={setLockPin}
+	// 			/>
+	// 		),
+	// 	},
+	// ];
 
 	const handleNextScreen = (page: number) => {
 		slidesRef.current.scrollToIndex({ index: page });
@@ -366,34 +366,7 @@ const BvnVerification = () => {
 		slidesRef.current.scrollToIndex({ index: page });
 	};
 
-	return (
-		<View
-			style={{
-				flex: 1,
-			}}
-		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			{/* <Text>Hello user</Text> */}
-			<FlatList
-				data={registeData}
-				renderItem={({ item, index }) => (
-					<View style={{ flex: 1 }}>{item.pageComponent}</View>
-				)}
-				horizontal
-				showsHorizontalScrollIndicator={false}
-				pagingEnabled
-				bounces={false}
-				scrollEnabled={false}
-				onScroll={Animated.event(
-					[{ nativeEvent: { contentOffset: { x: scrollX } } }],
-					{ useNativeDriver: false }
-				)}
-				viewabilityConfig={viewConfig}
-				scrollEventThrottle={32}
-				ref={slidesRef}
-			/>
-		</View>
-	);
+	return <BvnScreen />;
 };
 
 export default BvnVerification;

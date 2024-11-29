@@ -40,24 +40,29 @@ const AuthenticatedUser = () => {
 				const refreshToken = await storage.getRefreshToken("refreshToken");
 
 				if (refreshToken) {
-					const { data, error } = await getNewRefreshToken({
+					const payload = {
 						oldRefreshToken: refreshToken,
-					});
+					};
+					const response = await getNewRefreshToken(payload);
 
-					if (error) {
-						console.log("🚀 ~ verifyPin ~ error:", error);
-						showCustomToast("error", "Incorrect pin");
+					if (response.error) {
+						showCustomToast(
+							"error",
+							//@ts-ignore
+							response?.error?.data?.message || "Incorrect pin"
+						);
 						return;
 					}
 
-					if (data) {
-						await storage.saveUserToken("token", data?.accessToken);
-						await storage.saveRefreshToken(
-							"refreshToken",
-							data?.refreshToken
-						);
-						router.push("/(tabs)/home");
-					}
+					await storage.saveUserToken(
+						"token",
+						response?.data?.accessToken
+					);
+					await storage.saveRefreshToken(
+						"refreshToken",
+						response?.data?.refreshToken
+					);
+					router.push("/(tabs)/home");
 				}
 			} else {
 				showCustomToast("error", "Incorrect pin");

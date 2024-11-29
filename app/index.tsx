@@ -5,21 +5,9 @@ import splashStyles from "@/styles/splashStyles.styles";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { StatusBar } from "expo-status-bar";
 import { storage } from "@/utils/storage";
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import * as SecureStore from "expo-secure-store";
 
 const App = () => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
-
-	const clearall = async () => {
-		await AsyncStorage.clear();
-		await SecureStore.deleteItemAsync("token");
-		await SecureStore.deleteItemAsync("refreshToken");
-	};
-
-	useEffect(() => {
-		clearall();
-	}, []);
 
 	useEffect(() => {
 		const prepare = async () => {
@@ -33,7 +21,6 @@ const App = () => {
 				router.navigate("/onboarding");
 			} else {
 				if (refreshTokenExist) {
-					// router.navigate("/login/authUser");
 					router.navigate("/login/authUser");
 				} else {
 					router.navigate("/login");
@@ -43,6 +30,7 @@ const App = () => {
 
 		prepare();
 	}, []);
+
 	return (
 		<View
 			style={[

@@ -6,6 +6,7 @@ import {
 	StyleSheet,
 	TouchableOpacity,
 	KeyboardAvoidingView,
+	SafeAreaView,
 } from "react-native";
 import React, { useContext, useState } from "react";
 import Constants from "expo-constants";
@@ -27,12 +28,13 @@ import useToast from "@/hooks/useToast";
 import { storage } from "@/utils/storage";
 
 import { ScrollView } from "react-native";
+import { statusBarHeight } from "@/constants";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
 
 export default function LoginScreen() {
-	const statusHeight = Constants.statusBarHeight;
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const { showCustomToast } = useToast();
-	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 10 : 60;
+	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 30 : 60;
 
 	const [phoneNumber, onChangePhoneNumber] = useState("");
 	const [password, onChangePassword] = useState("");
@@ -43,16 +45,18 @@ export default function LoginScreen() {
 		try {
 			setIsLoading(true);
 
-			const { data, error } = await loginUser({
+			const payload = {
 				phoneNumber,
 				password,
-			});
+			};
 
-			if (error) {
+			const response = await loginUser(payload);
+
+			if (response.error) {
 				showCustomToast(
 					"error",
 					//@ts-ignore
-					error?.data?.message || "Something went wrong"
+					response?.error?.data?.message || "Something went wrong"
 				);
 
 				onChangePassword("");
@@ -63,146 +67,368 @@ export default function LoginScreen() {
 				return;
 			}
 
-			if (data) {
-				await storage.saveUserToken("token", data?.accessToken);
-				await storage.saveRefreshToken("refreshToken", data?.refreshToken);
-
-				router.push("/(tabs)/home");
-			}
-		} catch (error) {
-			//@ts-ignore
-			console.log(error?.response?.data);
+			await storage.saveUserToken("token", response?.data?.accessToken);
+			await storage.saveUserToken(
+				"refreshToken",
+				response?.data?.refreshToken
+			);
+			router.push("/(tabs)/home");
+		} catch (error: any) {
+			showCustomToast(
+				"error",
+				//@ts-ignore
+				response?.error?.data?.message || "Something went wrong"
+			);
 		} finally {
 			setIsLoading(false);
 		}
 	}
 
 	return (
-		<View
-			style={[
-				{
-					flex: 1,
-					backgroundColor: theme.background,
-					// backgroundColor: "blue",
-					paddingTop: statusHeight,
-					paddingBottom: statusHeight - 20,
-				},
-			]}
-		>
+		<KeyboardAvoidingViewContainer>
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			<View
-				style={{
-					justifyContent: "space-between",
-					alignItems: "center",
-					paddingHorizontal: SPACING.space_20,
-					flex: 1,
-				}}
-			>
-				{isDarkMode ? (
-					<Image
-						source={require("@/assets/SplashLogo.png")}
-						style={splashStyles.logo}
-					/>
-				) : (
-					<Image
-						source={require("@/assets/SplashLogoTwo.png")}
-						style={splashStyles.logo}
-					/>
-				)}
-
+			<View>
+				<View
+					style={{
+						alignItems: "center",
+						justifyContent: "center",
+					}}
+				>
+					{isDarkMode ? (
+						<Image
+							source={require("@/assets/SplashLogo.png")}
+							style={splashStyles.logo}
+						/>
+					) : (
+						<Image
+							source={require("@/assets/SplashLogoTwo.png")}
+							style={splashStyles.logo}
+						/>
+					)}
+				</View>
 				<Text style={styles.formHeader}>Welcome back</Text>
 
-				<KeyboardAvoidingView
-					style={styles.container}
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-					keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
-				>
-					<ScrollView
-						showsVerticalScrollIndicator={false}
-						contentContainerStyle={{
-							paddingBottom: SPACING.space_20,
-						}}
-					>
-						<View>
-							<Text style={[styles.inputLabel, { color: theme.text }]}>
-								Phone Number
-							</Text>
-							<Input
-								value={phoneNumber}
-								setValue={onChangePhoneNumber}
-								placeholder="Enter Phone Number"
-								keyboardType="number-pad"
-							/>
-						</View>
-						<View
-							style={{
-								marginTop: SPACING.space_20,
-							}}
-						>
-							<Text style={[styles.inputLabel, { color: theme.text }]}>
-								Password
-							</Text>
-							<PasswordInput
-								value={password}
-								setValue={onChangePassword}
-								// errorMessage={passwordError}
-							/>
-						</View>
-					</ScrollView>
+				<View>
+					<View>
+						<Text style={[styles.inputLabel, { color: theme.text }]}>
+							Phone Number
+						</Text>
+						<Input
+							value={phoneNumber}
+							setValue={onChangePhoneNumber}
+							placeholder="Enter Phone Number"
+							keyboardType="number-pad"
+						/>
+					</View>
+
 					<View
 						style={{
-							justifyContent: "flex-end",
-							marginTop: SPACING.space_30,
+							marginTop: SPACING.space_20,
 						}}
 					>
-						<Button
-							buttonText="Sign in"
-							disabled={!password || !phoneNumber ? true : false}
-							isLoading={isLoading || loading}
-							onPress={handleLoginUser}
+						<Text style={[styles.inputLabel, { color: theme.text }]}>
+							Password
+						</Text>
+						<PasswordInput
+							value={password}
+							setValue={onChangePassword}
+							// errorMessage={passwordError}
 						/>
-						<View
+					</View>
+				</View>
+			</View>
+
+			<View>
+				<Button
+					buttonText="Sign in"
+					disabled={!password || !phoneNumber ? true : false}
+					isLoading={isLoading || loading}
+					onPress={handleLoginUser}
+				/>
+				<View
+					style={{
+						alignItems: "center",
+						justifyContent: "flex-end",
+						marginTop: SPACING.space_20,
+					}}
+				>
+					<TouchableOpacity
+						onPress={() => {
+							router.push("/onboarding");
+						}}
+					>
+						<Text
 							style={{
-								alignItems: "center",
-								justifyContent: "flex-end",
-								marginTop: SPACING.space_20,
+								fontFamily: "PoppinsMedium",
+								color: Colors.black,
 							}}
 						>
-							<TouchableOpacity
-								onPress={() => {
-									router.push("/onboarding");
+							Don't have an account?{" "}
+							<Text
+								style={{
+									fontFamily: "PoppinsSemiBold",
+									color: Colors.orange,
 								}}
 							>
-								<Text
-									style={{
-										fontFamily: "PoppinsMedium",
-										color: Colors.black,
-									}}
-								>
-									Don't have an account?{" "}
-									<Text
-										style={{
-											fontFamily: "PoppinsSemiBold",
-											color: Colors.orange,
-										}}
-									>
-										Create one
-									</Text>
-								</Text>
-							</TouchableOpacity>
-						</View>
-					</View>
-				</KeyboardAvoidingView>
+								Create one
+							</Text>
+						</Text>
+					</TouchableOpacity>
+				</View>
 			</View>
-		</View>
+		</KeyboardAvoidingViewContainer>
+		// <SafeAreaView
+		// 	style={{
+		// 		backgroundColor: "red",
+		// 		flex: 1,
+		// 		paddingTop: Platform.OS === "android" ? statusBarHeight + 10 : 0,
+		// 		paddingBottom: Platform.OS === "android" ? statusBarHeight - 30 : 0,
+		// 	}}
+		// >
+		// 	<StatusBar style={isDarkMode ? "light" : "dark"} />
+		// 	<KeyboardAvoidingView
+		// 		style={[styles.container, { backgroundColor: theme.background }]}
+		// 		behavior={Platform.OS === "ios" ? "padding" : "height"}
+		// 		keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
+		// 	>
+		// <View
+		// 	style={{
+		// 		alignItems: "center",
+		// 		justifyContent: "center",
+		// 	}}
+		// >
+		// 	{isDarkMode ? (
+		// 		<Image
+		// 			source={require("@/assets/SplashLogo.png")}
+		// 			style={splashStyles.logo}
+		// 		/>
+		// 	) : (
+		// 		<Image
+		// 			source={require("@/assets/SplashLogoTwo.png")}
+		// 			style={splashStyles.logo}
+		// 		/>
+		// 	)}
+		// </View>
+
+		// 		<Text style={styles.formHeader}>Welcome back</Text>
+
+		// 		<ScrollView
+		// 			style={{ flexGrow: 1 }}
+		// 			contentContainerStyle={{
+		// 				flexGrow: 1,
+		// 				paddingTop: SPACING.space_20,
+		// 				paddingHorizontal: SPACING.space_20,
+		// 				paddingBottom:
+		// 					Platform.OS === "ios"
+		// 						? SPACING.space_30
+		// 						: SPACING.space_20,
+		// 				gap: SPACING.space_20,
+		// 			}}
+		// 			showsVerticalScrollIndicator={false}
+		// 			bounces={false}
+		// 		>
+		// <View>
+		// 	<Text style={[styles.inputLabel, { color: theme.text }]}>
+		// 		Phone Number
+		// 	</Text>
+		// 	<Input
+		// 		value={phoneNumber}
+		// 		setValue={onChangePhoneNumber}
+		// 		placeholder="Enter Phone Number"
+		// 		keyboardType="number-pad"
+		// 	/>
+		// </View>
+		// <View
+		// 	style={
+		// 		{
+		// 			// marginTop: SPACING.space_20,
+		// 		}
+		// 	}
+		// >
+		// 	<Text style={[styles.inputLabel, { color: theme.text }]}>
+		// 		Password
+		// 	</Text>
+		// 	<PasswordInput
+		// 		value={password}
+		// 		setValue={onChangePassword}
+		// 		// errorMessage={passwordError}
+		// 	/>
+		// </View>
+		// 		</ScrollView>
+		// <View
+		// 	style={{
+		// 		justifyContent: "flex-end",
+		// 		// marginTop: SPACING.space_30,
+		// 	}}
+		// >
+		// 	<Button
+		// 		buttonText="Sign in"
+		// 		disabled={!password || !phoneNumber ? true : false}
+		// 		isLoading={isLoading || loading}
+		// 		onPress={handleLoginUser}
+		// 	/>
+		// 	<View
+		// 		style={{
+		// 			alignItems: "center",
+		// 			justifyContent: "flex-end",
+		// 			marginTop: SPACING.space_20,
+		// 		}}
+		// 	>
+		// 		<TouchableOpacity
+		// 			onPress={() => {
+		// 				router.push("/onboarding");
+		// 			}}
+		// 		>
+		// 			<Text
+		// 				style={{
+		// 					fontFamily: "PoppinsMedium",
+		// 					color: Colors.black,
+		// 				}}
+		// 			>
+		// 				Don't have an account?{" "}
+		// 				<Text
+		// 					style={{
+		// 						fontFamily: "PoppinsSemiBold",
+		// 						color: Colors.orange,
+		// 					}}
+		// 				>
+		// 					Create one
+		// 				</Text>
+		// 			</Text>
+		// 		</TouchableOpacity>
+		// 	</View>
+		// </View>
+		// 	</KeyboardAvoidingView>
+		// </SafeAreaView>
+		// <View
+		// 	style={[
+		// 		{
+		// 			flex: 1,
+		// 			backgroundColor: theme.background,
+		// 			// backgroundColor: "blue",
+		// 			paddingTop: statusHeight,
+		// 			paddingBottom: statusHeight - 20,
+		// 		},
+		// 	]}
+		// >
+		// 	<StatusBar style={isDarkMode ? "light" : "dark"} />
+		// 	<View
+		// 		style={{
+		// 			justifyContent: "space-between",
+		// 			alignItems: "center",
+		// 			paddingHorizontal: SPACING.space_20,
+		// 			flex: 1,
+		// 		}}
+		// 	>
+		// {isDarkMode ? (
+		// 	<Image
+		// 		source={require("@/assets/SplashLogo.png")}
+		// 		style={splashStyles.logo}
+		// 	/>
+		// ) : (
+		// 	<Image
+		// 		source={require("@/assets/SplashLogoTwo.png")}
+		// 		style={splashStyles.logo}
+		// 	/>
+		// )}
+
+		// <Text style={styles.formHeader}>Welcome back</Text>
+
+		// 		<KeyboardAvoidingView
+		// 			style={styles.container}
+		// 			behavior={Platform.OS === "ios" ? "padding" : "height"}
+		// 			keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
+		// 		>
+		// 			<ScrollView
+		// 				showsVerticalScrollIndicator={false}
+		// 				contentContainerStyle={{
+		// 					flexGrow: 1,
+
+		// 					paddingBottom:
+		// 						Platform.OS === "ios"
+		// 							? SPACING.space_30
+		// 							: SPACING.space_20,
+		// 					// justifyContent: "space-between",
+		// 				}}
+		// 			>
+		// <View>
+		// 	<Text style={[styles.inputLabel, { color: theme.text }]}>
+		// 		Phone Number
+		// 	</Text>
+		// 	<Input
+		// 		value={phoneNumber}
+		// 		setValue={onChangePhoneNumber}
+		// 		placeholder="Enter Phone Number"
+		// 		keyboardType="number-pad"
+		// 	/>
+		// </View>
+		// <View
+		// 	style={{
+		// 		marginTop: SPACING.space_20,
+		// 	}}
+		// >
+		// 	<Text style={[styles.inputLabel, { color: theme.text }]}>
+		// 		Password
+		// 	</Text>
+		// 	<PasswordInput
+		// 		value={password}
+		// 		setValue={onChangePassword}
+		// 		// errorMessage={passwordError}
+		// 	/>
+		// </View>
+		// 			</ScrollView>
+		// <View
+		// 	style={{
+		// 		justifyContent: "flex-end",
+		// 		marginTop: SPACING.space_30,
+		// 	}}
+		// >
+		// 	<Button
+		// 		buttonText="Sign in"
+		// 		disabled={!password || !phoneNumber ? true : false}
+		// 		isLoading={isLoading || loading}
+		// 		onPress={handleLoginUser}
+		// 	/>
+		// 	<View
+		// 		style={{
+		// 			alignItems: "center",
+		// 			justifyContent: "flex-end",
+		// 			marginTop: SPACING.space_20,
+		// 		}}
+		// 	>
+		// 		<TouchableOpacity
+		// 			onPress={() => {
+		// 				router.push("/onboarding");
+		// 			}}
+		// 		>
+		// 			<Text
+		// 				style={{
+		// 					fontFamily: "PoppinsMedium",
+		// 					color: Colors.black,
+		// 				}}
+		// 			>
+		// 				Don't have an account?{" "}
+		// 				<Text
+		// 					style={{
+		// 						fontFamily: "PoppinsSemiBold",
+		// 						color: Colors.orange,
+		// 					}}
+		// 				>
+		// 					Create one
+		// 				</Text>
+		// 			</Text>
+		// 		</TouchableOpacity>
+		// 	</View>
+		// </View>
+		// 		</KeyboardAvoidingView>
+		// 	</View>
+		// </View>
 	);
 }
 
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		width: "100%",
-		justifyContent: "space-between",
 	},
 	content: {
 		flex: 1,

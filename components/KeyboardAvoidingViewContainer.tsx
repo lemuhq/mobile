@@ -5,21 +5,40 @@ import {
 	StyleSheet,
 	ScrollView,
 } from "react-native";
-import React from "react";
+import React, { useContext, useEffect, useState } from "react";
+import { KEYBOARD_VERTICAL_OFFSET, statusBarHeight } from "@/constants";
+import { ThemeContext } from "@/provider/ThemeProvider";
+import { SPACING } from "@/constants/Theme";
+import { Keyboard } from "react-native";
 
 const KeyboardAvoidingViewContainer = ({
 	children,
 }: {
 	children: React.ReactNode;
 }) => {
-	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 20 : 0;
+	const { isDarkMode, theme } = useContext(ThemeContext);
+	const [iosOffset, setIosOffset] = useState<number>(0);
+
 	return (
 		<KeyboardAvoidingView
-			style={styles.container}
+			style={[styles.container, { backgroundColor: theme.background }]}
 			behavior={Platform.OS === "ios" ? "padding" : "height"}
 			keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
 		>
-			<ScrollView contentContainerStyle={styles.content}>
+			<ScrollView
+				style={{ flexGrow: 1 }}
+				contentContainerStyle={{
+					flexGrow: 1,
+					paddingTop: statusBarHeight + 20,
+					paddingHorizontal: SPACING.space_20,
+					paddingBottom:
+						Platform.OS === "ios" ? SPACING.space_30 : SPACING.space_20,
+					justifyContent: "space-between",
+					gap: SPACING.space_20,
+				}}
+				showsVerticalScrollIndicator={false}
+				bounces={false}
+			>
 				{children}
 			</ScrollView>
 		</KeyboardAvoidingView>
@@ -28,10 +47,6 @@ const KeyboardAvoidingViewContainer = ({
 
 const styles = StyleSheet.create({
 	container: {
-		flexGrow: 1,
-		width: "100%",
-	},
-	content: {
 		flex: 1,
 	},
 });

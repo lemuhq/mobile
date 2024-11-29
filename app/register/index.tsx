@@ -18,8 +18,20 @@ import { useSendOtpMutation } from "@/redux/services/auth";
 import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
 import Constants from "expo-constants";
 import axios from "axios";
-import { BACKEND_URL, fontSizes, statusBarHeight } from "@/constants";
+import {
+	BACKEND_URL,
+	fontSizes,
+	KEYBOARD_VERTICAL_OFFSET,
+	statusBarHeight,
+} from "@/constants";
 import useToast from "@/hooks/useToast";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useDispatch } from "react-redux";
+import {
+	setFirstTimeOnboardingData,
+	setSecondTimeOnboardingData,
+} from "@/redux/slice/onboarding.slice";
 
 export default function Register() {
 	const { isDarkMode, theme } = useContext(ThemeContext);
@@ -28,6 +40,12 @@ export default function Register() {
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const { showCustomToast } = useToast();
 
+	//Redux
+	const dispatch = useDispatch();
+	const { firstTimeUser, secondTimeUser } = useSelector(
+		(state: RootState) => state.onboarding
+	);
+
 	const handleOtpRequest = async () => {
 		if (phoneNumber?.length < 11) {
 			setErrorMessage("Please enter a valid 11-digit phone number.");
@@ -35,25 +53,53 @@ export default function Register() {
 		}
 
 		try {
-			const {
-				data: { data, message },
-				error,
-			} = await sendOtp({ phoneNumber: phoneNumber });
+			const payload = {
+				phoneNumber: phoneNumber,
+			};
 
-			if (error) {
-				console.log("🚀 ~ handleOtpRequest ~ error:", error);
-				showCustomToast("error", "Something went wrong.");
+			const response = await sendOtp(payload);
+			console.log("🚀 ~ handleOtpRequest ~ response:", response.data);
+
+			if (response.data.stage === "2") {
+				console.log("��� ~ handleOtpRequest ~ response:", response.data);
+				dispatch(
+					setSecondTimeOnboardingData({
+						...secondTimeUser,
+						...response.data,
+						phoneNumber: phoneNumber,
+					})
+				);
+				router.navigate("/register/createUser");
 				return;
 			}
 
-			console.log("🚀 ~ handleOtpRequest ~ data:", data);
+			if (response.data.stage === "3") {
+				console.log("��� ~ handleOtpRequest ~ response:", response.data);
+				dispatch(
+					setSecondTimeOnboardingData({
+						...secondTimeUser,
+						...response.data,
+						phoneNumber: phoneNumber,
+					})
+				);
+				router.navigate("/login");
+				return;
+			}
 
-			router.navigate(
-				`/register/confirmPhone?phoneNumber=${phoneNumber}&otpId=${data?.otpId}&expiryTime=${data?.expiryTime}`
+			const newUserData = {
+				phoneNumber: phoneNumber,
+				otpId: response?.data?.data?.otpId,
+				expiryTime: response?.data?.data?.expiryTime,
+			};
+			dispatch(
+				setFirstTimeOnboardingData({ ...firstTimeUser, ...newUserData })
 			);
+			router.navigate("/register/confirmPhone");
 		} catch (error: any) {
-			console.log("🚀 ~ handleOtpRequest ~ error:", error);
-			showCustomToast("error", "Something went wrong.");
+			showCustomToast(
+				"error",
+				error?.response?.data?.message || "Something went wrong"
+			);
 		}
 	};
 
@@ -62,198 +108,78 @@ export default function Register() {
 			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<View
 				style={{
-					backgroundColor: theme.background,
-					flex: 1,
-					paddingTop: statusBarHeight + 20,
-					paddingBottom: statusBarHeight - 20,
+					gap: SPACING.space_20,
 				}}
 			>
-				<View
-					style={{
-						flex: 1,
-						backgroundColor: theme.background,
-						paddingHorizontal: SPACING.space_20,
-						justifyContent: "space-between",
-					}}
+				<Text
+					style={[
+						styles.welcomeH2,
+						{
+							color: theme.pageTextColor,
+							textAlign: "center",
+						},
+					]}
 				>
+					Welcome to Lemu
+				</Text>
+				<View>
+					<PhoneNumberInput
+						value={phoneNumber}
+						setValue={setPhoneNumber}
+						errorMessage={errorMessage}
+					/>
 					<Text
 						style={[
-							styles.welcomeH2,
+							styles.subText,
 							{
-								color: theme.pageTextColor,
-								textAlign: "center",
+								color: theme.text,
+								marginTop: 10,
 							},
 						]}
 					>
-						Welcome to Lemu
-					</Text>
-
-					<View
-						style={{
-							marginTop: SPACING.space_10,
-							flex: 1,
-						}}
-					>
-						<PhoneNumberInput
-							value={phoneNumber}
-							setValue={setPhoneNumber}
-							errorMessage={errorMessage}
-						/>
+						By clicking "continue", you confirm that you agree to our{" "}
 						<Text
-							style={[
-								styles.subText,
-								{
-									color: theme.text,
-									marginTop: 10,
-								},
-							]}
+							style={{
+								fontFamily: "PoppinsSemiBold",
+								color: Colors.orange,
+							}}
 						>
-							By clicking "continue", you confirm that you agree to our{" "}
-							<Text
-								style={{
-									fontFamily: "PoppinsSemiBold",
-									color: Colors.orange,
-								}}
-							>
-								Terms and Conditions
-							</Text>{" "}
-							and{" "}
-							<Text
-								style={{
-									fontFamily: "PoppinsSemiBold",
-									color: Colors.orange,
-								}}
-							>
-								Privacy Policy.
-							</Text>
+							Terms and Conditions
+						</Text>{" "}
+						and{" "}
+						<Text
+							style={{
+								fontFamily: "PoppinsSemiBold",
+								color: Colors.orange,
+							}}
+						>
+							Privacy Policy.
 						</Text>
-					</View>
-
-					<Button
-						buttonText="Continue"
-						onPress={() => {
-							handleOtpRequest();
-						}}
-						isLoading={isLoading}
-						disabled={
-							(phoneNumber.length === 0 || phoneNumber.length < 11
-								? true
-								: false) || isLoading
-						}
-						variant="primary"
-					/>
+					</Text>
 				</View>
 			</View>
+
+			<Button
+				buttonText="Continue"
+				onPress={() => {
+					handleOtpRequest();
+				}}
+				isLoading={isLoading}
+				disabled={
+					(phoneNumber.length === 0 || phoneNumber.length < 11
+						? true
+						: false) || isLoading
+				}
+				variant="primary"
+			/>
 		</KeyboardAvoidingViewContainer>
-		// <View
-		// 	style={[
-		// 		{
-		// 			flex: 1,
-		// 			backgroundColor: theme.background,
-
-		// 			paddingTop: statusBarHeight,
-		// 			paddingBottom: statusBarHeight - 30,
-		// 		},
-		// 	]}
-		// >
-		// 	<KeyboardAvoidingViewContainer>
-		// 		<View
-		// 			style={[
-		// 				{
-		// 					flexGrow: 1,
-		// 					backgroundColor: theme.background,
-		// 				},
-		// 			]}
-		// 		>
-		// 			<StatusBar style={isDarkMode ? "light" : "dark"} />
-		// 			<View
-		// 				style={{
-		// 					paddingHorizontal: SPACING.space_20,
-		// 					flex: 1,
-		// 				}}
-		// 			>
-		// <Text
-		// 	style={[
-		// 		styles.welcomeH2,
-		// 		{
-		// 			color: theme.pageTextColor,
-		// 			textAlign: "center",
-		// 		},
-		// 	]}
-		// >
-		// 	Welcome to Lemu
-		// </Text>
-
-		// <View
-		// 	style={{
-		// 		marginTop: SPACING.space_10,
-		// 		flex: 1,
-		// 	}}
-		// >
-		// <PhoneNumberInput
-		// 	value={phoneNumber}
-		// 	setValue={setPhoneNumber}
-		// 	errorMessage={errorMessage}
-		// />
-		// <Text
-		// 	style={[
-		// 		styles.subText,
-		// 		{
-		// 			color: theme.text,
-		// 			marginTop: 10,
-		// 		},
-		// 	]}
-		// >
-		// 	By clicking "continue", you confirm that you agree to
-		// 	our
-		// 	<Text
-		// 		style={{
-		// 			fontFamily: "PoppinsSemiBold",
-		// 			color: Colors.orange,
-		// 		}}
-		// 	>
-		// 		Terms and Conditions
-		// 	</Text>{" "}
-		// 	and{" "}
-		// 	<Text
-		// 		style={{
-		// 			fontFamily: "PoppinsSemiBold",
-		// 			color: Colors.orange,
-		// 		}}
-		// 	>
-		// 		Privacy Policy.
-		// 	</Text>
-		// </Text>
-		// 				</View>
-
-		// 				<View
-		// 					style={{
-		// 						// flex: 1,
-		// 						justifyContent: "flex-end",
-		// 					}}
-		// 				>
-		// <Button
-		// 	buttonText="Continue"
-		// 	onPress={() => {
-		// 		handleOtpRequest();
-		// 	}}
-		// 	isLoading={isLoading}
-		// 	disabled={
-		// 		(phoneNumber.length === 0 || phoneNumber.length < 11
-		// 			? true
-		// 			: false) || isLoading
-		// 	}
-		// 	variant="primary"
-		// />
-		// 				</View>
-		// 			</View>
-		// 		</View>
-		// 	</KeyboardAvoidingViewContainer>
-		// </View>
 	);
 }
 
 const styles = StyleSheet.create({
+	container: {
+		flex: 1,
+	},
 	pageContainer: {
 		paddingTop: 10,
 		flex: 1,

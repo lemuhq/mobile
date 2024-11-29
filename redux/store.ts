@@ -1,11 +1,16 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { setupListeners } from "@reduxjs/toolkit/query";
+
+//Services
 import { api } from "./services/api";
 import { authApi } from "./services/auth";
 import { userApi } from "./services/user";
-import userReducer from "./slice/user.slice";
 import { transferApi } from "./services/transfer";
+
+//Reducer
+import userReducer from "./slice/user.slice";
 import bankReducer from "./slice/transfer.slice";
+import onboardingReducer from "./slice/onboarding.slice";
 
 export const store = configureStore({
 	reducer: {
@@ -13,8 +18,10 @@ export const store = configureStore({
 		[authApi.reducerPath]: authApi.reducer,
 		[userApi.reducerPath]: userApi.reducer,
 		[transferApi.reducerPath]: transferApi.reducer,
+
 		user: userReducer,
 		bank: bankReducer,
+		onboarding: onboardingReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>

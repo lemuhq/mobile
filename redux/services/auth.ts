@@ -4,7 +4,7 @@ import { storage } from "@/utils/storage";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-	baseUrl: BACKEND_URL,
+	baseUrl: "http://192.168.1.182:6000/api/v1",
 	prepareHeaders: async (headers) => {
 		const token = await storage.getUserToken("token");
 
@@ -93,7 +93,7 @@ export const authApi = createApi({
 			}: {
 				phoneNumber: string;
 				emailAddress: string;
-				identityType: "BVN";
+				identityType: string;
 				identityNumber: string;
 				identityId: string;
 				otp: string;
