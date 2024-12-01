@@ -4,7 +4,14 @@ import VerificationPageHeader from "@/components/VerificationPageHeader";
 import { fontSizes, SCREEN_WIDTH, statusBarHeight } from "@/constants";
 import { SPACING } from "@/constants/Theme";
 import { ThemeContext } from "@/provider/ThemeProvider";
+import {
+	setFirstTimeOnboardingData,
+	setSecondTimeOnboardingData,
+} from "@/redux/slice/onboarding.slice";
+import { RootState } from "@/redux/store";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 import React, {
 	Dispatch,
 	FC,
@@ -21,29 +28,50 @@ import {
 	TouchableOpacity,
 	View,
 } from "react-native";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 
-interface PageProps {
-	password: string;
-	confirmPassword: string;
-	onChangePassword: Dispatch<SetStateAction<string>>;
-	onChangeConfirmPassword: Dispatch<SetStateAction<string>>;
-	next: () => void;
-	prev: () => void;
-}
+const CreatePasswordScreen = () => {
+	//Redux
+	const dispatch = useDispatch();
+	const { firstTimeUser, secondTimeUser, userStage } = useSelector(
+		(state: RootState) => state.onboarding
+	);
 
-const CreatePasswordScreen: FC<PageProps> = ({
-	next,
-	prev,
-	password,
-	confirmPassword,
-	onChangeConfirmPassword,
-	onChangePassword,
-}) => {
-	const { theme } = useContext(ThemeContext);
-	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 10 : 20;
+	const { theme, isDarkMode } = useContext(ThemeContext);
+	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 30 : 20;
+
+	const [password, onChangePassword] = useState("");
+	const [confirmPassword, onChangeConfirmPassword] = useState("");
 
 	const [confirmError, setConfirmError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
+
+	const handleSubmit = async () => {
+		if (userStage === 1) {
+			const newUserData = {
+				...firstTimeUser,
+				password,
+				confirmPassword,
+			};
+
+			dispatch(setFirstTimeOnboardingData(newUserData));
+			router.navigate("/register/createTransactionPin");
+			return;
+		}
+
+		if (userStage === 2) {
+			const newUserData = {
+				...secondTimeUser,
+				password,
+				confirmPassword,
+			};
+
+			dispatch(setSecondTimeOnboardingData(newUserData));
+			router.navigate("/register/createTransactionPin");
+			return;
+		}
+	};
 
 	function passwordValidation() {
 		if (password) {
@@ -97,6 +125,7 @@ const CreatePasswordScreen: FC<PageProps> = ({
 				paddingHorizontal: SPACING.space_20,
 			}}
 		>
+			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<View
 				style={{
 					flexDirection: "row",
@@ -105,7 +134,7 @@ const CreatePasswordScreen: FC<PageProps> = ({
 				}}
 			>
 				<TouchableOpacity
-					onPress={() => prev()}
+					onPress={() => router.back()}
 					style={{ width: 30, height: 30 }}
 				>
 					<Ionicons
@@ -128,7 +157,8 @@ const CreatePasswordScreen: FC<PageProps> = ({
 
 			<KeyboardAvoidingView
 				style={styles.container}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}
+				// behavior={Platform.OS === "ios" ? "padding" : "height"}
+				behavior="padding"
 				keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
 			>
 				<ScrollView
@@ -160,7 +190,7 @@ const CreatePasswordScreen: FC<PageProps> = ({
 				</ScrollView>
 				<Button
 					buttonText="Next"
-					onPress={next}
+					onPress={handleSubmit}
 					disabled={password !== confirmPassword || !password}
 				/>
 			</KeyboardAvoidingView>

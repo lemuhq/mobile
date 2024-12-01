@@ -40,10 +40,7 @@ import { useSelector } from "react-redux";
 import { useGetCurrentUserQuery } from "@/redux/services/auth";
 import { Transaction } from "@/types/transfer";
 import { Skeleton } from "moti/skeleton";
-import {
-	heightPercentageToDP,
-	widthPercentageToDP as wp,
-} from "react-native-responsive-screen";
+import { widthPercentageToDP as wp } from "react-native-responsive-screen";
 import { storage } from "@/utils/storage";
 
 export default function Home() {
@@ -57,6 +54,8 @@ export default function Home() {
 	} = useContext(ModalContext);
 
 	const { data, isLoading } = useGetCurrentUserQuery();
+	console.log("🚀 ~ Home ~ data:", data);
+
 	const { currentUser } = useSelector(selectUser);
 
 	const { data: transactionData, isLoading: transactionLoading } =
@@ -67,9 +66,10 @@ export default function Home() {
 	useEffect(() => {
 		async function checkForLockPin() {
 			const userLockPin = await storage.getLockPin();
-
-			if (!userLockPin) {
-				await storage.saveLockPin(data?.lockPin!);
+			// await storage.saveUserFirstName(data?.firstName!);
+			if (!userLockPin && data) {
+				await storage.saveLockPin(data?.lockPin);
+				await storage.saveUserFirstName(data?.firstName);
 			}
 		}
 

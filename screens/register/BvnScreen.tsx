@@ -1,85 +1,89 @@
-import {
-	View,
-	Text,
-	TouchableOpacity,
-	KeyboardAvoidingView,
-	Platform,
-	ScrollView,
-} from "react-native";
-import React, { Dispatch, FC, SetStateAction, useContext } from "react";
-import { SCREEN_WIDTH, statusBarHeight, windowWidth } from "@/constants";
+import { View, Text } from "react-native";
+import React, { useContext } from "react";
 import Button from "@/components/Button";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
 import { StyleSheet } from "react-native";
 import VerificationPageHeader from "@/components/VerificationPageHeader";
 import Input from "@/components/inputs/Input";
+import KeyboardAvoidingViewContainer from "@/components/KeyboardAvoidingViewContainer";
+import { StatusBar } from "expo-status-bar";
+import { useInitiateBvnVerficationMutation } from "@/redux/services/auth";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { setFirstTimeOnboardingData } from "@/redux/slice/onboarding.slice";
+import { router } from "expo-router";
+import useToast from "@/hooks/useToast";
 
-interface PageProps {
-	next: () => void;
-	bvnNumber: string;
-	onChangeBvnNumber: Dispatch<SetStateAction<string>>;
-	isLoading: boolean;
-}
+const BvnScreen = () => {
+	const { theme, isDarkMode } = useContext(ThemeContext);
+	const { showCustomToast } = useToast();
 
-const BvnScreen: FC<PageProps> = ({
-	next,
-	bvnNumber,
-	onChangeBvnNumber,
-	isLoading,
-}) => {
-	const { theme } = useContext(ThemeContext);
-	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 10 : 20;
+	//Redux
+	const dispatch = useDispatch();
+	const { firstTimeUser, secondTimeUser } = useSelector(
+		(state: RootState) => state.onboarding
+	);
+
+	const [bvnNumber, onChangeBvnNumber] = React.useState(
+		firstTimeUser?.bvnNumber ?? ""
+	);
+
+	const [initiateBvnVerfication, { isLoading }] =
+		useInitiateBvnVerficationMutation();
+
+	const handleBvnSubmit = async () => {
+		try {
+			const payload = {
+				bvnNumber: bvnNumber,
+				phoneNumber: firstTimeUser?.phoneNumber,
+			};
+			console.log("🚀 ~ handleBvnSubmit ~ payload:", payload);
+
+			const response = await initiateBvnVerfication(payload);
+			console.log("🚀 ~ handleBvnSubmit ~ response:", response);
+
+			const newUserData = {
+				...firstTimeUser,
+				identityId: response.data.identityId,
+				bvn: bvnNumber,
+			};
+			dispatch(setFirstTimeOnboardingData({ ...newUserData }));
+			router.navigate("/register/verification/verifyBvn");
+			return;
+		} catch (error) {
+			showCustomToast("error", "Invalid BVN number");
+		}
+	};
+
 	return (
-		<View
-			style={{
-				backgroundColor: theme.background,
-				flexGrow: 1,
-				width: SCREEN_WIDTH,
-				paddingTop: statusBarHeight + 20,
-				paddingBottom: statusBarHeight - 20,
-				paddingHorizontal: SPACING.space_20,
-			}}
-		>
-			<View
-				style={{
-					flexDirection: "row",
-					justifyContent: "flex-end",
-					alignItems: "center",
-				}}
-			>
-				{/* <TouchableOpacity onPress={() => router.back()}>
-					<Ionicons
-						name="arrow-back-outline"
-						size={30}
-						color={theme.text}
-					/>
-				</TouchableOpacity> */}
-
-				<Text
+		<KeyboardAvoidingViewContainer>
+			<StatusBar style={isDarkMode ? "light" : "dark"} />
+			<View>
+				<View
 					style={{
-						color: theme.text,
-						fontFamily: "PoppinsLight",
-						fontSize: FONTSIZE.size_20,
+						flexDirection: "row",
+						justifyContent: "flex-end",
+						alignItems: "center",
 					}}
 				>
-					<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 1/</Text>6
-				</Text>
-			</View>
-
-			<KeyboardAvoidingView
-				style={styles.container}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}
-				keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
-			>
-				<ScrollView
-					contentContainerStyle={{ gap: 20 }}
-					showsVerticalScrollIndicator={false}
-				>
-					<VerificationPageHeader
-						header="Bank Verification Number (BVN)"
-						subHeader="To verify your account enter your BVN"
-					/>
+					<Text
+						style={{
+							color: theme.text,
+							fontFamily: "PoppinsLight",
+							fontSize: FONTSIZE.size_20,
+						}}
+					>
+						<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 1/</Text>
+						6
+					</Text>
+				</View>
+				<VerificationPageHeader
+					header="Bank Verification Number (BVN)"
+					subHeader="To verify your account enter your BVN"
+				/>
+				<View style={{ marginTop: SPACING.space_20 }}>
 					<Input
 						value={bvnNumber}
 						setValue={onChangeBvnNumber}
@@ -87,16 +91,16 @@ const BvnScreen: FC<PageProps> = ({
 						keyboardType="number-pad"
 						maxLength={11}
 					/>
-				</ScrollView>
+				</View>
+			</View>
 
-				<Button
-					buttonText="Continue"
-					onPress={next}
-					disabled={bvnNumber.length < 11 || isLoading}
-					isLoading={isLoading}
-				/>
-			</KeyboardAvoidingView>
-		</View>
+			<Button
+				buttonText="Continue"
+				onPress={handleBvnSubmit}
+				disabled={bvnNumber.length < 11}
+				isLoading={isLoading}
+			/>
+		</KeyboardAvoidingViewContainer>
 	);
 };
 

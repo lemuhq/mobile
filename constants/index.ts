@@ -33,6 +33,8 @@ export const windowWidth = (width: DimensionValue): number => {
 	return PixelRatio.roundToNearestPixel(tempWidth);
 };
 
+export const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "ios" ? 50 : 0;
+
 export const fontSizes = {
 	FONT6: windowWidth(6),
 	FONT7: windowWidth(7),

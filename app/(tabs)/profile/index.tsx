@@ -13,8 +13,9 @@ import { clearCurrentUser, selectUser } from "@/redux/slice/user.slice";
 import { storage } from "@/utils/storage";
 import { router } from "expo-router";
 import { clearAuthCache, useGetCurrentUserQuery } from "@/redux/services/auth";
-import { clearUserCache } from "@/redux/services/user";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
+
 import { Colors } from "@/constants/Colors";
 import Constants from "expo-constants";
 import { SPACING } from "@/constants/Theme";
@@ -246,6 +247,12 @@ export default function Profile() {
 							flexDirection: "row",
 							alignItems: "center",
 							gap: SPACING.space_10,
+						}}
+						onPress={async () => {
+							await AsyncStorage.clear();
+							await SecureStore.deleteItemAsync("token");
+							await SecureStore.deleteItemAsync("refreshToken");
+							router.navigate("/login");
 						}}
 					>
 						<View style={[styles.iconWrapper]}>

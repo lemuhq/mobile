@@ -14,33 +14,54 @@ import { Ionicons } from "@expo/vector-icons";
 import PinInputSheet from "@/components/PinInputSheet";
 import SuccessScreenModal from "@/components/modals/SuccessScreenModal";
 import { ModalContext } from "@/provider/ModalProvider";
+import { router } from "expo-router";
+import { StatusBar } from "expo-status-bar";
+import { useDispatch } from "react-redux";
+import { RootState } from "@/redux/store";
+import { useSelector } from "react-redux";
+import {
+	setFirstTimeOnboardingData,
+	setSecondTimeOnboardingData,
+} from "@/redux/slice/onboarding.slice";
 
-const CreateTransactionPinScreen: FC<{
-	next: () => void;
-	prev: () => void;
-	pin: number[];
-	onChangePin: Dispatch<SetStateAction<number[]>>;
-}> = ({ next, prev, pin, onChangePin }) => {
-	const { theme } = useContext(ThemeContext);
+const CreateTransactionPinScreen = () => {
+	//Redux
+	const dispatch = useDispatch();
+	const { firstTimeUser, secondTimeUser, userStage } = useSelector(
+		(state: RootState) => state.onboarding
+	);
+
+	const { theme, isDarkMode } = useContext(ThemeContext);
 	const { successScreenVisible, toggleSuccessScreen } =
 		useContext(ModalContext);
 	const [isSuccess, setIsSuccess] = useState(false);
+	const [pin, onChangePin] = useState<number[]>([]);
 
 	function handlePinSet() {
 		if (pin.length === 6) {
-			// toggleSuccessScreen();
-			next();
+			if (userStage === 1) {
+				const newUserData = {
+					...firstTimeUser,
+					transactionPin: pin.join(""),
+				};
+
+				dispatch(setFirstTimeOnboardingData(newUserData));
+				router.navigate("/register/createLoginPin");
+				return;
+			}
+
+			if (userStage === 2) {
+				const newUserData = {
+					...secondTimeUser,
+					transactionPin: pin.join(""),
+				};
+
+				dispatch(setSecondTimeOnboardingData(newUserData));
+				router.navigate("/register/createLoginPin");
+				return;
+			}
 		}
 	}
-
-	// useEffect(() => {
-	// 	if (successScreenVisible) {
-	// 		setTimeout(() => {
-	// 			toggleSuccessScreen();
-	// 			next();
-	// 		}, 3000);
-	// 	}
-	// }, [successScreenVisible]);
 
 	useEffect(() => {
 		if (pin.length === 6) {
@@ -60,6 +81,7 @@ const CreateTransactionPinScreen: FC<{
 				gap: 10,
 			}}
 		>
+			<StatusBar style={isDarkMode ? "light" : "dark"} />
 			<View
 				style={{
 					flexDirection: "row",
@@ -68,7 +90,7 @@ const CreateTransactionPinScreen: FC<{
 				}}
 			>
 				<TouchableOpacity
-					onPress={() => prev()}
+					onPress={() => router.back()}
 					style={{ width: 30, height: 30 }}
 				>
 					<Ionicons
