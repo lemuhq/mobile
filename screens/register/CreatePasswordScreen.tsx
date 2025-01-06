@@ -5,6 +5,10 @@ import { fontSizes, SCREEN_WIDTH, statusBarHeight } from "@/constants";
 import { SPACING } from "@/constants/Theme";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { Ionicons } from "@expo/vector-icons";
+import { router } from "expo-router";
+import {useDispatch, useSelector} from "react-redux";
+import { RootState } from "@/redux/store";
+import { setOnboardingData } from "@/redux/slice/onboarding.slice";
 import React, {
 	Dispatch,
 	FC,
@@ -22,26 +26,14 @@ import {
 	View,
 } from "react-native";
 
-interface PageProps {
-	password: string;
-	confirmPassword: string;
-	onChangePassword: Dispatch<SetStateAction<string>>;
-	onChangeConfirmPassword: Dispatch<SetStateAction<string>>;
-	next: () => void;
-	prev: () => void;
-}
-
-const CreatePasswordScreen: FC<PageProps> = ({
-	next,
-	prev,
-	password,
-	confirmPassword,
-	onChangeConfirmPassword,
-	onChangePassword,
-}) => {
+const CreatePasswordScreen: FC = () => {
+	const onboardingData:any = useSelector((state: RootState) => state.onboarding.value);
+	const dispatch = useDispatch();
 	const { theme } = useContext(ThemeContext);
-	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 10 : 20;
+	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "ios" ? 90 : 0;
 
+	const [password, setPassword] = useState("");
+	const [confirmPassword, setConfirmPassword] = useState("");
 	const [confirmError, setConfirmError] = useState("");
 	const [passwordError, setPasswordError] = useState("");
 
@@ -86,54 +78,67 @@ const CreatePasswordScreen: FC<PageProps> = ({
 		passwordValidation();
 	}, [password, confirmPassword]);
 
+	const handleNext = () => {
+		console.log("🚀 ~ handleNext ~ password:", password);
+		const newOnboardingData = {...onboardingData};
+		newOnboardingData.password = password;
+		dispatch(setOnboardingData(newOnboardingData));
+		console.log("🚀 ~ handleNext ~ newOnboardingData:", newOnboardingData);
+		router.navigate('/register/loginPin');
+	}
+
+	const handlePrev = () => {
+		// Add your navigation logic here
+	}
+
 	return (
-		<View
-			style={{
-				backgroundColor: theme.background,
-				flexGrow: 1,
-				width: SCREEN_WIDTH,
-				paddingTop: statusBarHeight + 20,
-				paddingBottom: statusBarHeight - 20,
-				paddingHorizontal: SPACING.space_20,
-			}}
+		<KeyboardAvoidingView
+			style={[styles.container, { backgroundColor: theme.background }]}
+			behavior={Platform.OS === "ios" ? "padding" : undefined}
+			keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
 		>
 			<View
 				style={{
-					flexDirection: "row",
-					justifyContent: "space-between",
-					alignItems: "center",
+					width: SCREEN_WIDTH,
+					paddingTop: statusBarHeight + 20,
+					paddingBottom: statusBarHeight - 20,
+					paddingHorizontal: SPACING.space_20,
+					flex: 1,
 				}}
 			>
-				<TouchableOpacity
-					onPress={() => prev()}
-					style={{ width: 30, height: 30 }}
-				>
-					<Ionicons
-						name="arrow-back-outline"
-						size={30}
-						color={theme.text}
-					/>
-				</TouchableOpacity>
-
-				<Text
+				<View
 					style={{
-						color: theme.text,
-						fontFamily: "PoppinsLight",
-						fontSize: fontSizes.FONT20,
+						flexDirection: "row",
+						justifyContent: "space-between",
+						alignItems: "center",
 					}}
 				>
-					<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 4/</Text>6
-				</Text>
-			</View>
+					<TouchableOpacity
+						onPress={handlePrev}
+						style={{ width: 30, height: 30 }}
+					>
+						<Ionicons
+							name="arrow-back-outline"
+							size={30}
+							color={theme.text}
+						/>
+					</TouchableOpacity>
 
-			<KeyboardAvoidingView
-				style={styles.container}
-				behavior={Platform.OS === "ios" ? "padding" : "height"}
-				keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
-			>
+					<Text
+						style={{
+							color: theme.text,
+							fontFamily: "PoppinsLight",
+							fontSize: fontSizes.FONT20,
+						}}
+					>
+						<Text style={{ fontFamily: "PoppinsSemiBold" }}>Step 4/</Text>6
+					</Text>
+				</View>
+
 				<ScrollView
-					contentContainerStyle={{ gap: 20 }}
+					contentContainerStyle={{ flexGrow: 1, gap: 20 }}
 					showsVerticalScrollIndicator={false}
+					keyboardShouldPersistTaps="handled"
 				>
 					<VerificationPageHeader header="Create new password" />
 					<View>
@@ -142,7 +147,7 @@ const CreatePasswordScreen: FC<PageProps> = ({
 						</Text>
 						<PasswordInput
 							value={password}
-							setValue={onChangePassword}
+							setValue={setPassword}
 							errorMessage={passwordError}
 						/>
 					</View>
@@ -153,18 +158,18 @@ const CreatePasswordScreen: FC<PageProps> = ({
 						</Text>
 						<PasswordInput
 							value={confirmPassword}
-							setValue={onChangeConfirmPassword}
+							setValue={setConfirmPassword}
 							errorMessage={confirmError}
 						/>
 					</View>
 				</ScrollView>
 				<Button
 					buttonText="Next"
-					onPress={next}
+					onPress={handleNext}
 					disabled={password !== confirmPassword || !password}
 				/>
-			</KeyboardAvoidingView>
-		</View>
+			</View>
+		</KeyboardAvoidingView>
 	);
 };
 
@@ -173,8 +178,6 @@ export default CreatePasswordScreen;
 const styles = StyleSheet.create({
 	container: {
 		flex: 1,
-		width: "100%",
-		justifyContent: "space-between",
 	},
 	content: {
 		flex: 1,

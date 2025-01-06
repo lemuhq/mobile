@@ -6,6 +6,7 @@ import { userApi } from "./services/user";
 import userReducer from "./slice/user.slice";
 import { transferApi } from "./services/transfer";
 import bankReducer from "./slice/transfer.slice";
+import onboardingReducer from "./slice/onboarding.slice";
 
 export const store = configureStore({
 	reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
 		[transferApi.reducerPath]: transferApi.reducer,
 		user: userReducer,
 		bank: bankReducer,
+		onboarding: onboardingReducer,
 	},
 
 	middleware: (getDefaultMiddleware) =>

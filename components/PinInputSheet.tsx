@@ -6,7 +6,7 @@ import {
 	Platform,
 	Image,
 } from "react-native";
-import React, { Dispatch, SetStateAction, useContext } from "react";
+import React, { Dispatch, SetStateAction, useContext, useState } from "react";
 import FontIcons from "@expo/vector-icons/Fontisto";
 import { Colors } from "@/constants/Colors";
 import { ThemeContext } from "@/provider/ThemeProvider";
@@ -17,32 +17,20 @@ import {
 } from "react-native-responsive-screen";
 import { fontSizes, windowHeight, windowWidth } from "@/constants";
 
-interface IProps {
-	header: string;
-	subheader: string;
-	pin: number[];
-	setPin: Dispatch<SetStateAction<number[]>>;
-	pinCount?: number;
-	hasBiometrics?: boolean;
-}
-
-export default function PinInputSheet({
-	header,
-	subheader,
-	pin,
-	setPin,
-	pinCount = 6,
-	hasBiometrics = false,
-}: IProps) {
+export default function PinInputSheet({header, subheader}:{header:string, subheader:string, pin:number[], setPin:Dispatch<SetStateAction<number[]>>, pinCount:number}) {
 	const { theme } = useContext(ThemeContext);
+	const [pin, setPin] = useState<number[]>([]);
+	const pinCount = 4
 
 	const handleNumberPress = (number: number) => {
+		if (!pin) return;
 		if (pin.length < pinCount) {
 			setPin([...pin, number]);
 		}
 	};
 
 	const handleDeletePress = () => {
+		if (!pin) return;
 		setPin(pin.slice(0, -1));
 	};
 

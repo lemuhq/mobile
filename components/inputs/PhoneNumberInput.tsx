@@ -69,7 +69,7 @@ export default function PhoneNumberInput({
 							placeholderTextColor={Colors.silver}
 							style={inputStyles.phoneInput}
 							value={value}
-							keyboardType="default"
+							keyboardType="number-pad"
 							onChangeText={handlePhoneNumberChange}
 							maxLength={11}
 							onFocus={() => setFocus(true)}

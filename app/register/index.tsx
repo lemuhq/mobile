@@ -20,13 +20,21 @@ import Constants from "expo-constants";
 import axios from "axios";
 import { BACKEND_URL, fontSizes, statusBarHeight } from "@/constants";
 import useToast from "@/hooks/useToast";
-
+import { useDispatch, useSelector } from "react-redux";
+import { setOnboardingData } from "@/redux/slice/onboarding.slice";
+import { RootState } from "@/redux/store";
 export default function Register() {
+	const dispatch = useDispatch();
+	const onboardingData = useSelector(
+		(state: RootState) => state.onboarding.value
+	);
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const [phoneNumber, setPhoneNumber] = useState<string>("");
 	const [sendOtp, { isLoading }] = useSendOtpMutation();
 	const [errorMessage, setErrorMessage] = useState<string>("");
 	const { showCustomToast } = useToast();
+
+	console.log("🚀 ~ Register ~ onboardingData:", onboardingData);
 
 	const handleOtpRequest = async () => {
 		if (phoneNumber?.length < 11) {
@@ -35,22 +43,52 @@ export default function Register() {
 		}
 
 		try {
-			const {
-				data: { data, message },
-				error,
-			} = await sendOtp({ phoneNumber: phoneNumber });
+			const payload = {
+				phoneNumber: phoneNumber,
+				
+			};
+			const response = await sendOtp(payload);
+			console.log("response", response.data);
 
-			if (error) {
-				console.log("🚀 ~ handleOtpRequest ~ error:", error);
-				showCustomToast("error", "Something went wrong.");
-				return;
+			if(response.data.stage === "2"){
+				dispatch(setOnboardingData({...onboardingData, ...response.data}));
+				return router.navigate('/register/createUser')
 			}
 
-			console.log("🚀 ~ handleOtpRequest ~ data:", data);
+			if(response.data.stage === "3"){
+				//return router.navigate("/login");
+
+			}
+
+			// 
+			
 
 			router.navigate(
-				`/register/confirmPhone?phoneNumber=${phoneNumber}&otpId=${data?.otpId}&expiryTime=${data?.expiryTime}`
+				`/register/confirmPhone?phoneNumber=${phoneNumber}&otpId=${response.data?.otpId}&expiryTime=${response.data?.expiryTime}`
 			);
+
+
+
+
+
+			
+			// const {
+			// 	data: { data, message },
+			// 	error,
+			// } = await sendOtp({ phoneNumber: phoneNumber });
+
+			// if (error) {
+			// 	console.log("🚀 ~ handleOtpRequest ~ error:", error);
+			// 	showCustomToast("error", "Something went wrong.");
+			// 	return;
+			// }
+
+			// console.log("🚀 ~ handleOtpRequest ~ data:", data);
+
+			// router.navigate(
+			// 	`/register/confirmPhone?phoneNumber=${phoneNumber}&otpId=${data?.otpId}&expiryTime=${data?.expiryTime}`
+			// );
+
 		} catch (error: any) {
 			console.log("🚀 ~ handleOtpRequest ~ error:", error);
 			showCustomToast("error", "Something went wrong.");

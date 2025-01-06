@@ -3,15 +3,16 @@ import { User } from "@/types/user";
 import { storage } from "@/utils/storage";
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 
+
+
 const baseQuery = fetchBaseQuery({
-	baseUrl: BACKEND_URL,
+	baseUrl: "http://192.168.1.147:5000/api/v1",
 	prepareHeaders: async (headers) => {
 		const token = await storage.getUserToken("token");
 
 		if (token) {
 			headers.set("authorization", `Bearer ${token}`);
 		}
-
 		return headers;
 	},
 });
