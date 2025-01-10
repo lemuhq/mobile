@@ -26,6 +26,7 @@ import { clearAuthCache, useLoginUserMutation } from "@/redux/services/auth";
 import useToast from "@/hooks/useToast";
 import { storage } from "@/utils/storage";
 
+
 import { ScrollView } from "react-native";
 
 export default function LoginScreen() {
@@ -34,8 +35,8 @@ export default function LoginScreen() {
 	const { showCustomToast } = useToast();
 	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 10 : 60;
 
-	const [phoneNumber, onChangePhoneNumber] = useState("");
-	const [password, onChangePassword] = useState("");
+	const [phoneNumber, onChangePhoneNumber] = useState("07015533911");
+	const [password, onChangePassword] = useState("Mayorgnn@088");
 	const [loading, setIsLoading] = useState<boolean>(false);
 	const [loginUser, { isLoading }] = useLoginUserMutation();
 
@@ -72,129 +73,108 @@ export default function LoginScreen() {
 		} catch (error) {
 			//@ts-ignore
 			console.log(error?.response?.data);
+			showCustomToast("error", "Something went wrong");
 		} finally {
 			setIsLoading(false);
 		}
 	}
 
 	return (
-		<View
-			style={[
-				{
-					flex: 1,
-					backgroundColor: theme.background,
-					// backgroundColor: "blue",
-					paddingTop: statusHeight,
-					paddingBottom: statusHeight - 20,
-				},
-			]}
+		<KeyboardAvoidingView
+			style={{ flex: 1 }}
+			behavior={Platform.OS === "ios" ? "padding" : "height"}
+			keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
 		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			<View
-				style={{
-					justifyContent: "space-between",
-					alignItems: "center",
-					paddingHorizontal: SPACING.space_20,
-					flex: 1,
-				}}
+			<ScrollView 
+				contentContainerStyle={{ flexGrow: 1 }}
+				keyboardShouldPersistTaps="handled"
 			>
-				{isDarkMode ? (
-					<Image
-						source={require("@/assets/SplashLogo.png")}
-						style={splashStyles.logo}
-					/>
-				) : (
-					<Image
-						source={require("@/assets/SplashLogoTwo.png")}
-						style={splashStyles.logo}
-					/>
-				)}
-
-				<Text style={styles.formHeader}>Welcome back</Text>
-
-				<KeyboardAvoidingView
-					style={styles.container}
-					behavior={Platform.OS === "ios" ? "padding" : "height"}
-					keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
+				<View
+					style={[
+						{
+							flex: 1,
+							backgroundColor: theme.background,
+							paddingTop: statusHeight,
+							paddingBottom: statusHeight - 20,
+						},
+					]}
 				>
-					<ScrollView
-						showsVerticalScrollIndicator={false}
-						contentContainerStyle={{
-							paddingBottom: SPACING.space_20,
-						}}
-					>
-						<View>
-							<Text style={[styles.inputLabel, { color: theme.text }]}>
-								Phone Number
-							</Text>
-							<Input
-								value={phoneNumber}
-								setValue={onChangePhoneNumber}
-								placeholder="Enter Phone Number"
-								keyboardType="number-pad"
-							/>
-						</View>
-						<View
-							style={{
-								marginTop: SPACING.space_20,
-							}}
-						>
-							<Text style={[styles.inputLabel, { color: theme.text }]}>
-								Password
-							</Text>
-							<PasswordInput
-								value={password}
-								setValue={onChangePassword}
-								// errorMessage={passwordError}
-							/>
-						</View>
-					</ScrollView>
+					<StatusBar style={isDarkMode ? "light" : "dark"} />
 					<View
 						style={{
-							justifyContent: "flex-end",
-							marginTop: SPACING.space_30,
+							flex: 1,
+							justifyContent: "space-between",
+							alignItems: "center",
+							paddingHorizontal: SPACING.space_20,
 						}}
 					>
-						<Button
-							buttonText="Sign in"
-							disabled={!password || !phoneNumber ? true : false}
-							isLoading={isLoading || loading}
-							onPress={handleLoginUser}
-						/>
-						<View
-							style={{
-								alignItems: "center",
-								justifyContent: "flex-end",
-								marginTop: SPACING.space_20,
-							}}
-						>
-							<TouchableOpacity
-								onPress={() => {
-									router.push("/onboarding");
-								}}
-							>
-								<Text
+						{isDarkMode ? (
+							<Image
+								source={require("@/assets/SplashLogo.png")}
+								style={splashStyles.logo}
+							/>
+						) : (
+							<Image
+								source={require("@/assets/SplashLogoTwo.png")}
+								style={splashStyles.logo}
+							/>
+						)}
+
+						<Text style={styles.formHeader}>Welcome back</Text>
+
+						<View style={styles.container}>
+							<View>
+								<View>
+									<Text style={[styles.inputLabel, { color: theme.text }]}>
+										Phone Number
+									</Text>
+									<Input
+										value={phoneNumber}
+										setValue={onChangePhoneNumber}
+										placeholder="Enter Phone Number"
+										keyboardType="number-pad"
+									/>
+								</View>
+								<View
 									style={{
-										fontFamily: "PoppinsMedium",
-										color: Colors.black,
+										marginTop: SPACING.space_20,
 									}}
 								>
-									Don't have an account?{" "}
-									<Text
-										style={{
-											fontFamily: "PoppinsSemiBold",
-											color: Colors.orange,
+									<Text style={[styles.inputLabel, { color: theme.text }]}>
+										Password
+									</Text>
+									<PasswordInput
+										value={password}
+										setValue={onChangePassword}
+									/>
+								</View>
+							</View>
+
+							<View style={styles.bottomContainer}>
+								<Button
+									buttonText="Sign in"
+									disabled={!password || !phoneNumber}
+									isLoading={isLoading || loading}
+									onPress={handleLoginUser}
+								/>
+								<View style={styles.signupContainer}>
+									<TouchableOpacity
+										onPress={() => {
+											router.push("/onboarding");
 										}}
 									>
-										Create one
-									</Text>
-								</Text>
-							</TouchableOpacity>
+										<Text style={styles.signupText}>
+											Don't have an account?{" "}
+											<Text style={styles.signupLink}>Create one</Text>
+										</Text>
+									</TouchableOpacity>
+								</View>
+							</View>
 						</View>
 					</View>
-				</KeyboardAvoidingView>
-			</View>
-		</View>
+				</View>
+			</ScrollView>
+		</KeyboardAvoidingView>
 	);
 }
 
@@ -229,5 +209,20 @@ const styles = StyleSheet.create({
 		fontSize: hp("1.5%"),
 		fontFamily: "PoppinsRegular",
 		marginBottom: 8,
+	},
+	bottomContainer: {
+		marginTop: SPACING.space_30,
+	},
+	signupContainer: {
+		alignItems: "center",
+		marginTop: SPACING.space_20,
+	},
+	signupText: {
+		fontFamily: "PoppinsMedium",
+		color: Colors.black,
+	},
+	signupLink: {
+		fontFamily: "PoppinsSemiBold",
+		color: Colors.orange,
 	},
 });

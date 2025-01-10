@@ -4,7 +4,7 @@ import { storage } from "@/utils/storage";
 import { User } from "@/types/user";
 
 const baseQuery = fetchBaseQuery({
-	baseUrl: BACKEND_URL,
+	baseUrl: `http://192.168.1.147:5000/api/v1`,
 	prepareHeaders: async (headers) => {
 		const token = await storage.getToken();
 

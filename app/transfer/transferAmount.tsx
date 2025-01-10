@@ -47,8 +47,11 @@ const TransferAmount = () => {
 
 	//State
 	const [amount, onChangeAmount] = useState<string>("0.00");
-
 	const [remark, onChangeRemark] = useState<string>("");
+	const [errors, setErrors] = useState({
+		amount: '',
+		remark: ''
+	});
 
 	useEffect(() => {
 		if (!beneficiaryUser) {
@@ -56,38 +59,67 @@ const TransferAmount = () => {
 		}
 	}, [beneficiaryUser]);
 
-	return (
-		<View
-			style={[
-				styles.container,
-				{
-					paddingTop: statusHeight + 10,
-					paddingBottom:
-						Platform.OS === "ios" ? statusHeight - 30 : statusHeight - 50,
-					backgroundColor: theme.background,
-				},
-			]}
-		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			<View style={{ flex: 1, paddingBottom: 10 }}>
-				<View style={styles.headerWrapper}>
-					<TouchableOpacity onPress={() => router.back()}>
-						<MaterialIcons
-							name="keyboard-arrow-left"
-							size={36}
-							color="black"
-						/>
-					</TouchableOpacity>
-					<Text style={styles.pageHeader}>Transfer to Bank Account</Text>
-				</View>
+	const validateForm = () => {
+		const newErrors = {
+			amount: '',
+			remark: ''
+		};
+		
+		if (!amount || amount === '0.00') {
+			newErrors.amount = 'Amount is required';
+		} else {
+			// Remove commas and convert to number for comparison
+			const numericAmount = Number(amount.replace(/,/g, ''));
+			if (numericAmount < 50) {
+				newErrors.amount = 'Amount cannot be less than ₦50';
+			}
+		}
+		
+		if (!remark.trim()) {
+			newErrors.remark = 'Remark is required';
+		}
 
-				<KeyboardAvoidingViewContainer>
+		setErrors(newErrors);
+		return !newErrors.amount && !newErrors.remark;
+	};
+
+	const handleConfirm = () => {
+		if (validateForm()) {
+			toggleConfirmTransactionModal();
+		}
+	};
+
+	return (
+		<KeyboardAvoidingViewContainer>
+			<View
+				style={[
+					styles.container,
+					{
+						paddingTop: statusHeight + 10,
+						backgroundColor: theme.background,
+					},
+				]}
+			>
+				<StatusBar style={isDarkMode ? "light" : "dark"} />
+				<View style={{ flex: 1, paddingBottom: 10 }}>
+					<View style={styles.headerWrapper}>
+						<TouchableOpacity onPress={() => router.back()}>
+							<MaterialIcons
+								name="keyboard-arrow-left"
+								size={36}
+								color="black"
+							/>
+						</TouchableOpacity>
+						<Text style={styles.pageHeader}>Transfer to Bank Account</Text>
+					</View>
+
 					<View
 						style={{
 							flex: 1,
 							paddingVertical: SPACING.space_20,
 							paddingHorizontal: SPACING.space_10,
 							gap: 20,
+							marginBottom: Platform.OS === 'ios' ? 20 : 0,
 						}}
 					>
 						{beneficiaryUser && (
@@ -152,8 +184,11 @@ const TransferAmount = () => {
 						)}
 
 						<View>
-							<Text style={styles.inputLabel}> Amount</Text>
+							<Text style={styles.inputLabel}>Amount</Text>
 							<MoneyInput value={amount} setValue={onChangeAmount} />
+							{errors.amount ? (
+								<Text style={styles.errorText}>{errors.amount}</Text>
+							) : null}
 						</View>
 
 						<View>
@@ -161,45 +196,49 @@ const TransferAmount = () => {
 							<Input
 								value={remark}
 								setValue={onChangeRemark}
-								placeholder="What’s this for? (Optional)"
+								placeholder="What's this for?"
 								keyboardType="default"
 							/>
+							{errors.remark ? (
+								<Text style={styles.errorText}>{errors.remark}</Text>
+							) : null}
 						</View>
 					</View>
 					<View
 						style={{
 							paddingHorizontal: SPACING.space_10,
+							paddingBottom: Platform.OS === 'ios' ? 20 : 10,
 						}}
 					>
 						<Button
 							buttonText="Confirm"
-							onPress={toggleConfirmTransactionModal}
+							onPress={handleConfirm}
 						/>
 					</View>
-				</KeyboardAvoidingViewContainer>
-			</View>
-			<ConfirmTransactionModal
-				amount={amount}
-				currentUser={currentUser!}
-				beneficiaryUser={beneficiaryUser!}
-				handleProceed={() => {
-					const sendAmount = amount.replace(/,/g, "");
-					dispatch(
-						setPaymentData({
-							amount: Number(Number(sendAmount).toFixed(0)),
-							beneficiaryBankCode: paymentData?.beneficiaryBankCode!,
-							beneficiaryAccountNumber:
-								paymentData?.beneficiaryAccountNumber!,
-							narration: remark || "",
-							nameEnquiryReference: paymentData?.nameEnquiryReference!,
-						})
-					);
+				</View>
+				<ConfirmTransactionModal
+					amount={amount}
+					currentUser={currentUser!}
+					beneficiaryUser={beneficiaryUser!}
+					handleProceed={() => {
+						const sendAmount = amount.replace(/,/g, "");
+						dispatch(
+							setPaymentData({
+								amount: Number(Number(sendAmount).toFixed(0)),
+								beneficiaryBankCode: paymentData?.beneficiaryBankCode!,
+								beneficiaryAccountNumber:
+									paymentData?.beneficiaryAccountNumber!,
+								narration: remark || "",
+								nameEnquiryReference: paymentData?.nameEnquiryReference!,
+							})
+						);
 
-					router.push("/transfer/transferPin");
-					toggleConfirmTransactionModal();
-				}}
-			/>
-		</View>
+						router.push("/transfer/transferPin");
+						toggleConfirmTransactionModal();
+					}}
+				/>
+			</View>
+		</KeyboardAvoidingViewContainer>
 	);
 };
 
@@ -258,5 +297,12 @@ const styles = StyleSheet.create({
 		borderColor: "#68F611",
 		alignItems: "center",
 		justifyContent: "center",
+	},
+	errorText: {
+		color: '#FF0000',  // Bright red
+		fontSize: wp('3.5%'),
+		fontFamily: 'PoppinsMedium',
+		marginTop: 5,
+		marginLeft: 2,
 	},
 });

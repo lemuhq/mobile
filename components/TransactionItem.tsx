@@ -15,6 +15,9 @@ export default function TransactionItem({
 	amount,
 	createdAt,
 	status,
+	senderAccountName,
+	receiverAccountName,
+	date
 }: Transaction) {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 
@@ -29,6 +32,19 @@ export default function TransactionItem({
 			return inputDate.format("MMMM D, YYYY h:mm A");
 		}
 	}
+
+	const formatTransactionDate = (dateString: string) => {
+		const date = new Date(dateString);
+		return date.toLocaleString('en-US', {
+			day: 'numeric',
+			month: 'long',
+			year: 'numeric',
+			hour: '2-digit',
+			minute: '2-digit',
+		});
+	};
+
+
 	return (
 		<TouchableOpacity
 			style={styles.container}
@@ -51,9 +67,9 @@ export default function TransactionItem({
 							color: theme.text,
 						}}
 					>
-						{transactionType === "Outwards" ? "Debit" : "Credit"}
+						{transactionType === "Outwards" ? receiverAccountName : senderAccountName}
 					</Text>
-					<TransactionStatus
+					{/* <TransactionStatus
 						status={
 							status === "Completed"
 								? "success"
@@ -61,7 +77,7 @@ export default function TransactionItem({
 								? "pending"
 								: "failed"
 						}
-					/>
+					/> */}
 				</View>
 				<Text
 					style={{
@@ -70,10 +86,20 @@ export default function TransactionItem({
 						color: theme.text,
 					}}
 				>
-					{formatDate(createdAt)}
+					{formatTransactionDate(date || createdAt)}
 				</Text>
 			</View>
 			<Text
+				style={{
+					fontSize: FONTSIZE.size_16,
+					color: transactionType === "Inwards" || transactionType === "credit" ? "green" : "red",
+					fontFamily: "PoppinsSemiBold",
+				}}
+			>
+				<Text>{"\u20A6"} </Text>
+				{formatNumberWithCommas(amount)}
+			</Text>
+			{/* <Text
 				style={{
 					fontSize: FONTSIZE.size_16,
 					color: theme.text,
@@ -82,7 +108,7 @@ export default function TransactionItem({
 			>
 				<Text>{"\u20A6"} </Text>
 				{formatNumberWithCommas(amount)}
-			</Text>
+			</Text> */}
 		</TouchableOpacity>
 	);
 }

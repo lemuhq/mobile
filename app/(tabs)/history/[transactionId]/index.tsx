@@ -21,6 +21,24 @@ import {
 import { formatNumberWithCommas } from "@/helpers/formatter";
 import { MaterialIcons } from "@expo/vector-icons";
 import useCopyToClipboard from "@/hooks/useCopyToClipboard";
+import { useGetBankListQuery } from "@/redux/services/transfer";
+
+// Add date formatting helper
+const formatTransactionDate = (dateString: string) => {
+	const date = new Date(dateString);
+	return date.toLocaleString('en-US', {
+		day: 'numeric',
+		month: 'long',
+		year: 'numeric',
+		hour: '2-digit',
+		minute: '2-digit',
+	});
+};
+
+
+
+
+
 
 const TransactionId = () => {
 	const { transactionId }: { transactionId: string } = useLocalSearchParams();
@@ -35,8 +53,50 @@ const TransactionId = () => {
 		return transactionHistory.find((t) => t._id === transactionId);
 	}, [transactionId, transactionHistory]);
 
+	console.log("transaction", transaction);
+
+	const { data: bankData } = useGetBankListQuery({});
+	
+	// Updated bankName memo with safety checks
+	const bankName = useMemo(() => {
+		if (!bankData) return null;
+		return bankData?.data?.find((bank: any) => {
+			if (transaction?.transactionType === "Inwards") {
+				return bank.bankCode === transaction?.senderBank;
+			} 
+			if (transaction?.transactionType === "Outwards") {
+				return bank.bankCode === transaction?.receiverBank;
+			}
+			if (transaction?.transactionType === "credit") {
+				return "Lemu";
+			}
+			if (transaction?.transactionType === "debit") {
+				return "Lemu";
+			}
+			
+		});
+	}, [bankData, transaction?.senderBank, transaction?.receiverBank]);
+
+	// const bankName = bankData?.data?.find((bank: any) => 
+	// 	transaction?.transactionType === "Inwards" ? 
+	// 	bank.bankCode === transaction?.senderBank : 
+	// 	bank.bankCode === transaction?.receiverBank);
+
+
 	const STATUS_MAP = {
 		Completed: (
+			<View style={styles.statusWrapper}>
+				<MaterialIcons
+					name="check-circle-outline"
+					size={22}
+					color="#68F611"
+				/>
+				<Text style={[styles.statusText, { color: "#5FD318" }]}>
+					Successful
+				</Text>
+			</View>
+		),
+		success: (
 			<View style={styles.statusWrapper}>
 				<MaterialIcons
 					name="check-circle-outline"
@@ -73,6 +133,8 @@ const TransactionId = () => {
 			</View>
 		);
 	}
+
+
 	return (
 		<View
 			style={[
@@ -106,10 +168,12 @@ const TransactionId = () => {
 					>
 						<Text style={[styles.sectionHeader, { textAlign: "center" }]}>
 							Transfer{" "}
-							{transaction?.transactionType === "Outwards"
+							{transaction?.transactionType === "Inwards" || transaction?.transactionType === "credit"
+								? "form"
+								: transaction?.transactionType === "Outwards" || transaction?.transactionType === "debit"
 								? "to"
-								: "from"}{" "}
-							{transaction?.receiverAccountName}
+								: "to"}{" "}
+							{transaction?.senderAccountName}
 						</Text>
 						<Text style={[styles.sectionHeader, { textAlign: "center" }]}>
 							{"\u20A6"}
@@ -122,23 +186,28 @@ const TransactionId = () => {
 					<Text style={styles.sectionHeader}>Transaction Details</Text>
 
 					<View style={styles.transactionItems}>
-						<View style={styles.transactionItem}>
-							<Text style={styles.itemTitle}>Recipient Details</Text>
+						{/* <View style={styles.transactionItem}>
+							<Text style={styles.itemTitle}>Bank</Text>
 
 							<View style={{ alignItems: "flex-end", gap: 2 }}>
 								<Text style={styles.itemValue}>
-									{transaction?.receiverAccountName}
+									{
+										transaction?.transactionType === "Inwards" || transaction?.transactionType === "credit"
+										? bankName?.name
+										: "Lemu"
+									}
 								</Text>
-								<Text style={styles.itemValue}>
-									{transaction?.receiverAccountNumber}
-								</Text>
+								
 							</View>
-						</View>
+						</View> */}
 						<View style={styles.transactionItem}>
-							<Text style={styles.itemTitle}>Transaction Type</Text>
+							<Text style={styles.itemTitle}>Payment Method</Text>
 
 							<Text style={styles.itemValue}>
-								Transfer to Lemu Account
+								{/* Transfer to Lemu Account */}
+								{transaction?.transactionType === "Inwards" || transaction?.transactionType === "credit"
+									? "Inward Transfer"
+									: "Transfer from Lemu Account"}
 							</Text>
 						</View>
 						<View style={styles.transactionItem}>
@@ -162,14 +231,16 @@ const TransactionId = () => {
 							</View>
 						</View>
 						<View style={styles.transactionItem}>
-							<Text style={styles.itemTitle}>Payment Method</Text>
+							<Text style={styles.itemTitle}>Description </Text>
 
-							<Text style={styles.itemValue}>Lemu Pay</Text>
+							<Text style={styles.itemValue}>{transaction.narration}</Text>
 						</View>
 						<View style={styles.transactionItem}>
 							<Text style={styles.itemTitle}>Transaction Date</Text>
 
-							<Text style={styles.itemValue}>Lemu Pay</Text>
+							<Text style={styles.itemValue}>
+								{formatTransactionDate(transaction?.date || transaction?.createdAt)}
+							</Text>
 						</View>
 					</View>
 				</View>
@@ -239,7 +310,8 @@ const styles = StyleSheet.create({
 	},
 	statusWrapper: {
 		flexDirection: "row",
-		alignContent: "center",
+		
+		alignItems: "center",
 		gap: 5,
 		justifyContent: "center",
 	},

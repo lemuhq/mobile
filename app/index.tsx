@@ -26,11 +26,13 @@ const App = () => {
 			const refreshTokenExist = await storage.getRefreshToken(
 				"refreshToken"
 			);
+			console.log("this is refresh token here", refreshTokenExist)
 
 			const lockKeyExist = await storage.getLockPin();
+			console.log("this is lock key here", lockKeyExist)
 
 			if (!lockKeyExist) {
-				router.navigate("/onboarding");
+				router.navigate("/login");
 			} else {
 				if (refreshTokenExist) {
 					// router.navigate("/login/authUser");

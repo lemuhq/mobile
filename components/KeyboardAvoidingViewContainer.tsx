@@ -1,39 +1,20 @@
-import {
-	View,
-	Platform,
-	KeyboardAvoidingView,
-	StyleSheet,
-	ScrollView,
-} from "react-native";
-import React from "react";
+import { KeyboardAvoidingView, Platform, ScrollView } from 'react-native';
 
-const KeyboardAvoidingViewContainer = ({
-	children,
-}: {
-	children: React.ReactNode;
-}) => {
-	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 20 : 0;
+const KeyboardAvoidingViewContainer = ({ children }) => {
 	return (
 		<KeyboardAvoidingView
-			style={styles.container}
-			behavior={Platform.OS === "ios" ? "padding" : "height"}
-			keyboardVerticalOffset={KEYBOARD_VERTICAL_OFFSET}
+			behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+			style={{ flex: 1 }}
+			keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
 		>
-			<ScrollView contentContainerStyle={styles.content}>
+			<ScrollView
+				contentContainerStyle={{ flexGrow: 1 }}
+				keyboardShouldPersistTaps="handled"
+			>
 				{children}
 			</ScrollView>
 		</KeyboardAvoidingView>
 	);
 };
-
-const styles = StyleSheet.create({
-	container: {
-		flexGrow: 1,
-		width: "100%",
-	},
-	content: {
-		flex: 1,
-	},
-});
 
 export default KeyboardAvoidingViewContainer;

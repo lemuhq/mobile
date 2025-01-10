@@ -24,6 +24,7 @@ import { useDispatch } from "react-redux";
 import { setTransactionHistory } from "@/redux/slice/transfer.slice";
 import { Skeleton } from "moti/skeleton";
 import { ThemeContext } from "@/provider/ThemeProvider";
+import DateTimePicker from '@react-native-community/datetimepicker';
 
 export default function History() {
 	const dispatch = useDispatch();
@@ -31,8 +32,10 @@ export default function History() {
 	const colorMode: "light" | "dark" = isDarkMode ? "dark" : "light";
 	const statusHeight = Constants.statusBarHeight;
 
-	const { data: transactionData, isLoading: transactionLoading } =
-		useGetTransactionHistoryQuery({});
+	const { data: transactionData, isLoading: transactionLoading, refetch, isFetching , error } =
+		useGetTransactionHistoryQuery({
+			
+		});
 
 	useEffect(() => {
 		if (!transactionLoading && transactionData?.transactions) {
@@ -40,22 +43,58 @@ export default function History() {
 		}
 	}, [transactionData]);
 
+	useEffect(() => {
+		refetch();
+	}, []);
+
+	
+
 	//State
 	const [search, onChangeSearch] = useState<string>("");
+	const [showDatePicker, setShowDatePicker] = useState(false);
+	const [selectedDate, setSelectedDate] = useState<Date | null>(null);
+
+	useEffect(() => {
+		return () => {
+			setSelectedDate(null);
+		};
+	}, []);
 
 	const filteredTransactions = useMemo(() => {
-		if (!search) {
-			return transactionData?.transactions;
+		let filtered = transactionData?.transactions;
+
+		if (!filtered) return [];
+
+		if (search) {
+			filtered = filtered.filter(
+				(transaction) =>
+					transaction?.senderAccountName?.toLowerCase().includes(search.toLowerCase()) ||
+					transaction?.senderBank?.toLowerCase().includes(search.toLowerCase())
+			);
 		}
 
-		return transactionData?.transactions.filter(
-			(transaction) =>
-				transaction.senderAccountName
-					.toLowerCase()
-					.includes(search.toLowerCase()) ||
-				transaction?.senderBank.toLowerCase().includes(search.toLowerCase())
-		);
-	}, [search, transactionData]);
+		if (selectedDate) {
+			filtered = filtered.filter((transaction) => {
+				const transactionDate = new Date(transaction?.date || transaction?.createdAt);
+				const compareDate = new Date(selectedDate);
+				transactionDate.setHours(0, 0, 0, 0);
+				compareDate.setHours(0, 0, 0, 0);
+				
+				return transactionDate.getTime() === compareDate.getTime();
+			});
+		}
+
+		return filtered;
+	}, [search, transactionData, selectedDate]);
+
+	const handleDateChange = (event: any, date?: Date) => {
+		if (Platform.OS === 'android') {
+			setShowDatePicker(false);
+		}
+		if (date) {
+			setSelectedDate(date);
+		}
+	};
 
 	return (
 		<View style={[styles.container, { paddingTop: statusHeight + 10 }]}>
@@ -84,18 +123,27 @@ export default function History() {
 						onChangeText={onChangeSearch}
 					/>
 				</View>
-				<TouchableOpacity>
+				<TouchableOpacity onPress={() => setShowDatePicker(true)}>
 					<MaterialCommunityIcons
 						name="calendar-blank"
 						size={24}
-						color="black"
+						color={selectedDate ? Colors.primary : "black"}
 					/>
 				</TouchableOpacity>
 			</View>
 
+			{(showDatePicker || Platform.OS === 'ios') && (
+				<DateTimePicker
+					value={selectedDate || new Date()}
+					mode="date"
+					display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+					onChange={handleDateChange}
+				/>
+			)}
+
 			<View style={styles.transactionsContainer}>
 				<FlatList
-					data={filteredTransactions}
+					data={[...filteredTransactions].reverse()}
 					renderItem={({ item }) => <TransactionItem {...item} />}
 					keyExtractor={(item) => item._id}
 					contentContainerStyle={{

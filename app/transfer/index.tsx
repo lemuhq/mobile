@@ -81,8 +81,8 @@ export default function TransferPage() {
 			return;
 		}
 		const response = await verifyAccountNumber({
-			accountNumber: "8020540009",
-			bankCode: "999240",
+			accountNumber,
+			bankCode: selectedBank?.bankCode,
 		});
 
 		if (response?.data?.responseCode !== "00") {
@@ -105,8 +105,8 @@ export default function TransferPage() {
 		dispatch(
 			setPaymentData({
 				amount: 0,
-				beneficiaryBankCode: "999240",
-				beneficiaryAccountNumber: "8020540009",
+				beneficiaryBankCode: selectedBank?.bankCode ?? "",
+				beneficiaryAccountNumber: accountNumber ?? "",
 				narration: "",
 				nameEnquiryReference: response?.data?.data?.sessionId,
 			})
@@ -125,38 +125,38 @@ export default function TransferPage() {
 	}, []);
 
 	return (
-		<View
-			style={[
-				styles.container,
-				{
-					paddingTop: statusHeight + 10,
-					paddingBottom:
-						Platform.OS === "ios" ? statusHeight - 30 : statusHeight - 50,
-					backgroundColor: theme.background,
-				},
-			]}
-		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
-			<View style={{ flex: 1, paddingBottom: 10 }}>
-				<View style={styles.headerWrapper}>
-					<TouchableOpacity onPress={() => router.back()}>
-						<MaterialIcons
-							name="keyboard-arrow-left"
-							size={36}
-							color="black"
-						/>
-					</TouchableOpacity>
-					<Text style={styles.pageHeader}>Transfer to Bank Account</Text>
-				</View>
-				<KeyboardAvoidingViewContainer>
+		<KeyboardAvoidingViewContainer>
+			<View
+				style={[
+					styles.container,
+					{
+						paddingTop: statusHeight + 10,
+						backgroundColor: theme.background,
+					},
+				]}
+			>
+				<StatusBar style={isDarkMode ? "light" : "dark"} />
+				<View style={{ flex: 1 }}>
+					<View style={styles.headerWrapper}>
+						<TouchableOpacity onPress={() => router.back()}>
+							<MaterialIcons
+								name="keyboard-arrow-left"
+								size={36}
+								color="black"
+							/>
+						</TouchableOpacity>
+						<Text style={styles.pageHeader}>Transfer to Bank Account</Text>
+					</View>
+
 					<ScrollView
 						showsVerticalScrollIndicator={false}
 						contentContainerStyle={{
-							// paddingBottom: SPACING.space_20,
+							flexGrow: 1,
 							paddingTop: SPACING.space_30,
 							paddingHorizontal: SPACING.space_10,
-							flexGrow: 1,
+							paddingBottom: SPACING.space_20,
 						}}
+						keyboardShouldPersistTaps="handled"
 					>
 						<View
 							style={{
@@ -253,9 +253,9 @@ export default function TransferPage() {
 					</ScrollView>
 
 					<BankListModal setSelectedBank={setSelectedBank} />
-				</KeyboardAvoidingViewContainer>
+				</View>
 			</View>
-		</View>
+		</KeyboardAvoidingViewContainer>
 	);
 }
 

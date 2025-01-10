@@ -46,6 +46,7 @@ const TransferPin = () => {
 
 	const [pin, setPin] = useState<number[]>([]);
 	const [isSuccess, setIsSuccess] = useState<boolean>(false);
+	console.log("🚀 ~ TransferPin ~ pin:", pin)
 
 	async function handleTransferToBanks() {
 		//Confirm if pin is correct

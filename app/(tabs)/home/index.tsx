@@ -48,8 +48,8 @@ import { storage } from "@/utils/storage";
 
 export default function Home() {
 	const dispatch = useDispatch();
-	const { isDarkMode, theme } = useContext(ThemeContext);
-	const colorMode: "light" | "dark" = isDarkMode ? "dark" : "light";
+	const { theme } = useContext(ThemeContext);
+	const colorMode: "light" | "dark" = "light";
 	const {
 		toggleProfileVisible,
 		toggleTransactionModal,
@@ -58,22 +58,36 @@ export default function Home() {
 
 	const { data, isLoading } = useGetCurrentUserQuery();
 	const { currentUser } = useSelector(selectUser);
-
+	
 	const { data: transactionData, isLoading: transactionLoading } =
-		useGetTransactionHistoryQuery({});
+		useGetTransactionHistoryQuery({
+			currentPage: 1,
+			limit: 19,
+		});
 
 	const { data: bankData, isLoading: bankLoading } = useGetBankListQuery({});
 
 	useEffect(() => {
+
+		//get token
+		
+		
+		async function getToken() {
+			const token = await storage.getToken();
+			console.log("token", token);
+		}
+
+
 		async function checkForLockPin() {
 			const userLockPin = await storage.getLockPin();
 
 			if (!userLockPin) {
-				await storage.saveLockPin(data?.lockPin!);
+				await storage.saveLockPin(currentUser?.lockPin || "");
 			}
 		}
 
 		checkForLockPin();
+		getToken();
 	}, [data]);
 
 	useEffect(() => {
@@ -146,18 +160,18 @@ export default function Home() {
 			style={[
 				{
 					flex: 1,
-					backgroundColor: isDarkMode ? Colors.gray : Colors.white,
+					backgroundColor: Colors.white,
 					paddingTop: Platform.OS === "android" ? SPACING.space_30 : 0,
 				},
 			]}
 		>
-			<StatusBar style={isDarkMode ? "light" : "dark"} />
+			<StatusBar style="dark" />
 
 			<ScrollView
 				style={[
 					styles.scrollViewContainer,
 					{
-						backgroundColor: isDarkMode ? Colors.gray : Colors.whiteSmoke,
+						backgroundColor: Colors.whiteSmoke,
 					},
 				]}
 				alwaysBounceVertical={false}
@@ -230,7 +244,7 @@ export default function Home() {
 								<MaterialCommunityIcons
 									name="bell-outline"
 									size={24}
-									color={isDarkMode ? Colors.orange : Colors.black}
+									color={Colors.black}
 								/>
 							</View>
 						)}
@@ -240,9 +254,7 @@ export default function Home() {
 					style={[
 						styles.firstSectionContainer,
 						{
-							backgroundColor: isDarkMode
-								? Colors.gray
-								: Colors.whiteSmoke,
+							backgroundColor: Colors.whiteSmoke,
 						},
 					]}
 				>
@@ -283,9 +295,7 @@ export default function Home() {
 										style={[
 											styles.iconWrapper,
 											{
-												backgroundColor: isDarkMode
-													? Colors.orangeTint
-													: Colors.white,
+												backgroundColor: Colors.white,
 											},
 										]}
 									>
@@ -295,10 +305,7 @@ export default function Home() {
 												width: 15,
 												height: 15,
 												borderRadius: 50,
-												backgroundColor: isDarkMode
-													? Colors.orangeTintTwo
-													: Colors.orangeTint,
-
+												backgroundColor: Colors.orangeTint,
 												top: 20,
 												left: 25,
 												position: "absolute",
@@ -310,9 +317,7 @@ export default function Home() {
 										style={[
 											styles.widgetLabel,
 											{
-												color: isDarkMode
-													? Colors.orangeTint
-													: Colors.black,
+												color: Colors.black,
 												fontFamily: "PoppinsRegular",
 											},
 										]}
@@ -333,9 +338,7 @@ export default function Home() {
 							borderColor: "#34393E40",
 							paddingVertical: SPACING.space_20,
 							paddingHorizontal: SPACING.space_20,
-							backgroundColor: isDarkMode
-								? Colors.gray
-								: Colors.whiteSmoke,
+							backgroundColor: Colors.whiteSmoke,
 						}}
 					>
 						<Skeleton colorMode={colorMode} width={"100%"} height={65}>
@@ -369,7 +372,7 @@ export default function Home() {
 				</Pressable>
 				<View
 					style={{
-						backgroundColor: isDarkMode ? Colors.gray : Colors.white,
+						backgroundColor: Colors.white,
 						flex: 1,
 					}}
 				>
@@ -378,9 +381,8 @@ export default function Home() {
 							<Text
 								style={{
 									fontFamily: "PoppinsSemiBold",
-
 									fontSize: FONTSIZE.size_14 - 1,
-									color: isDarkMode ? Colors.orange : Colors.black,
+									color: Colors.black,
 								}}
 							>
 								Trending today
@@ -437,21 +439,22 @@ export default function Home() {
 
 					<View
 						style={{
-							backgroundColor: isDarkMode ? Colors.gray : Colors.white,
+							backgroundColor: Colors.white,
 							flex: 1,
 						}}
 					>
 						{/*Transaction header*/}
+
+
 						<View
 							style={[
 								styles.transactionHeader,
 								{
-									backgroundColor: isDarkMode
-										? Colors.orangeTintTwo
-										: Colors.whiteSmoke,
+									backgroundColor: Colors.whiteSmoke,
 								},
 							]}
 						>
+							<View style={{flex: 1, justifyContent: "space-between", flexDirection: "row"}}>
 							<Skeleton
 								width={wp("30%")}
 								height={14}
@@ -461,11 +464,8 @@ export default function Home() {
 									<Text
 										style={{
 											fontFamily: "PoppinsSemiBold",
-
 											fontSize: FONTSIZE.size_14 - 1,
-											color: isDarkMode
-												? Colors.orange
-												: Colors.black,
+											color: Colors.black,
 										}}
 									>
 										Transaction History
@@ -500,82 +500,34 @@ export default function Home() {
 											color={Colors.orange}
 										/>
 									</TouchableOpacity>
+									
 								)}
+								
+								<View>
+										
+									</View>
 							</Skeleton>
-						</View>
 
-						{/* <View style={styles.transactionContainer}>
-							<FlatList
-								data={
-									isLoading || transactionLoading
-										? []
-										: transactionData?.transactions
+							</View>
+							<View>
+								{transactionData?.transactions ? 
+									[...transactionData.transactions.slice()].reverse().slice(0, 3).map((transaction) => (
+										<TransactionItem key={transaction._id} {...transaction} />
+									))
+									: null
 								}
-								renderItem={({ item }) => <TransactionItem {...item} />}
-								keyExtractor={(item) => item._id}
-								contentContainerStyle={{
-									gap: 5,
-								}}
-								ListEmptyComponent={() => {
-									if (isLoading || transactionLoading) {
-										return (
-											<>
-												{Array(5)
-													.fill("")
-													.map((_, idx) => (
-														<View
-															style={{
-																flex: 1,
-																justifyContent: "space-between",
-																alignItems: "center",
-																marginBottom: 10,
-																paddingVertical:
-																	heightPercentageToDP("2%"),
-																flexDirection: "row",
-															}}
-															key={idx}
-														>
-															<View style={{ gap: 5 }}>
-																<Skeleton
-																	width={wp("20%")}
-																	height={10}
-																	colorMode={colorMode}
-																/>
-																<Skeleton
-																	width={wp("30%")}
-																	height={15}
-																	colorMode={colorMode}
-																/>
-															</View>
+							</View>
 
-															<Skeleton
-																width={wp("30%")}
-																height={15}
-																colorMode={colorMode}
-															/>
-														</View>
-													))}
-											</>
-										);
-									}
-									return (
-										<View
-											style={{ flex: 1, justifyContent: "center" }}
-										>
-											<Text
-												style={{
-													fontFamily: "PoppinsRegular",
-													fontSize: FONTSIZE.size_14,
-												}}
-											>
-												No transactions found.
-											</Text>
-										</View>
-									);
-								}}
-								showsVerticalScrollIndicator={false}
-							/>
-						</View> */}
+							
+							
+							
+
+							
+						</View>
+						
+						</View>
+						<View>
+							
 					</View>
 				</View>
 			</ScrollView>
@@ -712,9 +664,7 @@ const styles = StyleSheet.create({
 		backgroundColor: Colors.whiteSmoke,
 		borderTopRightRadius: BORDERRADIUS.radius_20,
 		borderTopLeftRadius: BORDERRADIUS.radius_20,
-		flexDirection: "row",
-		justifyContent: "space-between",
-		alignItems: "center",
+		
 	},
 	viewButton: {
 		flexDirection: "row",

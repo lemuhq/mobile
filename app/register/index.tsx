@@ -56,7 +56,7 @@ export default function Register() {
 			}
 
 			if(response.data.stage === "3"){
-				//return router.navigate("/login");
+			   return router.navigate("/login");
 
 			}
 
@@ -167,19 +167,33 @@ export default function Register() {
 						</Text>
 					</View>
 
-					<Button
-						buttonText="Continue"
-						onPress={() => {
-							handleOtpRequest();
-						}}
-						isLoading={isLoading}
-						disabled={
-							(phoneNumber.length === 0 || phoneNumber.length < 11
-								? true
-								: false) || isLoading
-						}
-						variant="primary"
-					/>
+					<View>
+						<Button
+							buttonText="Continue"
+							onPress={() => {
+								handleOtpRequest();
+							}}
+							isLoading={isLoading}
+							disabled={
+								(phoneNumber.length === 0 || phoneNumber.length < 11
+									? true
+									: false) || isLoading
+							}
+							variant="primary"
+						/>
+						
+						<View style={{ flexDirection: 'row', justifyContent: 'center', marginTop: 16 }}>
+							<Text style={[styles.subText, { color: theme.text }]}>
+								Already have an account?{' '}
+							</Text>
+							<Text
+								style={[styles.subText, { color: Colors.orange, fontFamily: 'PoppinsSemiBold' }]}
+								onPress={() => router.navigate('/login')}
+							>
+								Login
+							</Text>
+						</View>
+					</View>
 				</View>
 			</View>
 		</KeyboardAvoidingViewContainer>

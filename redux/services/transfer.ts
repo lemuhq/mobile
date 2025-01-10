@@ -4,9 +4,11 @@ import { storage } from "@/utils/storage";
 import { Pagination, PaymentRequest, Transaction } from "@/types/transfer";
 
 const baseQuery = fetchBaseQuery({
-	baseUrl: BACKEND_URL,
+	baseUrl: `http://192.168.1.147:5000/api/v1`,
 	prepareHeaders: async (headers) => {
-		const token = await storage.getToken();
+		// const token = await storage.getToken();
+		const token = await storage.getUserToken("token");
+		console.log("token", token);
 		if (token) {
 			headers.set("authorization", `Bearer ${token}`);
 		}
@@ -59,7 +61,7 @@ export const transferApi = createApi({
 		//Transaction history
 		getTransactionHistory: builder.query<
 			{ pagination: Pagination; transactions: Transaction[] },
-			{ currentPage?: number }
+			{ currentPage?: number; limit?: number }
 		>({
 			query: () => ({
 				url: "/transaction/get-transaction-history",

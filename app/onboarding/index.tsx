@@ -100,6 +100,7 @@ const Onboarding = () => {
 					buttonText="Continue"
 					onPress={scrollToNext}
 				/>
+				
 			</View>
 		</View>
 	);
