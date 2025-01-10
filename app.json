@@ -1,78 +1,79 @@
 {
-	"expo": {
-		"name": "lemu",
-		"slug": "lemu",
-		"version": "1.0.0",
-		"orientation": "portrait",
-		"icon": "./assets/lemu-icon.png",
-		"scheme": "myapp",
-		"userInterfaceStyle": "automatic",
-		"splash": {
-			"image": "./assets/images/splash.png",
-			"resizeMode": "contain",
-			"backgroundColor": "#292D32"
-		},
-		"ios": {
-			"supportsTablet": true,
-			"bundleIdentifier": "com.anonymous.lemu",
-			"config": {
-				"usesNonExemptEncryption": false
-			}
-		},
-		"android": {
-			"adaptiveIcon": {
-				"foregroundImage": "./assets/lemu-icon.png",
-				"backgroundColor": "#292D32"
-			},
-			"permissions": [
-				"android.permission.CAMERA",
-				"android.permission.RECORD_AUDIO"
-			],
-			"package": "com.anonymous.lemu"
-		},
-		"web": {
-			"bundler": "metro",
-			"output": "static",
-			"favicon": "./assets/images/favicon.png"
-		},
-		"plugins": [
-			"expo-router",
-			[
-				"expo-camera",
-				{
-					"cameraPermission": "Allow Lemu to access your camera",
-					"microphonePermission": "Allow Lemu to access your microphone",
-					"recordAudioAndroid": true
-				}
-			],
-			"expo-font",
-			[
-				"expo-secure-store",
-				{
-					"configureAndroidBackup": true,
-					"faceIDPermission": "Allow Lemu to access your Face ID biometric data."
-				}
-			]
-		],
-		"experiments": {
-			"typedRoutes": true
-		},
-		"extra": {
-			"router": {
-				"origin": false
-			},
-			"eas": {
-				"projectId": "cb618648-73c9-408a-8bea-8b1205bf6478"
-			}
-		},
-		"runtimeVersion": {
-			"policy": "appVersion"
-		},
-		"updates": {
-			"url": "https://u.expo.dev/cb618648-73c9-408a-8bea-8b1205bf6478"
-		},
-		"cli": {
-			"appVersionSource": "package.json"
-		}
-	}
+  "expo": {
+    "name": "lemu",
+    "slug": "lemu",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/lemu-icon.png",
+    "scheme": "myapp",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "image": "./assets/images/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#292D32"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.anonymous.lemu",
+      "config": {
+        "usesNonExemptEncryption": false
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/lemu-icon.png",
+        "backgroundColor": "#292D32"
+      },
+      "permissions": [
+        "android.permission.CAMERA",
+        "android.permission.RECORD_AUDIO"
+      ],
+      "package": "com.anonymous.lemu"
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "static",
+      "favicon": "./assets/images/favicon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Lemu to access your camera",
+          "microphonePermission": "Allow Lemu to access your microphone",
+          "recordAudioAndroid": true
+        }
+      ],
+      "expo-font",
+      [
+        "expo-secure-store",
+        {
+          "configureAndroidBackup": true,
+          "faceIDPermission": "Allow Lemu to access your Face ID biometric data."
+        }
+      ],
+      "expo-barcode-scanner"
+    ],
+    "experiments": {
+      "typedRoutes": true
+    },
+    "extra": {
+      "router": {
+        "origin": false
+      },
+      "eas": {
+        "projectId": "cb618648-73c9-408a-8bea-8b1205bf6478"
+      }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/cb618648-73c9-408a-8bea-8b1205bf6478"
+    },
+    "cli": {
+      "appVersionSource": "package.json"
+    }
+  }
 }

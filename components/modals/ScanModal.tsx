@@ -48,9 +48,13 @@ export default function ScanModal() {
 	};
 
 	return (
+		
 		<BottomSheetModal
 			isOpen={scannerOpen}
-			onDismiss={toggleScannerModal}
+			onDismiss={() => {
+				toggleScannerModal();
+				toggleTransactionModal();
+			}}
 			fullHeight={true}
 		>
 			<LinearGradient
@@ -58,115 +62,118 @@ export default function ScanModal() {
 				style={{
 					flex: 1,
 					padding: SPACING.space_20,
-					paddingTop: statusHeight,
-					paddingBottom: statusHeight - 30,
-					gap: wp("10%"),
+					paddingTop: statusHeight + SPACING.space_20,
+					paddingBottom: Platform.OS === 'ios' ? 34 : SPACING.space_20,
+					gap: wp("5%"),
 					width: "100%",
-					overflow: "hidden",
-					zIndex: 2,
+					height: '100%',
+					position: 'relative',
 				}}
 			>
 				<StatusBar style="light" />
+				<TouchableOpacity 
+					onPress={() => {
+						toggleScannerModal();
+						toggleTransactionModal();
+					}}
+					style={{
+						position: 'absolute',
+						top: statusHeight + SPACING.space_20,
+						right: SPACING.space_20,
+						zIndex: 999,
+						padding: 10,
+						backgroundColor: 'rgba(0,0,0,0.3)',
+						borderRadius: 20,
+					}}
+					hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+				>
+					<MaterialCommunityIcons
+						name="close"
+						size={24}
+						color="white"
+					/>
+				</TouchableOpacity>
+
 				<View
 					style={{
 						flex: 1,
+						justifyContent: 'center',
+						alignItems: 'center',
+						marginTop: SPACING.space_20,
 					}}
 				>
-					<View
+					<Image
+						source={require("@/assets/SplashLogo.png")}
 						style={{
-							flexDirection: "row",
-							justifyContent: "flex-end",
+							width: wp("30%"),
+							height: 50,
+							resizeMode: "contain",
+							marginHorizontal: "auto",
+							marginBottom: SPACING.space_30,
+						}}
+					/>
+					<Pressable
+						onPress={() => {
+							toggleScannerModal();
+							toggleTransactionModal();
 						}}
 					>
-						<TouchableOpacity onPress={toggleScannerModal}>
-							<MaterialCommunityIcons
-								name="close"
-								size={24}
-								color="white"
-							/>
-						</TouchableOpacity>
-					</View>
-					<View
-						style={{
-							flex: 1,
-							alignItems: "center",
-							justifyContent: "center",
-						}}
-					>
-						<Image
-							source={require("@/assets/SplashLogo.png")}
-							style={{
-								width: wp("30%"),
-								height: 50,
-								resizeMode: "contain",
-								marginHorizontal: "auto",
-								marginBottom: SPACING.space_30,
-							}}
-						/>
-						<Pressable
-							onPress={() => {
-								toggleScannerModal();
-								toggleTransactionModal();
-							}}
-						>
-							<View
-								style={{
-									width: wp("70%"),
-									height: hp("35%"),
-								}}
-							>
-								<CameraView
-									style={StyleSheet.absoluteFillObject}
-									facing="back"
-									onBarcodeScanned={handleBarCodeScan}
-								/>
-								{/* <Image
-									source={require(`@/assets/scanner.png`)}
-									style={{
-										width: "100%",
-										height: "100%",
-										resizeMode: "cover",
-									}}
-								/> */}
-							</View>
-						</Pressable>
 						<View
 							style={{
-								paddingHorizontal: SPACING.space_20,
-								marginVertical: SPACING.space_30 + 20,
-								width: "100%",
+								width: wp("70%"),
+								height: hp("35%"),
 							}}
 						>
-							<CustomSlider
-								min={0}
-								max={100}
-								step={1}
-								onValueChange={handleValueChange}
+							<CameraView
+								style={StyleSheet.absoluteFillObject}
+								facing="back"
+								onBarcodeScanned={handleBarCodeScan}
 							/>
+							{/* <Image
+								source={require(`@/assets/scanner.png`)}
+								style={{
+									width: "100%",
+									height: "100%",
+									resizeMode: "cover",
+								}}
+							/> */}
 						</View>
-
-						<Text
-							style={{
-								color: Colors.white,
-								fontSize: FONTSIZE.size_20,
-								fontFamily: "PoppinsSemiBold",
-								textAlign: "center",
-							}}
-						>
-							Scan QR Code to
-						</Text>
-						<Text
-							style={{
-								color: Colors.white,
-								fontSize: FONTSIZE.size_20,
-								fontFamily: "PoppinsSemiBold",
-								textAlign: "center",
-							}}
-						>
-							transact
-						</Text>
+					</Pressable>
+					<View
+						style={{
+							paddingHorizontal: SPACING.space_20,
+							marginVertical: SPACING.space_30 + 20,
+							width: "100%",
+						}}
+					>
+						<CustomSlider
+							min={0}
+							max={100}
+							step={1}
+							onValueChange={handleValueChange}
+						/>
 					</View>
-					{/* </View> */}
+
+					<Text
+						style={{
+							color: Colors.white,
+							fontSize: FONTSIZE.size_20,
+							fontFamily: "PoppinsSemiBold",
+							textAlign: "center",
+						}}
+					>
+						Scan QR Code to
+					</Text>
+					<Text
+						style={{
+							color: Colors.white,
+							fontSize: FONTSIZE.size_20,
+							fontFamily: "PoppinsSemiBold",
+							textAlign: "center",
+						}}
+					>
+						transact
+					</Text>
 				</View>
 			</LinearGradient>
 		</BottomSheetModal>

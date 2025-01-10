@@ -40,6 +40,11 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 	const { isDarkMode, theme } = useContext(ThemeContext);
 	const pathname = usePathname();
 
+	// Example of currency formatting for Naira
+	const formatToNaira = (amount: number) => {
+		return `₦${amount.toLocaleString('en-NG')}`;
+	}
+
 	return (
 		<>
 			<BiometricsModal />
@@ -87,8 +92,9 @@ const TabBar = ({ state, descriptors, navigation }: BottomTabBarProps) => {
 
 				<TouchableOpacity
 					onPress={() => {
-						// toggleBiometrics();
-						toggleScannerModal();
+						//toggleBiometrics();
+						//toggleScannerModal();
+						navigation.navigate("scan/index");
 					}}
 				>
 					<View style={styles.scanButton}>
@@ -154,7 +160,7 @@ export default TabBar;
 const styles = StyleSheet.create({
 	container: {
 		// backgroundColor: Colors.white,
-		height: 98,
+		height: 63,
 		flexDirection: "row",
 		justifyContent: "space-between",
 		alignItems: "center",
