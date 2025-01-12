@@ -22,19 +22,16 @@ export default function QRCode() {
 
 	const handleBarCodeScanned = ({ type, data }: BarCodeScanningResult) => {
 		setScanned(true);
+		router.push({
+			pathname: '/(tabs)/scan/confirm',
+			params: {
+				scannedData: data,
+				amount: amount,
+				type: transactionType,
+			}
+		});
 		
-		if (transactionType === 'send') {
-			// Navigate to confirmation screen with scanned data and amount
-			router.push({
-				pathname: '/(tabs)/scan/confirm',
-				params: {
-					scannedData: data,
-					amount: amount,
-				}
-			});
-		} else {
-			alert(`Bar code with type ${type} and data ${data} has been scanned!`);
-		}
+		
 		console.log('Scanned Amount:', amount);
 		console.log('Transaction Type:', transactionType);
 		console.log('Scanned Data:', data);

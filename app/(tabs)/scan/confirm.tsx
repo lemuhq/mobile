@@ -4,7 +4,7 @@ import { Ionicons } from '@expo/vector-icons';
 
 
 export default function Confirm() {
-    const { amount, scannedData } = useLocalSearchParams();
+    const { amount, scannedData, type } = useLocalSearchParams();
     console.log("scannedData", scannedData);    
     const router = useRouter();
     const url = new URL(scannedData as string);
@@ -48,7 +48,8 @@ export default function Confirm() {
                         params: {
                             amount,
                             accountName,
-                            accountNumber
+                            accountNumber,
+                            type
                         }
                     })}
                 >

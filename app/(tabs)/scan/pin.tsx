@@ -1,13 +1,14 @@
 import { useState } from 'react';
 import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
-import { useTransferToLemuMutation } from '@/redux/services/transfer';
+import { useTransferToLemuMutation, useWithdrawFromLemuMutation } from '@/redux/services/transfer';
 
 const Pin = () => {
-    const { amount, accountName, accountNumber } = useLocalSearchParams();
+    const { amount, accountName, accountNumber, type } = useLocalSearchParams();
     const [pin, setPin] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
-    const [transferToLemu, {isLoading, isError, error, isSuccess}] = useTransferToLemuMutation();
+    const [transferToLemu, ] = useTransferToLemuMutation();
+    const [withdrawFromLemu] = useWithdrawFromLemuMutation();
     console.log("amount heere", amount, accountName, accountNumber);
 
 
@@ -21,17 +22,27 @@ const Pin = () => {
             // Check if this is the final digit
             if (newPin.length === 6) {
                 setIsProcessing(true);
-                const response = await transferToLemu({
-                    amount: Number(amount), 
-                    accountNumber: accountNumber as string, 
-                    accountName: accountName as string, 
-                    transactionPin: newPin
-                });
+                let response;
+                if(type === 'send'){    
+                    response = await transferToLemu({
+                        amount: Number(amount), 
+                        accountNumber: accountNumber as string, 
+                        accountName: accountName as string, 
+                        transactionPin: newPin
+                    });
+                } else {
+                    response = await withdrawFromLemu({
+                        amount: Number(amount), 
+                        accountNumber: accountNumber as string, 
+                        accountName: accountName as string, 
+                        transactionPin: newPin
+                    });
+                }
                 console.log("response", response);
                 if(response.error){
                     setIsProcessing(false);
                     Alert.alert("There was an error", response.error?.data?.message || "An error occurred");
-                }else{
+                } else {
                     setIsProcessing(false);
                     router.push('/(tabs)/scan/success');
                 }
@@ -46,8 +57,11 @@ const Pin = () => {
     return (
         <View style={styles.container}>
             {/* Header */}
-            <Text style={styles.title}>Enter your pin</Text>
-            <Text style={styles.subtitle}>Enter your six digit transaction pin</Text>
+            <Text style={styles.title}>Enter Transaction Pin</Text>
+            <Text style={styles.subtitle}>{
+                type === 'send' ? 'Enter your six digit transaction pin' : 'Let the user enter their six digit transaction pin to withdraw'
+                }
+                </Text>
 
             {/* PIN Indicator Dots */}
             <View style={styles.dotsContainer}>
@@ -113,6 +127,7 @@ const styles = StyleSheet.create({
         fontSize: 16,
         color: '#666',
         marginBottom: 40,
+        textAlign: 'center',
     },
     dotsContainer: {
         flexDirection: 'row',
