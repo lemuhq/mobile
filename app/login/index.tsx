@@ -35,8 +35,8 @@ export default function LoginScreen() {
 	const { showCustomToast } = useToast();
 	const KEYBOARD_VERTICAL_OFFSET = Platform.OS === "android" ? 10 : 60;
 
-	const [phoneNumber, onChangePhoneNumber] = useState("07015533911");
-	const [password, onChangePassword] = useState("Mayorgnn@088");
+	const [phoneNumber, onChangePhoneNumber] = useState("08146644586");
+	const [password, onChangePassword] = useState("Joshua@25");
 	const [loading, setIsLoading] = useState<boolean>(false);
 	const [loginUser, { isLoading }] = useLoginUserMutation();
 

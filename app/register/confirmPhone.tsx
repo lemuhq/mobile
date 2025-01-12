@@ -5,7 +5,7 @@ import {
 	Platform,
 	TouchableOpacity,
 } from "react-native";
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState, useRef } from "react";
 import { ThemeContext } from "@/provider/ThemeProvider";
 import { Colors } from "@/constants/Colors";
 import OtpInput from "@/components/inputs/OtpInput";
@@ -14,7 +14,7 @@ import Button from "@/components/Button";
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { StatusBar } from "expo-status-bar";
 import { FONTSIZE, SPACING } from "@/constants/Theme";
-import { useCountdownTimer } from "@/hooks/useCountdownTiner";
+
 import {
 	useResendOtpMutation,
 	useVerifyOtpMutation,
@@ -30,30 +30,68 @@ export default function ConfirmPhone() {
 
 	const { theme, isDarkMode } = useContext(ThemeContext);
 	const [otp, setOtp] = useState<string>("");
+	const [isInputFocused, setIsInputFocused] = useState(false);
 	const {
 		phoneNumber,
 		expiryTime,
 		otpId,
 	}: { phoneNumber: string; expiryTime: string; otpId: string } =
 		useLocalSearchParams();
-	const [timer, setTimer] = useState<string>("");
+
+		console.log("otpId", phoneNumber);
+	const [remainingTime, setRemainingTime] = useState<number>(0);
 	const [errorMessage, setErrorMessage] = useState<string>("");
+	const [isExpired, setIsExpired] = useState(false);
+
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
 	useEffect(() => {
 		if (expiryTime) {
-			setTimer(expiryTime);
+			const expiryTimestamp = Number(expiryTime);
+			if (!isNaN(expiryTimestamp)) {
+				setRemainingTime(expiryTimestamp - Date.now());
+			} else {
+				setErrorMessage("Invalid expiry time received.");
+			}
 		}
 	}, [expiryTime]);
 
-	const { minutes, seconds, isExpired } = useCountdownTimer({
-		expiryTime: expiryTime,
-		newTimer: timer,
-		onExpire: () => {},
-	});
+	useEffect(() => {
+		if (remainingTime > 0) {
+			intervalRef.current = setInterval(() => {
+				setRemainingTime((prev) => {
+					const newTime = prev - 1000;
+					if (newTime <= 0) {
+						clearInterval(intervalRef.current as NodeJS.Timeout);
+						setIsExpired(true);
+						return 0;
+					}
+					return newTime;
+				});
+			}, 1000);
+		} else {
+			setIsExpired(true);
+		}
+
+		return () => {
+			if (intervalRef.current) {
+				clearInterval(intervalRef.current);
+			}
+		};
+	}, [remainingTime]);
+
+	// Convert remainingTime from milliseconds to minutes and seconds
+	const minutes = Math.floor((remainingTime % (1000 * 60 * 60)) / (1000 * 60));
+	const seconds = Math.floor((remainingTime % (1000 * 60)) / 1000);
 
 	//Mutations
 	const [resendOtp, {}] = useResendOtpMutation();
 	const [verifyOtp, { isLoading }] = useVerifyOtpMutation();
+
+	const handleOtpChange = React.useCallback((text: string) => {
+		setOtp(text);
+		setErrorMessage("");
+	}, []);
 
 	const handleOtpResend = async () => {
 		if (!otpId) {
@@ -73,16 +111,22 @@ export default function ConfirmPhone() {
 				return;
 			}
 
-			setTimer(data?.expiryTime);
+			// Ensure expiryTime is a valid timestamp
+			const newExpiryTime = Number(data?.expiryTime);
+			if (!isNaN(newExpiryTime)) {
+				const newRemainingTime = newExpiryTime - Date.now();
+				setRemainingTime(newRemainingTime > 0 ? newRemainingTime : 0);
+				setIsExpired(newRemainingTime <= 0);
+			} else {
+				setErrorMessage("Invalid expiry time received.");
+			}
 		} catch (error) {
 			console.log("🚀 ~ handleOtpResend ~ error:", error);
 		}
 	};
 
 	const handleOtpVerify = async () => {
-		setTimer("");
-		if (!otp || !otpId) {
-			router.back();
+		if (!otp || !otpId || otp.length !== 4) {
 			return;
 		}
 
@@ -158,7 +202,12 @@ export default function ConfirmPhone() {
 								)}
 						</Text>
 						<View style={{ marginTop: 20, flex: 1 }}>
-							<OtpInput otpVal={otp} setOtpVal={setOtp} />
+							<OtpInput 
+								otpVal={otp} 
+								setOtpVal={handleOtpChange}
+								onFocus={() => setIsInputFocused(true)}
+								onBlur={() => setIsInputFocused(false)}
+							/>
 							{errorMessage && (
 								<Text
 									style={{
@@ -175,11 +224,9 @@ export default function ConfirmPhone() {
 
 						<Button
 							buttonText="Continue"
-							onPress={() => {
-								handleOtpVerify();
-							}}
+							onPress={handleOtpVerify}
 							isLoading={isLoading}
-							disabled={(otp.length < 4 ? true : false) || isLoading}
+							disabled={otp.length < 4 || isLoading}
 							variant="primary"
 						/>
 						<View style={{ marginTop: 10 }}>
@@ -203,7 +250,7 @@ export default function ConfirmPhone() {
 								>
 									Request new OTP in? (
 									<Text style={{ color: Colors.orange }}>
-										{minutes}:{seconds}
+										{`${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`}
 									</Text>
 									)
 								</Text>

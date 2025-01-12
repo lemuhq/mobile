@@ -4,8 +4,16 @@ import { Ionicons } from '@expo/vector-icons';
 
 
 export default function Confirm() {
-    const { amount, recipientAddress } = useLocalSearchParams();
+    const { amount, scannedData } = useLocalSearchParams();
+    console.log("scannedData", scannedData);    
     const router = useRouter();
+    const url = new URL(scannedData as string);
+    const accountNumber = url.searchParams.get('accountNumber');
+    const accountName = url.searchParams.get('accountName')?.replace(/\+/g, ' ');
+    console.log("accountNumber", accountNumber, accountName);
+   
+
+
     return (
         <View style={styles.container}>
             <View style={styles.modal}>
@@ -26,8 +34,8 @@ export default function Confirm() {
                         style={styles.logo}
                     />
                     <View>
-                        <Text style={{fontSize: 18, fontWeight: 'bold', color: 'white', marginBottom: 3}}>Uhembe Nelson</Text>
-                        <Text style={{fontSize: 15, fontWeight: 'bold', color: '#CDCED1'}}>1234567890</Text>
+                        <Text style={{fontSize: 18, fontWeight: 'bold', color: 'white', marginBottom: 3}}>{accountName}</Text>
+                        <Text style={{fontSize: 15, fontWeight: 'bold', color: '#CDCED1'}}>{accountNumber}</Text>
                     </View>
                 </View>
 
@@ -35,7 +43,14 @@ export default function Confirm() {
 
                 <Pressable 
                     style={styles.sendButton}
-                    onPress={() => router.navigate('/(tabs)/scan/pin')}
+                    onPress={() => router.navigate({
+                        pathname: '/(tabs)/scan/pin',
+                        params: {
+                            amount,
+                            accountName,
+                            accountNumber
+                        }
+                    })}
                 >
                     <Text style={styles.sendButtonText}>Send</Text>
                 </Pressable>

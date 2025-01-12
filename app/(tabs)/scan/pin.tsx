@@ -1,12 +1,17 @@
 import { useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator } from 'react-native';
-import { router } from 'expo-router';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { router, useLocalSearchParams } from 'expo-router';
+import { useTransferToLemuMutation } from '@/redux/services/transfer';
 
 const Pin = () => {
+    const { amount, accountName, accountNumber } = useLocalSearchParams();
     const [pin, setPin] = useState('');
     const [isProcessing, setIsProcessing] = useState(false);
+    const [transferToLemu, {isLoading, isError, error, isSuccess}] = useTransferToLemuMutation();
+    console.log("amount heere", amount, accountName, accountNumber);
 
-    const handleNumberPress = (num: string) => {
+
+    const handleNumberPress = async (num: string) => {
         if (isProcessing) return;
         
         if (pin.length < 6) {
@@ -16,13 +21,20 @@ const Pin = () => {
             // Check if this is the final digit
             if (newPin.length === 6) {
                 setIsProcessing(true);
-                // Simulate transaction processing
-                setTimeout(() => {
+                const response = await transferToLemu({
+                    amount: Number(amount), 
+                    accountNumber: accountNumber as string, 
+                    accountName: accountName as string, 
+                    transactionPin: newPin
+                });
+                console.log("response", response);
+                if(response.error){
                     setIsProcessing(false);
-                    //clear the pin
-                    setPin('');
+                    Alert.alert("There was an error", response.error?.data?.message || "An error occurred");
+                }else{
+                    setIsProcessing(false);
                     router.push('/(tabs)/scan/success');
-                }, 3000);
+                }
             }
         }
     };

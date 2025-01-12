@@ -58,6 +58,14 @@ export const transferApi = createApi({
 			}),
 		}),
 
+		transferToLemu: builder.mutation({
+			query: ({amount, accountNumber, accountName, transactionPin}: {amount: number, accountNumber: string, accountName: string, transactionPin: string}) => ({
+				url: "/transfer/transfer-to-lemu",
+				method: "POST",
+				body: {amount, accountNumber, accountName, transactionPin},
+			}),
+		}),
+
 		//Transaction history
 		getTransactionHistory: builder.query<
 			{ pagination: Pagination; transactions: Transaction[] },
@@ -76,4 +84,5 @@ export const {
 	useVerifyAccountNumberMutation,
 	useTransferToBankMutation,
 	useGetTransactionHistoryQuery,
+	useTransferToLemuMutation,
 } = transferApi;

@@ -28,7 +28,7 @@ export default function QRCode() {
 			router.push({
 				pathname: '/(tabs)/scan/confirm',
 				params: {
-					recipientAddress: data,
+					scannedData: data,
 					amount: amount,
 				}
 			});
